@@ -4,6 +4,17 @@ subtitle: "模块一 · 第1课"
 date: 2026-03-22
 ---
 
+## 一段跨越两千年的故事
+
+圆锥曲线的历史，本身就是一部数学思想演进史：
+
+| 年代 | 人物 | 贡献 |
+|------|------|------|
+| 约前350年 | **梅内赫莫斯**（Menaechmus） | 为了解决"倍立方"问题（用尺规构造 $\sqrt[3]{2}$），首次研究了圆锥截面 |
+| 约前200年 | **阿波罗尼乌斯**（Apollonius） | 写成八卷《圆锥曲线论》，系统命名了椭圆(ellipse)、抛物线(parabola)、双曲线(hyperbola) |
+| 1609年 | **开普勒**（Kepler） | 发现行星轨道是椭圆形的——太阳位于一个焦点（开普勒第一定律） |
+| 1822年 | **丹德兰**（Dandelin） | 用锥内切球（Dandelin球）给出了"为什么截面是椭圆"的优美几何证明 |
+
 开普勒在1609年发现行星轨道是椭圆形的。但早在两千年前，古希腊数学家阿波罗尼乌斯就已经知道：只需要一个圆锥和一把刀，就能切出四种美丽的曲线。我们今天就来"看见"这个过程。
 
 ## 探索问题
@@ -20,7 +31,589 @@ date: 2026-03-22
 
 我们用一个动画来展示这个过程。拖动滑块改变切面角度，观察截面曲线如何从圆变为椭圆、抛物线、双曲线。
 
-### 动画1：切面角度与曲线类型
+### 3D交互：用平面切双圆锥
+
+用鼠标拖动旋转视角，滚轮缩放。拖动下方滑块改变切面倾斜角度，观察截面曲线（亮黄色高亮）如何变化。
+
+```{=html}
+<div class="three-container" id="three_cone_slice">
+  <div class="three-info" id="three_cone_slice_info">圆</div>
+</div>
+<div class="d3-controls">
+  <label>切面角度：</label>
+  <input type="range" id="three_cone_slice_angle" min="0" max="100" value="15" step="1">
+  <span class="value-display" id="three_cone_slice_label">圆</span>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+(function() {
+  const container = document.getElementById('three_cone_slice');
+  const infoEl = document.getElementById('three_cone_slice_info');
+  const slider = document.getElementById('three_cone_slice_angle');
+  const labelEl = document.getElementById('three_cone_slice_label');
+
+  // --- Renderer ---
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  renderer.setClearColor(0x1a1a2e);
+  container.appendChild(renderer.domElement);
+
+  // --- Scene & Camera ---
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 100);
+  camera.position.set(4, 3, 5);
+  camera.lookAt(0, 0, 0);
+
+  // --- OrbitControls ---
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+
+  // --- Lights ---
+  scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+  const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+  dirLight.position.set(5, 8, 5);
+  scene.add(dirLight);
+
+  // --- Double cone (hourglass) ---
+  const coneHalfAngle = Math.PI / 6; // 30 degrees
+  const coneHeight = 3.0;
+  const coneRadius = coneHeight * Math.tan(coneHalfAngle);
+  const coneSegs = 64;
+
+  // Upper cone (apex at origin, opens upward)
+  const upperGeo = new THREE.ConeGeometry(coneRadius, coneHeight, coneSegs, 1, true);
+  upperGeo.translate(0, coneHeight / 2, 0);
+  // Lower cone (apex at origin, opens downward)
+  const lowerGeo = new THREE.ConeGeometry(coneRadius, coneHeight, coneSegs, 1, true);
+  lowerGeo.rotateX(Math.PI);
+  lowerGeo.translate(0, -coneHeight / 2, 0);
+
+  const coneMat = new THREE.MeshPhongMaterial({
+    color: 0xc8a87c,
+    transparent: true,
+    opacity: 0.3,
+    side: THREE.DoubleSide,
+    depthWrite: false
+  });
+  const upperCone = new THREE.Mesh(upperGeo, coneMat);
+  const lowerCone = new THREE.Mesh(lowerGeo, coneMat);
+  scene.add(upperCone);
+  scene.add(lowerCone);
+
+  // Wireframe overlay
+  const wireMat = new THREE.MeshBasicMaterial({ color: 0x8b7355, wireframe: true, transparent: true, opacity: 0.15 });
+  scene.add(new THREE.Mesh(upperGeo.clone(), wireMat));
+  scene.add(new THREE.Mesh(lowerGeo.clone(), wireMat));
+
+  // Cone axis line
+  const axisGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, -coneHeight - 0.3, 0), new THREE.Vector3(0, coneHeight + 0.3, 0)]);
+  scene.add(new THREE.Line(axisGeo, new THREE.LineBasicMaterial({ color: 0x555555, transparent: true, opacity: 0.5 })));
+
+  // --- Slicing plane ---
+  const planeSize = 4.5;
+  const planeGeo = new THREE.PlaneGeometry(planeSize, planeSize);
+  const planeMat = new THREE.MeshPhongMaterial({
+    color: 0x4488ff,
+    transparent: true,
+    opacity: 0.25,
+    side: THREE.DoubleSide,
+    depthWrite: false
+  });
+  const planeMesh = new THREE.Mesh(planeGeo, planeMat);
+  scene.add(planeMesh);
+
+  // --- Intersection curve ---
+  const curvePoints = [];
+  for (let i = 0; i < 401; i++) curvePoints.push(new THREE.Vector3(0, 0, 0));
+  const curveGeo = new THREE.BufferGeometry().setFromPoints(curvePoints);
+  const curveMat = new THREE.LineBasicMaterial({ color: 0x44ff44, linewidth: 2 });
+  const curveLine = new THREE.Line(curveGeo, curveMat);
+  scene.add(curveLine);
+
+  // Glow tube for curve
+  const tubeCurveGroup = new THREE.Group();
+  scene.add(tubeCurveGroup);
+
+  // --- Compute intersection ---
+  // Cone: x^2 + z^2 = (y * tan(alpha))^2  (double cone, y can be + or -)
+  // Plane: rotated around z-axis by angle theta, with offset
+  // We'll parameterize: plane normal = (sin(theta), cos(theta), 0), plane passes through (0, d, 0)
+  // Equation: x*sin(theta) + y*cos(theta) = d
+
+  function computeIntersection(theta, planeD) {
+    // theta: angle of plane normal from vertical (0 = horizontal plane, pi/2 = vertical)
+    // For each angle phi around the cone, find y where cone meets plane
+    const tanA = Math.tan(coneHalfAngle);
+    const sinT = Math.sin(theta);
+    const cosT = Math.cos(theta);
+    const points = [];
+    const N = 400;
+
+    for (let i = 0; i < N; i++) {
+      const phi = (i / N) * 2 * Math.PI;
+      const cosPhi = Math.cos(phi);
+      const sinPhi = Math.sin(phi);
+
+      // On cone surface: x = r*cos(phi), z = r*sin(phi), r = |y|*tan(alpha)
+      // So x = y*tan(alpha)*cos(phi) for upper cone (y>0), x = -y*tan(alpha)*cos(phi) for lower (y<0)
+      // Plane: x*sin(theta) + y*cos(theta) = d
+      // Substitute: y*tanA*cosPhi*sinT + y*cosT = d  (for y>0)
+      //            -y*tanA*cosPhi*sinT + y*cosT = d  (for y<0, with y = -|y|)
+      // Actually let's do both branches
+
+      // Upper cone (y >= 0): r = y * tanA
+      // x = r*cosPhi = y*tanA*cosPhi
+      // Plane: y*tanA*cosPhi*sinT + y*cosT = d
+      // y*(tanA*cosPhi*sinT + cosT) = d
+      const denomUpper = tanA * cosPhi * sinT + cosT;
+      if (Math.abs(denomUpper) > 1e-8) {
+        const yU = planeD / denomUpper;
+        if (yU >= 0 && yU <= coneHeight) {
+          const rU = yU * tanA;
+          points.push(new THREE.Vector3(rU * cosPhi, yU, rU * sinPhi));
+          continue;
+        }
+      }
+
+      // Lower cone (y <= 0): r = -y * tanA (since y<0)
+      // x = r*cosPhi = -y*tanA*cosPhi
+      // Plane: -y*tanA*cosPhi*sinT + y*cosT = d
+      // y*(-tanA*cosPhi*sinT + cosT) = d
+      const denomLower = -tanA * cosPhi * sinT + cosT;
+      if (Math.abs(denomLower) > 1e-8) {
+        const yL = planeD / denomLower;
+        if (yL <= 0 && yL >= -coneHeight) {
+          const rL = -yL * tanA;
+          points.push(new THREE.Vector3(rL * cosPhi, yL, rL * sinPhi));
+          continue;
+        }
+      }
+
+      // No intersection for this phi
+      points.push(null);
+    }
+
+    return points;
+  }
+
+  function updateScene(val) {
+    // val 0-100 maps to plane tilt
+    // 0-15: circle (theta near 0)
+    // 16-55: ellipse
+    // 56-65: parabola (theta = coneHalfAngle)
+    // 66-100: hyperbola (theta > coneHalfAngle)
+
+    let theta, typeName, planeD;
+    const alpha = coneHalfAngle; // ~0.5236
+
+    if (val <= 15) {
+      theta = (val / 15) * alpha * 0.3;
+      typeName = '圆';
+      planeD = 1.5;
+    } else if (val <= 55) {
+      const t = (val - 16) / 39;
+      theta = alpha * (0.3 + t * 0.65);
+      typeName = '椭圆';
+      planeD = 1.5;
+    } else if (val <= 65) {
+      const t = (val - 56) / 9;
+      theta = alpha * (0.95 + t * 0.05);
+      typeName = '抛物线';
+      planeD = 1.2;
+    } else {
+      const t = (val - 66) / 34;
+      theta = alpha * (1.05 + t * 0.6);
+      typeName = '双曲线';
+      planeD = 0.8 - t * 0.3;
+    }
+
+    // Update plane orientation
+    planeMesh.rotation.set(0, 0, 0);
+    planeMesh.position.set(0, 0, 0);
+    // The default PlaneGeometry faces +Z. We want it to represent the equation:
+    // x*sin(theta) + y*cos(theta) = d
+    // Normal = (sin(theta), cos(theta), 0)
+    // Default normal is (0,0,1), so rotate around X by -pi/2, then around Z by (pi/2 - theta)
+    // Simpler: set normal directly
+    const normal = new THREE.Vector3(Math.sin(theta), Math.cos(theta), 0);
+    const quat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
+    planeMesh.quaternion.copy(quat);
+    planeMesh.position.copy(normal.clone().multiplyScalar(planeD));
+
+    // Compute intersection
+    const pts = computeIntersection(theta, planeD);
+    const validPts = pts.filter(p => p !== null);
+
+    // Update curve geometry
+    const pos = curveGeo.attributes.position;
+    for (let i = 0; i < 400; i++) {
+      if (i < validPts.length) {
+        pos.setXYZ(i, validPts[i].x, validPts[i].y, validPts[i].z);
+      } else if (validPts.length > 0) {
+        const last = validPts[validPts.length - 1];
+        pos.setXYZ(i, last.x, last.y, last.z);
+      }
+    }
+    // Close the loop if it's a closed curve
+    if (validPts.length > 2) {
+      pos.setXYZ(400, validPts[0].x, validPts[0].y, validPts[0].z);
+    }
+    pos.needsUpdate = true;
+    curveGeo.setDrawRange(0, Math.min(validPts.length + 1, 401));
+
+    // Glow tube
+    tubeCurveGroup.clear();
+    if (validPts.length > 3) {
+      try {
+        // For hyperbola, split into branches
+        if (typeName === '双曲线') {
+          const branches = splitBranches(validPts);
+          branches.forEach(branch => {
+            if (branch.length > 3) {
+              const curve3 = new THREE.CatmullRomCurve3(branch, false);
+              const tubeGeo = new THREE.TubeGeometry(curve3, 80, 0.03, 8, false);
+              const tubeMat = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+              tubeCurveGroup.add(new THREE.Mesh(tubeGeo, tubeMat));
+            }
+          });
+        } else {
+          const curve3 = new THREE.CatmullRomCurve3(validPts, true);
+          const tubeGeo = new THREE.TubeGeometry(curve3, 120, 0.03, 8, true);
+          const tubeMat = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+          tubeCurveGroup.add(new THREE.Mesh(tubeGeo, tubeMat));
+        }
+      } catch(e) { /* skip if tube fails */ }
+    }
+
+    infoEl.textContent = typeName;
+    labelEl.textContent = typeName;
+  }
+
+  function splitBranches(pts) {
+    // Split points into branches based on large gaps
+    const branches = [[]];
+    for (let i = 0; i < pts.length; i++) {
+      if (i > 0) {
+        const d = pts[i].distanceTo(pts[i-1]);
+        if (d > 0.5) {
+          branches.push([]);
+        }
+      }
+      branches[branches.length - 1].push(pts[i]);
+    }
+    return branches.filter(b => b.length > 2);
+  }
+
+  slider.addEventListener('input', () => updateScene(+slider.value));
+  updateScene(+slider.value);
+
+  // --- Animation loop ---
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // --- Resize ---
+  const ro = new ResizeObserver(() => {
+    const w = container.clientWidth, h = container.clientHeight;
+    if (w === 0 || h === 0) return;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+  });
+  ro.observe(container);
+})();
+</script>
+```
+
+拖动滑块，观察：
+
+- **水平切** → 圆
+- **倾斜切**（比锥面缓）→ 椭圆
+- **平行于锥面切** → 抛物线
+- **比锥面更陡** → 双曲线
+
+这四种曲线，统称为**圆锥曲线**。
+
+### Dandelin球：为什么截面是椭圆
+
+1822年，比利时数学家丹德兰（Dandelin）给出了一个极其优美的证明：在圆锥内部放入两个与截面相切的球（Dandelin球），球与截面的切点恰好就是椭圆的两个焦点！
+
+下面的3D场景展示了这个构造。点P沿椭圆移动时，$|PF_1| + |PF_2|$ 始终保持不变——这正是椭圆的定义。
+
+```{=html}
+<div class="three-container" id="three_dandelin">
+  <div class="three-info" id="three_dandelin_info">拖动下方滑块移动点P</div>
+</div>
+<div class="d3-controls">
+  <label>点P位置：</label>
+  <input type="range" id="dandelin_p_slider" min="0" max="360" value="0" step="1">
+  <span class="value-display" id="dandelin_readout">|PF₁|=? |PF₂|=? 和=?</span>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+(function() {
+  const container = document.getElementById('three_dandelin');
+  const infoEl = document.getElementById('three_dandelin_info');
+  const slider = document.getElementById('dandelin_p_slider');
+  const readoutEl = document.getElementById('dandelin_readout');
+
+  // --- Renderer ---
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  renderer.setClearColor(0x1a1a2e);
+  container.appendChild(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 100);
+  camera.position.set(5, 3, 5);
+  camera.lookAt(0, 1.5, 0);
+
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.target.set(0, 1.5, 0);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+  const dl = new THREE.DirectionalLight(0xffffff, 0.7);
+  dl.position.set(5, 8, 5);
+  scene.add(dl);
+
+  // --- Cone ---
+  const alpha = Math.PI / 6; // half-angle 30 deg
+  const coneH = 5;
+  const coneR = coneH * Math.tan(alpha);
+  const coneGeo = new THREE.ConeGeometry(coneR, coneH, 64, 1, true);
+  coneGeo.translate(0, coneH / 2, 0);
+  const coneMat = new THREE.MeshPhongMaterial({
+    color: 0xc8a87c, transparent: true, opacity: 0.2, side: THREE.DoubleSide, depthWrite: false
+  });
+  scene.add(new THREE.Mesh(coneGeo, coneMat));
+  scene.add(new THREE.Mesh(coneGeo.clone(), new THREE.MeshBasicMaterial({
+    color: 0x8b7355, wireframe: true, transparent: true, opacity: 0.1
+  })));
+
+  // --- Slicing plane for ellipse ---
+  // Plane tilt: choose theta so we get a nice ellipse
+  const theta = alpha * 0.6; // tilt angle of plane normal from y-axis
+  const planeD = 2.0; // plane offset
+  const tanA = Math.tan(alpha);
+  const sinT = Math.sin(theta);
+  const cosT = Math.cos(theta);
+
+  const planeGeo = new THREE.PlaneGeometry(5, 5);
+  const planeMat = new THREE.MeshPhongMaterial({
+    color: 0x4488ff, transparent: true, opacity: 0.2, side: THREE.DoubleSide, depthWrite: false
+  });
+  const planeMesh = new THREE.Mesh(planeGeo, planeMat);
+  const pNormal = new THREE.Vector3(sinT, cosT, 0);
+  const quat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), pNormal);
+  planeMesh.quaternion.copy(quat);
+  planeMesh.position.copy(pNormal.clone().multiplyScalar(planeD));
+  scene.add(planeMesh);
+
+  // --- Compute ellipse on cone-plane intersection ---
+  function getEllipsePoint(phi) {
+    const cosPhi = Math.cos(phi);
+    const sinPhi = Math.sin(phi);
+    const denom = tanA * cosPhi * sinT + cosT;
+    if (Math.abs(denom) < 1e-8) return null;
+    const y = planeD / denom;
+    if (y < 0 || y > coneH) return null;
+    const r = y * tanA;
+    return new THREE.Vector3(r * cosPhi, y, r * sinPhi);
+  }
+
+  const ellipsePoints = [];
+  const N = 360;
+  for (let i = 0; i < N; i++) {
+    const phi = (i / N) * 2 * Math.PI;
+    const p = getEllipsePoint(phi);
+    if (p) ellipsePoints.push({ phi, pt: p });
+  }
+
+  // Draw ellipse curve with tube
+  if (ellipsePoints.length > 3) {
+    const pts3 = ellipsePoints.map(e => e.pt);
+    const curve3 = new THREE.CatmullRomCurve3(pts3, true);
+    const tubeGeo = new THREE.TubeGeometry(curve3, 120, 0.025, 8, true);
+    scene.add(new THREE.Mesh(tubeGeo, new THREE.MeshBasicMaterial({ color: 0x44ff44 })));
+  }
+
+  // --- Dandelin spheres ---
+  // The two Dandelin spheres are tangent to the cone and to the cutting plane.
+  // For a cone with apex at origin, half-angle alpha, plane: x*sinT + y*cosT = d
+  // The sphere center lies on the y-axis (by symmetry for this setup).
+  // Sphere tangent to cone: center at (0, yc, 0), radius = yc * sin(alpha) (inscribed in cone)
+  // Sphere tangent to plane: distance from center to plane = radius
+  // Distance from (0, yc, 0) to plane x*sinT + y*cosT = d  is  |yc*cosT - d|
+  // So |yc*cosT - d| = yc*sin(alpha)
+  // Case 1 (upper sphere): yc*cosT - d = -yc*sin(alpha)  →  yc*(cosT + sinA) = d  →  yc = d/(cosT + sinA)
+  // Case 2 (lower sphere): yc*cosT - d = yc*sin(alpha)   →  yc*(cosT - sinA) = d  →  yc = d/(cosT - sinA)
+
+  const sinA = Math.sin(alpha);
+  const yc1 = planeD / (cosT + sinA); // smaller sphere (closer to apex)
+  const yc2 = planeD / (cosT - sinA); // larger sphere (farther from apex)
+  const r1 = yc1 * sinA;
+  const r2 = yc2 * sinA;
+
+  // Sphere 1 (upper/smaller)
+  const sphere1Geo = new THREE.SphereGeometry(r1, 32, 32);
+  const sphereMat1 = new THREE.MeshPhongMaterial({ color: 0xff6644, transparent: true, opacity: 0.5 });
+  const sphere1 = new THREE.Mesh(sphere1Geo, sphereMat1);
+  sphere1.position.set(0, yc1, 0);
+  scene.add(sphere1);
+
+  // Sphere 2 (lower/larger)
+  const sphere2Geo = new THREE.SphereGeometry(r2, 32, 32);
+  const sphereMat2 = new THREE.MeshPhongMaterial({ color: 0xff6644, transparent: true, opacity: 0.5 });
+  const sphere2 = new THREE.Mesh(sphere2Geo, sphereMat2);
+  sphere2.position.set(0, yc2, 0);
+  scene.add(sphere2);
+
+  // --- Foci: where spheres touch the plane ---
+  // The tangent point is where the line from the sphere center perpendicular to the plane hits the plane.
+  // F = center + radius * (-normal_toward_plane)
+  // For sphere1: distance = d - yc1*cosT (positive means plane is on the +normal side)
+  // Actually: signed distance = (0*sinT + yc1*cosT - d) = yc1*cosT - d
+  // For sphere1: yc1*cosT - d = yc1*(cosT) - d. Since yc1 = d/(cosT+sinA), this = d*cosT/(cosT+sinA) - d = d*(cosT - cosT - sinA)/(cosT+sinA) = -d*sinA/(cosT+sinA)
+  // So the focus is: center + (signed_dist)*normal  => but we go from center toward plane
+  // F1 = (0, yc1, 0) - (signed_dist) * normal_hat  ... let me just compute directly
+  // F = center - signed_distance * normal
+  const sd1 = yc1 * cosT - planeD; // negative
+  const f1 = new THREE.Vector3(0, yc1, 0).add(pNormal.clone().multiplyScalar(-sd1));
+  // Wait, F = center - sd * normal => center is (0,yc1,0), normal is (sinT, cosT, 0)
+  // Actually: the closest point on the plane from center is: center - sd * normal
+  const f1Pos = new THREE.Vector3(-sd1 * sinT, yc1 - sd1 * cosT, 0);
+
+  const sd2 = yc2 * cosT - planeD;
+  const f2Pos = new THREE.Vector3(-sd2 * sinT, yc2 - sd2 * cosT, 0);
+
+  // Focus dots
+  const focusMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+  const focusGeo = new THREE.SphereGeometry(0.07, 16, 16);
+  const f1Mesh = new THREE.Mesh(focusGeo, focusMat);
+  f1Mesh.position.copy(f1Pos);
+  scene.add(f1Mesh);
+  const f2Mesh = new THREE.Mesh(focusGeo, focusMat);
+  f2Mesh.position.copy(f2Pos);
+  scene.add(f2Mesh);
+
+  // Focus labels
+  function makeLabel(text, position) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 128; canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ff4444';
+    ctx.font = 'bold 40px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(text, 64, 45);
+    const tex = new THREE.CanvasTexture(canvas);
+    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true });
+    const sprite = new THREE.Sprite(mat);
+    sprite.position.copy(position).add(new THREE.Vector3(0, 0.2, 0));
+    sprite.scale.set(0.5, 0.25, 1);
+    return sprite;
+  }
+  scene.add(makeLabel('F₁', f1Pos));
+  scene.add(makeLabel('F₂', f2Pos));
+
+  // --- Movable point P ---
+  const pMat = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+  const pGeo = new THREE.SphereGeometry(0.06, 16, 16);
+  const pMesh = new THREE.Mesh(pGeo, pMat);
+  scene.add(pMesh);
+
+  // Lines from P to F1 and F2
+  const lineMat1 = new THREE.LineBasicMaterial({ color: 0xff8888 });
+  const lineGeo1 = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+  const line1 = new THREE.Line(lineGeo1, lineMat1);
+  scene.add(line1);
+
+  const lineMat2 = new THREE.LineBasicMaterial({ color: 0x88ff88 });
+  const lineGeo2 = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+  const line2 = new THREE.Line(lineGeo2, lineMat2);
+  scene.add(line2);
+
+  function updateP(deg) {
+    const phi = deg * Math.PI / 180;
+    const p = getEllipsePoint(phi);
+    if (!p) return;
+
+    pMesh.position.copy(p);
+
+    // Update lines
+    const pos1 = line1.geometry.attributes.position;
+    pos1.setXYZ(0, p.x, p.y, p.z);
+    pos1.setXYZ(1, f1Pos.x, f1Pos.y, f1Pos.z);
+    pos1.needsUpdate = true;
+
+    const pos2 = line2.geometry.attributes.position;
+    pos2.setXYZ(0, p.x, p.y, p.z);
+    pos2.setXYZ(1, f2Pos.x, f2Pos.y, f2Pos.z);
+    pos2.needsUpdate = true;
+
+    const d1 = p.distanceTo(f1Pos);
+    const d2 = p.distanceTo(f2Pos);
+    readoutEl.textContent = `|PF₁|=${d1.toFixed(2)}  |PF₂|=${d2.toFixed(2)}  和=${(d1 + d2).toFixed(2)}`;
+  }
+
+  slider.addEventListener('input', () => updateP(+slider.value));
+  updateP(0);
+
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  const ro = new ResizeObserver(() => {
+    const w = container.clientWidth, h = container.clientHeight;
+    if (w === 0 || h === 0) return;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+  });
+  ro.observe(container);
+})();
+</script>
+```
+
+拖动滑块让点P沿椭圆运动，观察右边的数据：无论P在椭圆上的什么位置，$|PF_1| + |PF_2|$ 始终相等！这就是椭圆的焦点距离和恒定性质——而Dandelin球的构造直接证明了这一点。
+
+::: {.callout-note}
+## Dandelin证明的核心思想
+
+设点P在椭圆上，从P沿锥面作母线到达上方切圆 $c_1$ 的交点为 $T_1$，下方切圆 $c_2$ 的交点为 $T_2$。
+
+- $|PF_1| = |PT_1|$（从外点到球的两条切线段相等）
+- $|PF_2| = |PT_2|$（同理）
+- 所以 $|PF_1| + |PF_2| = |PT_1| + |PT_2|$ = 两切圆之间沿母线的距离（常数！）
+
+这就完美解释了为什么截面曲线满足椭圆的定义。
+:::
+
+### 3Blue1Brown视频讲解
+
+3Blue1Brown的Grant Sanderson制作了一期精彩的Dandelin球可视化讲解，强烈推荐观看：
+
+```{=html}
+<div class="video-container">
+  <iframe src="https://www.youtube.com/embed/pQa_tWZmlGs" title="3Blue1Brown: Why slicing a cone gives an ellipse" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%;height:100%;position:absolute;top:0;left:0;"></iframe>
+</div>
+```
+
+### 动画1：切面角度与曲线类型（2D示意）
 
 ```{=html}
 <div class="d3-container" id="m1_cone_slice"></div>
@@ -82,18 +675,11 @@ date: 2026-03-22
   }
 
   function update(val) {
-    // val 0-100 maps to different cut angles
-    // 0-15: circle (perpendicular to axis)
-    // 16-55: ellipse
-    // 56-65: parabola (parallel to slant)
-    // 66-100: hyperbola (steeper than slant)
-
     let cutCenterY = 250;
     let cutAngleDeg, typeName, typeDesc;
     let leftX, leftY, rightX, rightY;
 
     if (val <= 15) {
-      // Circle: horizontal cut
       typeName = "圆";
       typeDesc = "切面与轴垂直";
       cutAngleDeg = 0;
@@ -101,7 +687,6 @@ date: 2026-03-22
       leftX = coneApex.x - hw; rightX = coneApex.x + hw;
       leftY = cutCenterY; rightY = cutCenterY;
     } else if (val <= 55) {
-      // Ellipse: tilted but less steep than slant
       const t = (val - 16) / 39;
       typeName = "椭圆";
       typeDesc = "切面比锥面缓";
@@ -111,16 +696,13 @@ date: 2026-03-22
       leftX = coneApex.x - getConeXAtY(leftY);
       rightX = coneApex.x + getConeXAtY(rightY);
     } else if (val <= 65) {
-      // Parabola: parallel to slant
       typeName = "抛物线";
       typeDesc = "切面与锥面平行";
       const slopeY = coneBaseY - coneApex.y;
       const slopeX = coneHalfWidth;
-      // Line parallel to right slant edge, shifted left
       leftX = coneApex.x - 120; leftY = 380;
       rightX = coneApex.x + 20; rightY = 100;
     } else {
-      // Hyperbola: steeper than slant
       const t = (val - 66) / 34;
       typeName = "双曲线";
       typeDesc = "切面比锥面陡";
@@ -136,7 +718,6 @@ date: 2026-03-22
 
     document.getElementById("m1_cone_slice_label").textContent = typeName;
 
-    // Draw a small curve icon at the right side
     const iconCx = 600, iconCy = 180, iconR = 60;
     if (val <= 15) {
       curveHighlight.attr("d", describeArc(iconCx, iconCy, iconR, 0, 359.99));
@@ -192,7 +773,7 @@ date: 2026-03-22
 </script>
 ```
 
-慢慢拖动滑块，观察切面从水平（圆）到倾斜（椭圆）到平行于锥面（抛物线）再到更陡（双曲线）的过程。这四种曲线，统称为**圆锥曲线**。
+慢慢拖动滑块，观察切面从水平（圆）到倾斜（椭圆）到平行于锥面（抛物线）再到更陡（双曲线）的过程。
 
 ### 动画2：三种曲线连续变形
 
@@ -231,9 +812,6 @@ date: 2026-03-22
   const scale = 120;
 
   function update(val) {
-    // val 0-40: circle to ellipse (e: 0 to 0.9)
-    // val 41-60: ellipse to parabola (e: 0.9 to 1.0) - conceptual
-    // val 61-100: hyperbola (e: 1.1 to 3.0)
     let e, label;
     if (val <= 40) {
       e = val / 40 * 0.9;
@@ -253,14 +831,12 @@ date: 2026-03-22
 
     let pts = [];
     if (e < 0.99) {
-      // Ellipse / circle
       const a = scale;
       const b = a * Math.sqrt(1 - e * e);
       const c = a * e;
       pts = d3.range(0, 2 * Math.PI + 0.05, 0.05).map(t => [
         cx + a * Math.cos(t), cy + b * Math.sin(t)
       ]);
-      // Foci
       focusGroup.append("circle").attr("cx", cx - c).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
       focusGroup.append("circle").attr("cx", cx + c).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
       focusGroup.append("text").attr("x", cx - c).attr("y", cy + 20).attr("text-anchor", "middle")
@@ -268,38 +844,30 @@ date: 2026-03-22
       focusGroup.append("text").attr("x", cx + c).attr("y", cy + 20).attr("text-anchor", "middle")
         .attr("font-size", "12px").attr("fill", "#c74440").text("F₂");
     } else if (e <= 1.05) {
-      // Parabola approximation
       const p = scale * 0.5;
       pts = d3.range(-2.5, 2.51, 0.05).map(t => [
         cx + p * t * t, cy + p * 2 * t
       ]);
-      // Focus
       focusGroup.append("circle").attr("cx", cx + p).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
       focusGroup.append("text").attr("x", cx + p).attr("y", cy + 20).attr("text-anchor", "middle")
         .attr("font-size", "12px").attr("fill", "#c74440").text("F");
     } else {
-      // Hyperbola
       const a = scale * 0.5;
       const b = a * Math.sqrt(e * e - 1);
       const c = a * e;
-      // Right branch
       const pts1 = d3.range(-2.0, 2.01, 0.05).map(t => [
         cx + a * Math.cosh(t), cy + b * Math.sinh(t)
       ]);
-      // Left branch
       const pts2 = d3.range(2.0, -2.01, -0.05).map(t => [
         cx - a * Math.cosh(t), cy + b * Math.sinh(t)
       ]);
       pts = pts1;
-      // Draw second branch separately
       svg.selectAll(".m1_branch2").remove();
       svg.append("path").attr("class", "m1_branch2")
         .attr("d", d3.line().curve(d3.curveBasis)(pts2))
         .attr("fill", "none").attr("stroke", "#2d70b3").attr("stroke-width", 3);
-      // Foci
       focusGroup.append("circle").attr("cx", cx - c).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
       focusGroup.append("circle").attr("cx", cx + c).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
-      // Asymptotes
       focusGroup.append("line").attr("x1", cx - w/2).attr("y1", cy - b/a * w/2)
         .attr("x2", cx + w/2).attr("y2", cy + b/a * w/2)
         .attr("stroke", "#999").attr("stroke-dasharray", "5,5").attr("stroke-width", 1);
@@ -339,7 +907,25 @@ date: 2026-03-22
 
 点击"自动播放"，观察曲线如何随着离心率 $e$ 的变化而连续变形：圆 → 椭圆 → 抛物线 → 双曲线。离心率是控制曲线"形状"的核心参数。
 
-## 生活中的曲线
+## 生活中的圆锥曲线
+
+圆锥曲线不只存在于教科书中，它们在自然界和工程中无处不在。
+
+### 卫星天线 — 抛物面反射器
+
+卫星电视接收天线（"锅盖"）是一个**旋转抛物面**。抛物线有一个关键的反射性质：平行于对称轴的光线经抛物面反射后，全部汇聚到焦点。因此天线把来自卫星的平行电磁波集中到焦点处的接收器上，实现微弱信号的放大。这也是汽车前灯的原理——只不过反过来，从焦点发出的光经反射变成平行光束。
+
+### 行星轨道 — 开普勒椭圆
+
+开普勒第一定律：每颗行星沿**椭圆**轨道运行，太阳位于椭圆的一个焦点。地球的轨道离心率约为 $e \approx 0.0167$（非常接近圆），而哈雷彗星的离心率高达 $e \approx 0.967$（极扁的椭圆）。逃逸轨道则是抛物线（$e=1$）或双曲线（$e>1$）。
+
+### 冷却塔 — 双曲面结构
+
+发电厂的冷却塔通常采用**双曲面**外形（双曲线绕轴旋转得到的曲面）。这并非巧合——双曲面是一种**直纹面**，可以用直的钢筋和模板搭建，施工方便；同时其"腰部收窄"的形状在结构力学上非常高效，用最少的材料承受风力和自重。
+
+### GPS定位 — 双曲线的距离差
+
+GPS定位的数学原理与双曲线密切相关。接收器测量来自不同卫星的信号时间差，每一对卫星确定一条双曲线（到两点距离差恒定的点的轨迹），多条双曲线的交点就是你的位置。
 
 ::: {.callout-note}
 ## 圆锥曲线无处不在
@@ -402,4 +988,6 @@ date: 2026-03-22
 2. 切面**垂直于轴** → 圆；**倾斜但比锥面缓** → 椭圆；**平行于锥面** → 抛物线；**比锥面更陡** → 双曲线
 3. **离心率** $e$ 是统一描述曲线类型的参数：$e=0$ 圆，$0<e<1$ 椭圆，$e=1$ 抛物线，$e>1$ 双曲线
 4. 这四种曲线在自然界和工程中无处不在
+5. **Dandelin球**证明了为什么截面满足椭圆的焦点定义：$|PF_1|+|PF_2|=\text{常数}$
+6. 圆锥曲线的研究跨越两千年：从梅内赫莫斯到阿波罗尼乌斯，从开普勒到丹德兰
 :::

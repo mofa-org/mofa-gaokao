@@ -95,6 +95,36 @@ body {
   background: #1a5490;
 }
 
+.three-container {
+  width: 100%;
+  height: 500px;
+  margin: 1.5em 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #1a1a2e;
+  position: relative;
+}
+
+.three-container canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.three-info {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: #ccc;
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  background: rgba(0,0,0,0.6);
+  padding: 6px 12px;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
 .key-formula {
   background: #f8f9fa;
   border-left: 4px solid #0d6efd;
