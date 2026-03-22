@@ -371,7 +371,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 ```{=html}
 <div class="three-container" id="three_dandelin">
-  <div class="three-info" id="three_dandelin_info">🟠 球 | 🔴 焦点(球与平面切点) | 🔵 切圆(球与锥面切线)</div>
+  <div class="three-info" id="three_dandelin_info">🟠球 🔴焦点F(球切平面) 🔵切圆c(球切锥面) 🟡P点 🟠母线T₁PT₂</div>
 </div>
 <div class="d3-controls">
   <label>点P位置：</label>
@@ -640,20 +640,66 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
   // --- Movable point P ---
   const pMat = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-  const pGeo = new THREE.SphereGeometry(0.06, 16, 16);
+  const pGeo = new THREE.SphereGeometry(0.08, 16, 16);
   const pMesh = new THREE.Mesh(pGeo, pMat);
+  pMesh.renderOrder = 2;
   scene.add(pMesh);
 
-  // Lines from P to F1 and F2
-  const lineMat1 = new THREE.LineBasicMaterial({ color: 0xff8888 });
+  // Lines from P to F1 and F2 (red/green — on the cutting plane)
+  const lineMat1 = new THREE.LineBasicMaterial({ color: 0xff4444 });
   const lineGeo1 = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
   const line1 = new THREE.Line(lineGeo1, lineMat1);
   scene.add(line1);
 
-  const lineMat2 = new THREE.LineBasicMaterial({ color: 0x88ff88 });
+  const lineMat2 = new THREE.LineBasicMaterial({ color: 0x44ff44 });
   const lineGeo2 = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
   const line2 = new THREE.Line(lineGeo2, lineMat2);
   scene.add(line2);
+
+  // --- Generator line (母线): from T₁ through P to T₂ ---
+  // The generator is the line from the apex (origin) through P, extended.
+  // T₁ = where generator meets tangent circle c₁ (at height yc1)
+  // T₂ = where generator meets tangent circle c₂ (at height yc2)
+  const generatorMat = new THREE.LineBasicMaterial({ color: 0xffaa00 });
+  const generatorGeo = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()
+  ]);
+  const generatorLine = new THREE.Line(generatorGeo, generatorMat);
+  scene.add(generatorLine);
+
+  // Make it a visible tube too
+  const genTubeGroup = new THREE.Group();
+  scene.add(genTubeGroup);
+
+  // T₁ and T₂ dots
+  const t1Mat = new THREE.MeshBasicMaterial({ color: 0x00ccff });
+  const t1Mesh = new THREE.Mesh(new THREE.SphereGeometry(0.07, 12, 12), t1Mat);
+  t1Mesh.renderOrder = 2;
+  scene.add(t1Mesh);
+  const t2Mesh = new THREE.Mesh(new THREE.SphereGeometry(0.07, 12, 12), t1Mat);
+  t2Mesh.renderOrder = 2;
+  scene.add(t2Mesh);
+
+  // Labels for T₁, T₂
+  function makeLabelColored(text, position, color) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 128; canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = color;
+    ctx.font = 'bold 36px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(text, 64, 45);
+    const tex = new THREE.CanvasTexture(canvas);
+    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true });
+    const sprite = new THREE.Sprite(mat);
+    sprite.position.copy(position).add(new THREE.Vector3(0, 0.2, 0));
+    sprite.scale.set(0.5, 0.25, 1);
+    return sprite;
+  }
+  const t1Label = makeLabelColored('T₁', new THREE.Vector3(), '#00ccff');
+  scene.add(t1Label);
+  const t2Label = makeLabelColored('T₂', new THREE.Vector3(), '#00ccff');
+  scene.add(t2Label);
 
   function updateP(deg) {
     const phi = deg * Math.PI / 180;
@@ -662,7 +708,41 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
     pMesh.position.copy(p);
 
-    // Update lines
+    // The generator line from apex(0,0,0) through P hits the cone at any height y.
+    // Direction from apex to P: normalize P (since apex is origin)
+    const dir = p.clone().normalize();
+
+    // T₁: where generator meets height yc1
+    // Along the ray from origin in direction dir, at height y: t = yc1 / dir.y
+    const t1Param = yc1 / dir.y;
+    const t1Pos = dir.clone().multiplyScalar(t1Param);
+
+    // T₂: where generator meets height yc2
+    const t2Param = yc2 / dir.y;
+    const t2Pos = dir.clone().multiplyScalar(t2Param);
+
+    // Update T₁, T₂ positions
+    t1Mesh.position.copy(t1Pos);
+    t2Mesh.position.copy(t2Pos);
+    t1Label.position.copy(t1Pos).add(new THREE.Vector3(0.15, 0.15, 0));
+    t2Label.position.copy(t2Pos).add(new THREE.Vector3(0.15, 0.15, 0));
+
+    // Update generator line (T₁ → P → T₂)
+    const gPos = generatorLine.geometry.attributes.position;
+    gPos.setXYZ(0, t1Pos.x, t1Pos.y, t1Pos.z);
+    gPos.setXYZ(1, p.x, p.y, p.z);
+    gPos.setXYZ(2, t2Pos.x, t2Pos.y, t2Pos.z);
+    gPos.needsUpdate = true;
+
+    // Tube for generator
+    genTubeGroup.clear();
+    try {
+      const genCurve = new THREE.LineCurve3(t1Pos, t2Pos);
+      const genTube = new THREE.TubeGeometry(genCurve, 1, 0.015, 8, false);
+      genTubeGroup.add(new THREE.Mesh(genTube, new THREE.MeshBasicMaterial({ color: 0xffaa00 })));
+    } catch(e) {}
+
+    // Update P→F lines
     const pos1 = line1.geometry.attributes.position;
     pos1.setXYZ(0, p.x, p.y, p.z);
     pos1.setXYZ(1, f1Pos.x, f1Pos.y, f1Pos.z);
@@ -673,9 +753,16 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     pos2.setXYZ(1, f2Pos.x, f2Pos.y, f2Pos.z);
     pos2.needsUpdate = true;
 
-    const d1 = p.distanceTo(f1Pos);
-    const d2 = p.distanceTo(f2Pos);
-    readoutEl.textContent = `|PF₁|=${d1.toFixed(2)}  |PF₂|=${d2.toFixed(2)}  和=${(d1 + d2).toFixed(2)}`;
+    // Compute distances
+    const dPF1 = p.distanceTo(f1Pos);
+    const dPF2 = p.distanceTo(f2Pos);
+    const dPT1 = p.distanceTo(t1Pos);
+    const dPT2 = p.distanceTo(t2Pos);
+
+    readoutEl.textContent =
+      `|PF₁|=${dPF1.toFixed(2)} = |PT₁|=${dPT1.toFixed(2)}  |  ` +
+      `|PF₂|=${dPF2.toFixed(2)} = |PT₂|=${dPT2.toFixed(2)}  |  ` +
+      `和=${(dPF1 + dPF2).toFixed(2)}`;
   }
 
   slider.addEventListener('input', () => updateP(+slider.value));
