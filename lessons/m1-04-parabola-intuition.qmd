@@ -1,0 +1,325 @@
+---
+title: "抛物线：反射的魔法"
+subtitle: "模块一 · 第4课"
+date: 2026-03-22
+---
+
+卫星天线为什么是抛物面？因为所有信号都会汇聚到焦点。这个看似简单的性质，背后是抛物线最美的几何秘密：曲线上任何一点到焦点的距离，恰好等于它到一条直线（准线）的距离。
+
+## 探索问题
+
+::: {.callout-tip}
+## 先想一想
+
+想象你站在一个空旷的场地上。场地的一侧有一面墙（一条直线），场地中央有一根柱子（一个点）。
+
+你想找到这样一个位置：你到墙的距离恰好等于你到柱子的距离。
+
+1. 这样的位置只有一个吗？还是有很多个？
+2. 所有这样的位置连起来，会形成什么形状？
+3. 如果柱子离墙更远，这个形状会怎么变？
+:::
+
+## 几何直觉：抛物线的定义
+
+### 动画1：焦点到准线的等距性质
+
+```{=html}
+<div class="d3-container" id="m1_para_equidist"></div>
+<div class="d3-controls">
+  <span class="value-display" id="m1_para_equidist_info">拖动抛物线上的蓝色点 P</span>
+</div>
+<script>
+(function() {
+  const W = 700, H = 450, margin = {top: 20, right: 20, bottom: 40, left: 60};
+  const w = W - margin.left - margin.right, h = H - margin.top - margin.bottom;
+
+  const svg = d3.select("#m1_para_equidist").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`)
+    .append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+  const p = 100; // focal parameter in pixels
+  const focusX = w / 2 + p / 2;
+  const focusY = h / 2;
+  const directrixX = w / 2 - p / 2;
+
+  // Coordinate axes
+  svg.append("line").attr("x1", 0).attr("y1", h / 2).attr("x2", w).attr("y2", h / 2)
+    .attr("stroke", "#ddd").attr("stroke-width", 1);
+
+  // Directrix
+  svg.append("line").attr("x1", directrixX).attr("y1", 0)
+    .attr("x2", directrixX).attr("y2", h)
+    .attr("stroke", "#9b59b6").attr("stroke-width", 2).attr("stroke-dasharray", "8,4");
+  svg.append("text").attr("x", directrixX - 10).attr("y", 20)
+    .attr("text-anchor", "end").attr("font-size", "14px").attr("fill", "#9b59b6")
+    .attr("font-weight", "bold").text("准线 l");
+
+  // Focus
+  svg.append("circle").attr("cx", focusX).attr("cy", focusY).attr("r", 6).attr("fill", "#c74440");
+  svg.append("text").attr("x", focusX + 12).attr("y", focusY + 5)
+    .attr("font-size", "14px").attr("fill", "#c74440").attr("font-weight", "bold").text("F");
+
+  // Parabola
+  const parabolaCenter = (focusX + directrixX) / 2;
+  const scale = p / 2;
+  const paraPts = d3.range(-2.8, 2.81, 0.04).map(t => {
+    const yOff = t * scale;
+    const xOff = t * t * scale / 2;
+    return [parabolaCenter + xOff, focusY + yOff];
+  });
+  svg.append("path").attr("d", d3.line().curve(d3.curveBasis)(paraPts))
+    .attr("fill", "none").attr("stroke", "#2d70b3").attr("stroke-width", 2.5);
+
+  // Lines
+  const lineToFocus = svg.append("line").attr("stroke", "#e67e22").attr("stroke-width", 2);
+  const lineToDirectrix = svg.append("line").attr("stroke", "#27ae60").attr("stroke-width", 2);
+  const perpDot = svg.append("circle").attr("r", 4).attr("fill", "#27ae60");
+
+  const distFLabel = svg.append("text").attr("font-size", "13px").attr("fill", "#e67e22").attr("font-weight", "bold");
+  const distDLabel = svg.append("text").attr("font-size", "13px").attr("fill", "#27ae60").attr("font-weight", "bold");
+
+  const equalDisplay = svg.append("text")
+    .attr("x", w - 10).attr("y", 30).attr("text-anchor", "end")
+    .attr("font-size", "18px").attr("font-weight", "bold").attr("fill", "#2d70b3");
+
+  const equalNote = svg.append("text")
+    .attr("x", w - 10).attr("y", 55).attr("text-anchor", "end")
+    .attr("font-size", "14px").attr("fill", "#888");
+
+  const pointP = svg.append("circle").attr("r", 10).attr("fill", "#2d70b3")
+    .attr("stroke", "white").attr("stroke-width", 2).attr("cursor", "pointer");
+  const pointLabel = svg.append("text").attr("font-size", "16px").attr("fill", "#2d70b3")
+    .attr("font-weight", "bold").text("P");
+
+  function updateP(px, py) {
+    // Snap to parabola: given py, find px
+    const yOff = py - focusY;
+    const t = yOff / scale;
+    const xOff = t * t * scale / 2;
+    const ex = parabolaCenter + xOff;
+    const ey = py;
+
+    // Clamp
+    const eyC = Math.max(30, Math.min(h - 30, ey));
+    const tC = (eyC - focusY) / scale;
+    const exC = parabolaCenter + tC * tC * scale / 2;
+
+    pointP.attr("cx", exC).attr("cy", eyC);
+    pointLabel.attr("x", exC + 15).attr("y", eyC - 10);
+
+    // Line to focus
+    lineToFocus.attr("x1", focusX).attr("y1", focusY).attr("x2", exC).attr("y2", eyC);
+
+    // Line to directrix (horizontal)
+    lineToDirectrix.attr("x1", exC).attr("y1", eyC).attr("x2", directrixX).attr("y2", eyC);
+    perpDot.attr("cx", directrixX).attr("cy", eyC);
+
+    const dF = Math.sqrt((exC - focusX) ** 2 + (eyC - focusY) ** 2);
+    const dD = exC - directrixX;
+
+    distFLabel.attr("x", (focusX + exC) / 2 + 10).attr("y", (focusY + eyC) / 2 - 8)
+      .text(`${(dF / 50).toFixed(2)}`);
+    distDLabel.attr("x", (exC + directrixX) / 2).attr("y", eyC - 10)
+      .text(`${(dD / 50).toFixed(2)}`);
+
+    equalDisplay.text(`|PF| = ${(dF / 50).toFixed(2)},  |Pl| = ${(dD / 50).toFixed(2)}`);
+    equalNote.text("始终相等！");
+
+    document.getElementById("m1_para_equidist_info").textContent =
+      `|PF| = ${(dF/50).toFixed(2)}, 到准线距离 = ${(dD/50).toFixed(2)}`;
+  }
+
+  pointP.call(d3.drag().on("drag", function(event) { updateP(event.x, event.y); }));
+  updateP(parabolaCenter + 0.5 * scale, focusY + scale);
+})();
+</script>
+```
+
+拖动蓝色点 P 在抛物线上移动。无论 P 在哪里，它到焦点 F 的距离和到准线 $l$ 的距离**始终相等**。这就是抛物线的定义：到定点和定直线等距的点的轨迹。
+
+### 动画2：光线反射——为什么卫星天线是抛物面
+
+```{=html}
+<div class="d3-container" id="m1_para_reflect"></div>
+<div class="d3-controls">
+  <button id="m1_reflect_fire">发射光线 ▶</button>
+  <button id="m1_reflect_reverse">反向：平行光 → 焦点</button>
+  <span class="value-display" id="m1_reflect_info">点击按钮观察光线反射</span>
+</div>
+<script>
+(function() {
+  const W = 700, H = 450, margin = {top: 20, right: 20, bottom: 40, left: 40};
+  const w = W - margin.left - margin.right, h = H - margin.top - margin.bottom;
+
+  const svg = d3.select("#m1_para_reflect").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`)
+    .append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+  const p = 120;
+  const focusX = w * 0.35;
+  const focusY = h / 2;
+  const vertexX = focusX - p / 2;
+  const scale = p / 2;
+
+  // Parabola
+  const paraPts = d3.range(-3.0, 3.01, 0.04).map(t => {
+    return [vertexX + t * t * scale / 2, focusY + t * scale];
+  });
+  svg.append("path").attr("d", d3.line().curve(d3.curveBasis)(paraPts))
+    .attr("fill", "none").attr("stroke", "#2d70b3").attr("stroke-width", 2.5);
+
+  // Axis
+  svg.append("line").attr("x1", 0).attr("y1", focusY).attr("x2", w).attr("y2", focusY)
+    .attr("stroke", "#ddd").attr("stroke-width", 1).attr("stroke-dasharray", "4,4");
+
+  // Focus
+  svg.append("circle").attr("cx", focusX).attr("cy", focusY).attr("r", 7)
+    .attr("fill", "#c74440").attr("stroke", "white").attr("stroke-width", 2);
+  svg.append("text").attr("x", focusX).attr("y", focusY - 15)
+    .attr("text-anchor", "middle").attr("font-size", "15px").attr("fill", "#c74440")
+    .attr("font-weight", "bold").text("F (焦点)");
+
+  const raysGroup = svg.append("g");
+
+  // Ray angles from focus
+  const rayAngles = [-50, -35, -20, -10, 0, 10, 20, 35, 50].map(d => d * Math.PI / 180);
+
+  function fireFromFocus() {
+    raysGroup.selectAll("*").remove();
+    document.getElementById("m1_reflect_info").textContent = "从焦点出发的光线 → 反射后变成平行光";
+
+    rayAngles.forEach((angle, i) => {
+      const t = Math.tan(angle) * 2;
+      const hitX = vertexX + t * t * scale / 2;
+      const hitY = focusY + t * scale;
+
+      // Ray from focus to parabola
+      const ray1 = raysGroup.append("line")
+        .attr("x1", focusX).attr("y1", focusY)
+        .attr("x2", focusX).attr("y2", focusY)
+        .attr("stroke", "#e67e22").attr("stroke-width", 2).attr("opacity", 0.8);
+
+      // Reflected ray (horizontal, going right)
+      const ray2 = raysGroup.append("line")
+        .attr("x1", hitX).attr("y1", hitY)
+        .attr("x2", hitX).attr("y2", hitY)
+        .attr("stroke", "#27ae60").attr("stroke-width", 2).attr("opacity", 0.8);
+
+      // Animate
+      ray1.transition().delay(i * 100).duration(400)
+        .attr("x2", hitX).attr("y2", hitY);
+
+      ray2.transition().delay(i * 100 + 400).duration(400)
+        .attr("x2", w).attr("y2", hitY);
+
+      // Hit dot
+      raysGroup.append("circle")
+        .attr("cx", hitX).attr("cy", hitY).attr("r", 0)
+        .attr("fill", "#2d70b3")
+        .transition().delay(i * 100 + 350).duration(200).attr("r", 4);
+    });
+  }
+
+  function fireFromParallel() {
+    raysGroup.selectAll("*").remove();
+    document.getElementById("m1_reflect_info").textContent = "平行光 → 反射后全部汇聚到焦点（卫星天线原理）";
+
+    const tValues = [-2.5, -1.8, -1.2, -0.6, 0, 0.6, 1.2, 1.8, 2.5];
+
+    tValues.forEach((t, i) => {
+      const hitX = vertexX + t * t * scale / 2;
+      const hitY = focusY + t * scale;
+
+      // Parallel ray from right
+      const ray1 = raysGroup.append("line")
+        .attr("x1", w).attr("y1", hitY)
+        .attr("x2", w).attr("y2", hitY)
+        .attr("stroke", "#27ae60").attr("stroke-width", 2).attr("opacity", 0.8);
+
+      // Reflected to focus
+      const ray2 = raysGroup.append("line")
+        .attr("x1", hitX).attr("y1", hitY)
+        .attr("x2", hitX).attr("y2", hitY)
+        .attr("stroke", "#e67e22").attr("stroke-width", 2).attr("opacity", 0.8);
+
+      ray1.transition().delay(i * 80).duration(400)
+        .attr("x2", hitX).attr("y2", hitY);
+
+      ray2.transition().delay(i * 80 + 400).duration(400)
+        .attr("x2", focusX).attr("y2", focusY);
+
+      raysGroup.append("circle")
+        .attr("cx", hitX).attr("cy", hitY).attr("r", 0)
+        .attr("fill", "#2d70b3")
+        .transition().delay(i * 80 + 350).duration(200).attr("r", 4);
+    });
+  }
+
+  document.getElementById("m1_reflect_fire").addEventListener("click", fireFromFocus);
+  document.getElementById("m1_reflect_reverse").addEventListener("click", fireFromParallel);
+})();
+</script>
+```
+
+点击"发射光线"：从焦点出发的光线碰到抛物面后，反射光全部变成平行光。点击"反向"：平行光碰到抛物面后，全部汇聚到焦点。这就是卫星天线、手电筒、汽车大灯的工作原理。
+
+## 生活中的曲线
+
+::: {.callout-note}
+## 抛物线在生活中
+
+- **卫星天线**：抛物面将遥远的平行信号汇聚到焦点处的接收器
+- **汽车大灯**：灯泡放在焦点，反射出平行光束，照得更远
+- **太阳灶**：抛物面将太阳光聚焦到一点，温度可达数百度
+- **拱桥**：悬索桥的主缆在均匀载荷下呈抛物线形（注意：自重下是悬链线）
+- **喷泉的水柱**：在重力作用下形成抛物线轨迹
+- **篮球投篮的弧线**：忽略空气阻力就是抛物线
+:::
+
+## Desmos探索
+
+```{=html}
+<div id="m1_04_desmos" class="desmos-container"></div>
+<script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+<script>
+  var m1_04_calc = Desmos.GraphingCalculator(document.getElementById('m1_04_desmos'), {
+    expressions: true, settingsMenu: false
+  });
+  m1_04_calc.setExpression({ id: 'p', latex: 'p = 1', sliderBounds: { min: 0.2, max: 3, step: 0.1 } });
+  m1_04_calc.setExpression({ id: 'para', latex: 'x = \\frac{y^2}{4p}', color: '#2d70b3' });
+  m1_04_calc.setExpression({ id: 'focus', latex: '(p, 0)', color: '#c74440', pointStyle: 'POINT', pointSize: 8 });
+  m1_04_calc.setExpression({ id: 'directrix', latex: 'x = -p', color: '#9b59b6', lineStyle: 'DASHED' });
+  m1_04_calc.setExpression({ id: 'vertex', latex: '(0, 0)', color: '#388c46', pointStyle: 'POINT', pointSize: 6 });
+  m1_04_calc.setMathBounds({ left: -5, right: 8, bottom: -5, top: 5 });
+</script>
+```
+
+调节参数 $p$，观察焦点和准线如何移动。$p$ 越大，抛物线的开口越大，焦点离顶点越远。
+
+## 参考视频
+
+```{=html}
+<div class="video-container"><iframe src="//player.bilibili.com/player.html?bvid=BV14WDAYQEyy&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%;height:100%;position:absolute;top:0;left:0;"></iframe></div>
+```
+
+## 关键帧
+
+![抛物线的焦点与准线](../images/ch09/frame_01.jpg)
+
+![到焦点和准线的等距性质](../images/ch09/frame_02.jpg)
+
+![抛物线的反射性质](../images/ch09/frame_03.jpg)
+
+![卫星天线的抛物面](../images/ch09/frame_04.jpg)
+
+## 本课要点
+
+::: {.callout-important}
+## 记住这些
+
+1. **抛物线的定义**：平面上到一个定点（焦点）和一条定直线（准线）距离相等的点的轨迹
+2. 抛物线只有**一个焦点**，这和椭圆、双曲线（两个焦点）不同
+3. **反射性质**：从焦点出发的光线，经抛物面反射后变成平行光；反过来，平行光汇聚到焦点
+4. 抛物线的离心率恒等于 $e=1$，是椭圆（$e<1$）和双曲线（$e>1$）的分界线
+:::

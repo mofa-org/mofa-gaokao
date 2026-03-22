@@ -1,48 +1,77 @@
 ---
-title: "Conic Sections — 圆锥曲线专题"
+title: "圆锥曲线专题 — Conic Sections for Gaokao"
 ---
 
-Interactive course on conic sections for the Chinese Gaokao (高考), featuring D3.js animations,
-Desmos interactive graphs, and formal bilingual content derived from top Bilibili math creators.
+基于认知科学设计的高考圆锥曲线交互式课程。采用 CRA 教学序列（具体→表征→抽象），以 D3.js 动画建立几何直觉，Desmos 交互图探索参数，最后推导公式和解题。
 
-## Part I: 基础结论 (Fundamental Conclusions)
+An interactive conic sections course designed around cognitive science principles.
+Geometric intuition first, algebra second.
 
-| Ch | Topic |
-|----|-------|
-| 1 | [椭圆的二级结论 (Ellipse Secondary Conclusions)](lessons/ch01-ellipse-conclusions.qmd) |
-| 2 | [最常考的二级结论 (Most-Tested Conclusions)](lessons/ch02-most-tested-conclusions.qmd) |
-| 3 | [圆锥曲线实用性质 (Practical Properties)](lessons/ch03-practical-properties.qmd) |
-| 4 | [双曲线框架 (Hyperbola Framework)](lessons/ch04-hyperbola-framework.qmd) |
-| 5 | [离心率技巧 (Eccentricity Techniques)](lessons/ch05-eccentricity-techniques.qmd) |
-| 6 | [离心率出题思路 (Eccentricity Problem Design)](lessons/ch06-eccentricity-problem-design.qmd) |
-| 7 | [二级结论总结 (All Conclusions)](lessons/ch07-all-conclusions.qmd) |
-| 8 | [直线与双曲线 (Lines & Hyperbolas)](lessons/ch08-line-hyperbola.qmd) |
-| 9 | [抛物线结论 (Parabola Conclusions)](lessons/ch09-parabola-conclusions.qmd) |
+## 模块一：看见曲线 (See the Curves)
 
-## Part II: 大题技巧 (Advanced Problem Techniques)
+*先看见，再理解。不用公式，纯视觉探索。*
 
-| Ch | Topic |
-|----|-------|
-| 10 | [技巧大全：齐次化/点乘双根/非对称韦达 (Technique Compendium)](lessons/ch10-technique-compendium.qmd) |
-| 11 | [大题通解思路 (General Approach)](lessons/ch11-general-approach.qmd) |
-| 12 | [定点问题 (Fixed Point Problems)](lessons/ch12-fixed-point.qmd) |
-| 13 | [非对称韦达 (Asymmetric Vieta)](lessons/ch13-asymmetric-vieta.qmd) |
-| 14 | [点差法 (Point Difference Method)](lessons/ch14-point-difference.qmd) |
-| 15 | [齐次化 (Homogenization)](lessons/ch15-homogenization.qmd) |
-| 16 | [硬解定理 (Hard-Solve Theorem)](lessons/ch16-hard-solve-theorem.qmd) |
+| 课 | 主题 | 关键词 |
+|----|------|-------|
+| 1.1 | [什么是圆锥曲线 — 平面切圆锥](lessons/m1-01-what-are-conics.qmd) | 锥面截面、三种曲线的诞生 |
+| 1.2 | [椭圆：两焦点的舞蹈](lessons/m1-02-ellipse-intuition.qmd) | 定义、形状、离心率的直觉 |
+| 1.3 | [双曲线：差的几何](lessons/m1-03-hyperbola-intuition.qmd) | 定义、渐近线、两支 |
+| 1.4 | [抛物线：反射的魔法](lessons/m1-04-parabola-intuition.qmd) | 焦点、准线、反射性质 |
 
-## Part III: 进阶方法 (Advanced Methods)
+## 模块二：掌握工具 (Master the Tools)
 
-| Ch | Topic |
-|----|-------|
-| 17 | [仿射变换 (Affine Transformation)](lessons/ch17-affine-transform.qmd) |
-| 18 | [双曲线仿射变换 (Hyperbola Affine)](lessons/ch18-hyperbola-affine.qmd) |
-| 19 | [极点极线 (Pole & Polar)](lessons/ch19-pole-polar.qmd) |
-| 20 | [定比点差 (Ratio Point Difference)](lessons/ch20-ratio-point-difference.qmd) |
-| 21 | [射影几何 (Projective Geometry)](lessons/ch21-projective-geometry.qmd) |
-| 22 | [焦点三角形与内切圆 (Focal Triangle & Incircle)](lessons/ch22-focal-triangle-incircle.qmd) |
+*从几何定义推导代数方程，建立数形结合。*
 
-## About
+| 课 | 主题 | 关键词 |
+|----|------|-------|
+| 2.1 | [从定义到方程](lessons/m2-01-definition-to-equation.qmd) | 标准方程推导 |
+| 2.2 | [焦半径公式](lessons/m2-02-focal-radius.qmd) | |PF|的两种形式 |
+| 2.3 | [离心率：一个数决定一切](lessons/m2-03-eccentricity.qmd) | e的几何意义与求法 |
+| 2.4 | [韦达定理：解析几何最强工具](lessons/m2-04-vieta.qmd) | 设而不求、根与系数 |
 
-Content derived from top Bilibili math creators: **一数** (Yi Shu, 9M followers) and **赵礼显** (Zhao Lixian).
-Enhanced with interactive D3.js animations and Desmos graphs.
+## 模块三：小题速解 (Quick-Solve for Small Questions)
+
+*选择题/填空题的6大高频题型，目标：30秒出答案。*
+
+| 课 | 主题 | 对应高考题型 |
+|----|------|------------|
+| 3.1 | [离心率计算与范围](lessons/m3-01-eccentricity-calc.qmd) | 几乎每年必考 |
+| 3.2 | [标准方程求解](lessons/m3-02-standard-equation.qmd) | 高频选择/填空 |
+| 3.3 | [焦点三角形](lessons/m3-03-focal-triangle.qmd) | 面积、角度、内切圆 |
+| 3.4 | [渐近线与几何性质](lessons/m3-04-asymptotes.qmd) | 双曲线快速判断 |
+| 3.5 | [二级结论速查](lessons/m3-05-secondary-conclusions.qmd) | 12条最实用结论 |
+
+## 模块四：大题攻略 (Conquer the Big Problems)
+
+*解答题的标准流程和11大题型。子技能分离训练。*
+
+| 课 | 主题 | 核心技能 |
+|----|------|---------|
+| 4.1 | [通解流程：设→联→韦→代](lessons/m4-01-general-workflow.qmd) | 解题框架 |
+| 4.2 | [直线与曲线的交点](lessons/m4-02-line-conic-intersection.qmd) | 联立、判别式、弦长 |
+| 4.3 | [定点问题](lessons/m4-03-fixed-point.qmd) | 消参→定点 |
+| 4.4 | [定值问题](lessons/m4-04-fixed-value.qmd) | 先猜后证 |
+| 4.5 | [中点弦与点差法](lessons/m4-05-midpoint-chord.qmd) | 设而不求 |
+| 4.6 | [面积、范围与存在性](lessons/m4-06-area-range-existence.qmd) | 综合题型 |
+
+## 模块五：提分技巧 (Score Boosters — Optional)
+
+*冲刺满分的高级工具。标注为选学。*
+
+| 课 | 主题 | 适用场景 |
+|----|------|---------|
+| 5.1 | [齐次化与硬解定理](lessons/m5-01-homogenization.qmd) | 简化计算量80% |
+| 5.2 | [仿射变换](lessons/m5-02-affine-transform.qmd) | 椭圆↔圆的快速通道 |
+| 5.3 | [极点极线与射影几何](lessons/m5-03-projective.qmd) | 高考命题背景 |
+
+## 设计理念
+
+本课程基于以下认知科学研究设计：
+
+- **CRA序列** — 先具体（D3动画）→ 再表征（Desmos图）→ 最后抽象（公式）
+- **认知负荷理论** — 复杂解题拆分为子技能，逐个训练再组合
+- **Worked Example效应** — 先看完整解题过程，再渐退练习
+- **双编码** — 每个公式同时展示代数形式和几何动画
+- **Productive Failure** — 每课开头先探索问题，再讲解
+
+内容来源：B站名师 **一数** (9M粉丝) 和 **赵礼显**，经认知科学框架重组。

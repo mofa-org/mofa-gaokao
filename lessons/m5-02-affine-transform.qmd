@@ -1,0 +1,411 @@
+---
+title: "仿射变换 — 椭圆↔圆的快速通道"
+subtitle: "模块五 · 第2课（选学）"
+date: 2026-03-22
+---
+
+::: {.callout-warning}
+## 选学内容
+
+本课属于**提分技巧**模块，适合已掌握模块一至四全部内容、目标冲刺满分的同学。如果你对基础解题流程还不够熟练，建议先巩固模块四再来学习。
+:::
+
+椭圆有对称轴，但"不够对称"——它只关于长轴和短轴对称。圆则关于**任意直径**对称。如果我们能把椭圆"压"成圆，在圆里解题，再"拉"回椭圆，很多问题就变得极其简单。这就是**仿射变换**。
+
+## 探索问题
+
+::: {.callout-tip}
+## 先想一想
+
+椭圆 $\dfrac{x^2}{4} + \dfrac{y^2}{3} = 1$ 的内接三角形 $ABC$，$O$ 为重心。求 $S_{\triangle ABC}$ 的最大值。
+
+如果用常规方法（设三点坐标→面积公式→求最值），参数极多。有没有更优雅的方法？
+:::
+
+## 为什么需要这个技巧
+
+### 核心思想
+
+椭圆 $\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2} = 1$ 上的每个点 $(x, y)$，经过变换
+
+$$x' = \frac{x}{a}, \qquad y' = \frac{y}{b}$$
+
+映射到单位圆 $x'^2 + y'^2 = 1$ 上的点 $(x', y')$。
+
+反过来，圆上的点乘以 $(a, b)$ 就回到椭圆。
+
+### 什么性质在变换中保持不变？
+
+| 性质 | 是否保持 | 说明 |
+|:----:|:-------:|:----:|
+| 平行 | 保持 | 平行线仿射后仍平行 |
+| 共线 | 保持 | 三点共线仿射后仍共线 |
+| 线段比例 | 保持 | 共线三点的比值不变 |
+| 面积比 | 固定比值 $ab:1$ | 所有面积同比缩放 |
+| 斜率 | 乘以 $b/a$ | $k_{\text{椭圆}} = \dfrac{b}{a} \cdot k_{\text{圆}}$ |
+| 弦长 | **不保持** | 斜方向无简单比例关系 |
+
+::: {.callout-caution}
+## 弦长不能用仿射变换！
+
+仿射变换保平行、保共线、保比例、保面积比，但**斜向弦长无固定比例关系**。涉及弦长的题目不要使用仿射变换。
+:::
+
+## 方法讲解
+
+### 动画1：椭圆变圆的过程
+
+```{=html}
+<div class="d3-container" id="m5_affine_morph"></div>
+<div class="d3-controls">
+  <label>变换程度：</label>
+  <input type="range" id="m5_affine_t" min="0" max="100" value="0" step="1">
+  <span class="value-display" id="m5_affine_label">椭圆</span>
+  <button id="m5_affine_play">播放变换 ▶</button>
+</div>
+<script>
+(function() {
+  const W = 700, H = 450;
+  const svg = d3.select("#m5_affine_morph").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`);
+
+  const cx = W / 2, cy = H / 2;
+  const a = 2, b = Math.sqrt(3);
+  const scale = 90;
+
+  // Axes
+  svg.append("line").attr("x1", 50).attr("y1", cy).attr("x2", W-50).attr("y2", cy)
+    .attr("stroke", "#ddd").attr("stroke-width", 1);
+  svg.append("line").attr("x1", cx).attr("y1", 30).attr("x2", cx).attr("y2", H-30)
+    .attr("stroke", "#ddd").attr("stroke-width", 1);
+
+  // Curve
+  const curvePath = svg.append("path")
+    .attr("fill", "none").attr("stroke", "#2d70b3").attr("stroke-width", 3);
+
+  // Sample points on ellipse
+  const angles = [0.8, 2.5, 4.2]; // three angles for triangle
+  const pointCircles = angles.map(() =>
+    svg.append("circle").attr("r", 6).attr("fill", "#c74440")
+  );
+  const pointLabels = ["A", "B", "C"].map((label, i) =>
+    svg.append("text").attr("font-size", "16px").attr("font-weight", "bold")
+      .attr("fill", "#c74440").attr("text-anchor", "middle").text(label)
+  );
+
+  // Triangle
+  const triPath = svg.append("path")
+    .attr("fill", "rgba(199, 68, 64, 0.1)").attr("stroke", "#c74440")
+    .attr("stroke-width", 2).attr("stroke-dasharray", "5,3");
+
+  // Labels
+  const shapeLabel = svg.append("text")
+    .attr("x", cx).attr("y", 30).attr("text-anchor", "middle")
+    .attr("font-size", "20px").attr("font-weight", "bold").attr("fill", "#2d70b3");
+
+  const areaLabel = svg.append("text")
+    .attr("x", cx).attr("y", H - 10).attr("text-anchor", "middle")
+    .attr("font-size", "16px").attr("fill", "#388c46");
+
+  function lerp(v0, v1, t) { return v0 + (v1 - v0) * t; }
+
+  function update(val) {
+    const t = val / 100;
+    // Interpolate from ellipse (a,b) to circle (1,1)
+    const currA = lerp(a, 1, t);
+    const currB = lerp(b, 1, t);
+
+    // Draw curve
+    const pts = d3.range(0, 2 * Math.PI + 0.05, 0.05).map(theta => [
+      cx + currA * scale * Math.cos(theta),
+      cy - currB * scale * Math.sin(theta)
+    ]);
+    curvePath.attr("d", d3.line()(pts) + "Z");
+
+    // Update points
+    const triPts = angles.map(theta => [
+      cx + currA * scale * Math.cos(theta),
+      cy - currB * scale * Math.sin(theta)
+    ]);
+
+    pointCircles.forEach((c, i) => {
+      c.attr("cx", triPts[i][0]).attr("cy", triPts[i][1]);
+    });
+    pointLabels.forEach((l, i) => {
+      l.attr("x", triPts[i][0]).attr("y", triPts[i][1] - 15);
+    });
+
+    // Triangle
+    triPath.attr("d", `M${triPts[0][0]},${triPts[0][1]} L${triPts[1][0]},${triPts[1][1]} L${triPts[2][0]},${triPts[2][1]} Z`);
+
+    // Labels
+    if (t < 0.05) {
+      shapeLabel.text("椭圆 x²/4 + y²/3 = 1");
+      document.getElementById("m5_affine_label").textContent = "椭圆";
+    } else if (t > 0.95) {
+      shapeLabel.text("单位圆 x'² + y'² = 1");
+      document.getElementById("m5_affine_label").textContent = "单位圆";
+    } else {
+      shapeLabel.text(`变换中... (${Math.round(t*100)}%)`);
+      document.getElementById("m5_affine_label").textContent = `${Math.round(t*100)}%`;
+    }
+
+    // Area comparison
+    const ellipseArea = 0.5 * Math.abs(
+      (triPts[1][0]-triPts[0][0])*(triPts[2][1]-triPts[0][1]) -
+      (triPts[2][0]-triPts[0][0])*(triPts[1][1]-triPts[0][1])
+    ) / (scale * scale);
+    areaLabel.text(`三角形面积比 = ${(currA * currB).toFixed(2)} : 1（椭圆面积 = ${(currA * currB).toFixed(2)} × 圆面积）`);
+  }
+
+  const slider = document.getElementById("m5_affine_t");
+  slider.addEventListener("input", () => update(+slider.value));
+
+  let animTimer = null;
+  document.getElementById("m5_affine_play").addEventListener("click", function() {
+    if (animTimer) { clearInterval(animTimer); animTimer = null; this.textContent = "播放变换 ▶"; return; }
+    this.textContent = "暂停 ⏸";
+    let v = 0;
+    slider.value = v;
+    animTimer = setInterval(() => {
+      v += 1;
+      if (v > 100) { v = 100; clearInterval(animTimer); animTimer = null; document.getElementById("m5_affine_play").textContent = "播放变换 ▶"; }
+      slider.value = v;
+      update(v);
+    }, 30);
+  });
+
+  update(0);
+})();
+</script>
+```
+
+拖动滑块（或点击播放），观察椭圆如何连续变形为单位圆。注意三角形 $ABC$ 的形状在变化，但**共线、平行、比例关系全部保持**。
+
+### 动画2：在圆中解题，映射回椭圆
+
+```{=html}
+<div class="d3-container" id="m5_affine_solve"></div>
+<div class="d3-controls">
+  <button id="m5_affine_step1" style="background:#2d70b3;color:white;">1. 圆中：最大内接三角形</button>
+  <button id="m5_affine_step2" style="background:#388c46;color:white;">2. 映射回椭圆</button>
+  <button id="m5_affine_step3" style="background:#c74440;color:white;">3. 面积换算</button>
+</div>
+<script>
+(function() {
+  const W = 700, H = 400;
+  const svg = d3.select("#m5_affine_solve").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`);
+
+  const leftCx = 180, rightCx = 520, midY = 200;
+  const R = 120;
+  const a = 2, b = Math.sqrt(3);
+
+  // Left: unit circle
+  svg.append("text").attr("x", leftCx).attr("y", 30).attr("text-anchor", "middle")
+    .attr("font-size", "18px").attr("font-weight", "bold").attr("fill", "#2d70b3")
+    .text("单位圆");
+
+  svg.append("circle").attr("cx", leftCx).attr("cy", midY).attr("r", R)
+    .attr("fill", "none").attr("stroke", "#2d70b3").attr("stroke-width", 2);
+
+  // Right: ellipse
+  svg.append("text").attr("x", rightCx).attr("y", 30).attr("text-anchor", "middle")
+    .attr("font-size", "18px").attr("font-weight", "bold").attr("fill", "#c74440")
+    .text("椭圆");
+
+  const ellipsePts = d3.range(0, 2*Math.PI+0.05, 0.05).map(t => [
+    rightCx + a * R * 0.6 * Math.cos(t),
+    midY - b * R * 0.6 * Math.sin(t)
+  ]);
+  svg.append("path").attr("d", d3.line()(ellipsePts) + "Z")
+    .attr("fill", "none").attr("stroke", "#c74440").attr("stroke-width", 2);
+
+  // Arrow
+  svg.append("text").attr("x", 350).attr("y", midY - 20).attr("text-anchor", "middle")
+    .attr("font-size", "28px").attr("fill", "#666").text("→");
+  svg.append("text").attr("x", 350).attr("y", midY + 5).attr("text-anchor", "middle")
+    .attr("font-size", "12px").attr("fill", "#666").text("x'→ax', y'→by'");
+  svg.append("text").attr("x", 350).attr("y", midY + 40).attr("text-anchor", "middle")
+    .attr("font-size", "28px").attr("fill", "#666").text("←");
+  svg.append("text").attr("x", 350).attr("y", midY + 60).attr("text-anchor", "middle")
+    .attr("font-size", "12px").attr("fill", "#666").text("x→x/a, y→y/b");
+
+  // Equilateral triangle in circle (maximum area)
+  const triAngles = [Math.PI/2, Math.PI/2 + 2*Math.PI/3, Math.PI/2 + 4*Math.PI/3];
+
+  const circleTriGroup = svg.append("g").attr("opacity", 0);
+  const circleTri = triAngles.map(t => [leftCx + R * Math.cos(t), midY - R * Math.sin(t)]);
+  circleTriGroup.append("path")
+    .attr("d", `M${circleTri[0][0]},${circleTri[0][1]} L${circleTri[1][0]},${circleTri[1][1]} L${circleTri[2][0]},${circleTri[2][1]} Z`)
+    .attr("fill", "rgba(45,112,179,0.15)").attr("stroke", "#2d70b3").attr("stroke-width", 2);
+  circleTri.forEach((p, i) => {
+    circleTriGroup.append("circle").attr("cx", p[0]).attr("cy", p[1]).attr("r", 5).attr("fill", "#2d70b3");
+    circleTriGroup.append("text").attr("x", p[0]).attr("y", p[1] - 12).attr("text-anchor", "middle")
+      .attr("font-size", "14px").attr("fill", "#2d70b3").text(["A'", "B'", "C'"][i]);
+  });
+
+  const circleAreaLabel = svg.append("text")
+    .attr("x", leftCx).attr("y", H - 20).attr("text-anchor", "middle")
+    .attr("font-size", "14px").attr("fill", "#2d70b3").attr("opacity", 0)
+    .text("S = (3√3)/4（正三角形面积最大）");
+
+  // Mapped triangle on ellipse
+  const ellipseTriGroup = svg.append("g").attr("opacity", 0);
+  const ellipseTri = triAngles.map(t => [
+    rightCx + a * R * 0.6 * Math.cos(t),
+    midY - b * R * 0.6 * Math.sin(t)
+  ]);
+  ellipseTriGroup.append("path")
+    .attr("d", `M${ellipseTri[0][0]},${ellipseTri[0][1]} L${ellipseTri[1][0]},${ellipseTri[1][1]} L${ellipseTri[2][0]},${ellipseTri[2][1]} Z`)
+    .attr("fill", "rgba(199,68,64,0.15)").attr("stroke", "#c74440").attr("stroke-width", 2);
+  ellipseTri.forEach((p, i) => {
+    ellipseTriGroup.append("circle").attr("cx", p[0]).attr("cy", p[1]).attr("r", 5).attr("fill", "#c74440");
+    ellipseTriGroup.append("text").attr("x", p[0]).attr("y", p[1] - 12).attr("text-anchor", "middle")
+      .attr("font-size", "14px").attr("fill", "#c74440").text(["A", "B", "C"][i]);
+  });
+
+  const resultLabel = svg.append("text")
+    .attr("x", rightCx).attr("y", H - 20).attr("text-anchor", "middle")
+    .attr("font-size", "14px").attr("fill", "#c74440").attr("opacity", 0);
+
+  document.getElementById("m5_affine_step1").addEventListener("click", () => {
+    circleTriGroup.transition().duration(600).attr("opacity", 1);
+    circleAreaLabel.transition().duration(600).attr("opacity", 1);
+  });
+  document.getElementById("m5_affine_step2").addEventListener("click", () => {
+    ellipseTriGroup.transition().duration(600).attr("opacity", 1);
+  });
+  document.getElementById("m5_affine_step3").addEventListener("click", () => {
+    resultLabel.text("S = ab × (3√3)/4 = 2√3 × (3√3)/4 = 9/2").transition().duration(600).attr("opacity", 1);
+  });
+})();
+</script>
+```
+
+依次点击三个按钮，观察：
+
+1. 单位圆中最大内接三角形是**正三角形**，面积为 $\dfrac{3\sqrt{3}}{4}$
+2. 映射回椭圆后，三角形变形但仍是面积最大的内接三角形
+3. 面积乘以 $ab$ 即得椭圆内接三角形最大面积
+
+## Worked Example
+
+**题目：** 椭圆 $\dfrac{x^2}{4} + \dfrac{y^2}{3} = 1$，内接三角形 $ABC$，$O$ 为原点，$AB$ 过原点。求证：$k_{OC} \cdot k_{AB} = -\dfrac{3}{4}$。
+
+**解法（仿射变换）：**
+
+**Step 1：** 仿射变换 $x' = x/2$，$y' = y/\sqrt{3}$，椭圆变为单位圆 $x'^2 + y'^2 = 1$。
+
+**Step 2：** $A'B'$ 过原点，所以 $A'B'$ 是圆的直径。$C'$ 在圆上。
+
+**Step 3：** 在圆中，直径所对的圆周角为直角，因此 $\angle A'C'B' = 90°$，但我们需要的是垂径定理：$AB$ 过原点意味着 $AB$ 是弦，其中点与 $O$ 的连线垂直于 $AB$。
+
+不，$AB$ 过原点 = $A'B'$ 过原点 = $A'B'$ 是直径。
+
+取 $A'B'$ 中点为 $O$（即原点），$C'$ 在圆上。连 $OC'$。
+
+在圆中：$k_{A'B'} \cdot k_{OC'} = -1$（当且仅当 $OC' \perp A'B'$，这在一般情况下不成立）。
+
+**更正：** 这里应该用的是垂径定理的变形。设 $C'$ 在圆上任意位置，$M'$ 是 $A'B'$（直径）的中点（即原点）。对于任意弦 $MN$ 及其中点 $E$，有 $k_{OE} \cdot k_{MN} = -1$。
+
+但原题说的是 $AB$ 过原点（$O$ 是中心），$C$ 是椭圆上另一点。需要用椭圆垂径定理。
+
+**正确的仿射证法：**
+
+设 $AB$ 是过原点的弦，$C$ 是椭圆上不在 $AB$ 上的点。在圆中，$A'B'$ 是直径。由圆的性质，$\angle A'C'B' = 90°$，所以 $k_{C'A'} \cdot k_{C'B'} = -1$。
+
+回到椭圆：$k_{CA} \cdot k_{CB} = \dfrac{b^2}{a^2} \cdot (-1) = -\dfrac{3}{4}$。
+
+这就是**椭圆的垂角定理**（斜率乘积等于 $-b^2/a^2$），仿射变换一步证出！
+
+::: {.callout-important}
+## 仿射变换的威力
+
+在圆中 $k_1 \cdot k_2 = -1$（直径对应的圆周角为直角），回到椭圆后每个斜率乘以 $\dfrac{b}{a}$，所以：
+
+$$k_{CA} \cdot k_{CB} = \left(\frac{b}{a}\right)^2 \cdot (-1) = -\frac{b^2}{a^2} = -\frac{3}{4}$$
+
+一行搞定，无需任何坐标运算。
+:::
+
+## 对比：同一问题两种解法
+
+| | 常规方法（点差法） | 仿射变换 |
+|:---:|:---:|:---:|
+| 设点 | $A(x_1,y_1)$, $B(x_2,y_2)$, $C(x_3,y_3)$ | 仿射到圆 |
+| 核心步骤 | 点差法展开、代入韦达 | 圆周角定理 |
+| 计算量 | 约10行代数 | 2行推理 |
+| 出错概率 | 高（多步代数） | 极低 |
+
+## Desmos验证
+
+```{=html}
+<div id="m5_02_desmos" class="desmos-container"></div>
+<script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+<script>
+  var m5_02_calc = Desmos.GraphingCalculator(document.getElementById('m5_02_desmos'), {
+    expressions: true, settingsMenu: false
+  });
+  m5_02_calc.setExpression({ id: 'ellipse', latex: '\\frac{x^2}{4} + \\frac{y^2}{3} = 1', color: '#2d70b3' });
+  m5_02_calc.setExpression({ id: 'k_val', latex: 'k_0 = 1', sliderBounds: { min: -5, max: 5, step: 0.1 } });
+  m5_02_calc.setExpression({ id: 'chord', latex: 'y = k_0 x', color: '#fa7e19' });
+  m5_02_calc.setExpression({ id: 'note', latex: '\\text{调节 k₀ 观察直径所对圆周角}' });
+  m5_02_calc.setMathBounds({ left: -4, right: 4, bottom: -3, top: 3 });
+</script>
+```
+
+调节斜率 $k_0$，观察过原点的弦 $AB$ 旋转时，椭圆上任意点 $C$ 到 $A$、$B$ 的斜率乘积始终为 $-3/4$。
+
+## 参考视频
+
+```{=html}
+<div class="video-container"><iframe src="//player.bilibili.com/player.html?bvid=BV1GgZUYCEHu&page=7" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%;height:100%;position:absolute;top:0;left:0;"></iframe></div>
+```
+
+```{=html}
+<div class="video-container"><iframe src="//player.bilibili.com/player.html?bvid=BV1GgZUYCEHu&page=8" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%;height:100%;position:absolute;top:0;left:0;"></iframe></div>
+```
+
+## 关键帧
+
+![仿射变换的基本原理](../images/ch17/frame_01.jpg)
+
+![斜率、平行、共线性质](../images/ch17/frame_02.jpg)
+
+![面积比为 ab:1](../images/ch17/frame_03.jpg)
+
+![实战应用：垂角定理](../images/ch17/frame_04.jpg)
+
+## 速查表
+
+::: {.callout-important}
+## 仿射变换速查
+
+**椭圆 → 圆：** $x' = x/a$，$y' = y/b$
+
+**圆 → 椭圆：** $x = ax'$，$y = by'$
+
+**保持的性质：**
+
+- 平行关系不变
+- 共线关系不变
+- 共线三点的比值不变
+- 中点仍是中点，重心仍是重心
+- 面积比为 $ab : 1$
+
+**斜率变换：** $k_{\text{椭圆}} = \dfrac{b}{a} \cdot k_{\text{圆}}$
+
+**常用结论：**
+
+| 圆中结论 | 仿射到椭圆 |
+|:-------:|:---------:|
+| 直径对圆周角 = 90° | $k_{CA} \cdot k_{CB} = -b^2/a^2$ |
+| 垂径定理：$k_{OE} \cdot k_{MN} = -1$ | $k_{OE} \cdot k_{MN} = -b^2/a^2$ |
+| 最大内接三角形 = 正三角形 | 面积 = $\dfrac{3\sqrt{3}}{4}ab$ |
+| 最大内接矩形 = 正方形 | 面积 = $2ab$ |
+
+**不能用仿射变换：** 弦长问题（斜方向长度无固定比例）
+
+**双曲线仿射：** 令 $y = bi \cdot y'$（引入虚数），可变为圆。适合判断斜率乘积是否为定值，但不如椭圆直观。
+:::

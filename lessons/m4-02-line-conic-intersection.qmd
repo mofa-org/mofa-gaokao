@@ -1,0 +1,427 @@
+---
+title: "直线与曲线的交点"
+subtitle: "模块四 · 第2课"
+date: 2026-03-22
+---
+
+当直线遇见圆锥曲线，它们可能相离、相切或相交。判断位置关系、求弦长——这些是解答题最基本的"武器"。今天我们重点攻克判别式分析和弦长公式，尤其是双曲线中独有的陷阱。
+
+## 探索问题
+
+::: {.callout-tip}
+## 先试一试
+
+过点 $\left(\dfrac{1}{2},\, 2\right)$ 作直线，与双曲线 $4x^2 - y^2 = 1$ 有且仅有一个公共点。求所有这样的直线方程。
+
+提示：答案不止两条——你能找到几条？
+:::
+
+## 方法讲解：位置关系与弦长
+
+### 核心思路
+
+直线与圆锥曲线的位置关系，归根结底就是**联立方程后看方程的解**：
+
+| 情况 | 二次方程 | 交点数 |
+|------|---------|-------|
+| $\Delta > 0$ | 两个不同实根 | 2个交点（相交） |
+| $\Delta = 0$ | 两个相等实根 | 1个交点（相切） |
+| $\Delta < 0$ | 无实根 | 无交点（相离） |
+
+但对双曲线，还有**第四种情况**：二次项系数为零，方程退化为一次方程——只有一个交点，但不是相切！
+
+### 动画：直线旋转穿过曲线
+
+```{=html}
+<div class="d3-container" id="m4_line_rotate"></div>
+<div class="d3-controls">
+  <label>直线斜率 k：</label>
+  <input type="range" id="m4_lr_slider" min="-50" max="50" value="0" step="1">
+  <span class="value-display" id="m4_lr_label">k = 0.0</span>
+  <br>
+  <label>曲线类型：</label>
+  <select id="m4_lr_curve">
+    <option value="ellipse">椭圆</option>
+    <option value="hyperbola" selected>双曲线</option>
+  </select>
+  <span class="value-display" id="m4_lr_delta">Δ = ?</span>
+  <span class="value-display" id="m4_lr_count">交点数: ?</span>
+</div>
+<script>
+(function() {
+  const W = 700, H = 450;
+  const svg = d3.select("#m4_line_rotate").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`);
+
+  const cx = W/2, cy = H/2, scale = 80;
+
+  // Axes
+  svg.append("line").attr("x1",0).attr("y1",cy).attr("x2",W).attr("y2",cy)
+    .attr("stroke","#ddd").attr("stroke-width",1);
+  svg.append("line").attr("x1",cx).attr("y1",0).attr("x2",cx).attr("y2",H)
+    .attr("stroke","#ddd").attr("stroke-width",1);
+
+  const curvePath = svg.append("path")
+    .attr("fill","none").attr("stroke","#2d70b3").attr("stroke-width",2.5);
+  const curvePath2 = svg.append("path")
+    .attr("fill","none").attr("stroke","#2d70b3").attr("stroke-width",2.5);
+
+  const linePath = svg.append("line")
+    .attr("stroke","#c74440").attr("stroke-width",2);
+
+  const asymLine1 = svg.append("line")
+    .attr("stroke","#999").attr("stroke-dasharray","5,5").attr("stroke-width",1);
+  const asymLine2 = svg.append("line")
+    .attr("stroke","#999").attr("stroke-dasharray","5,5").attr("stroke-width",1);
+
+  const dotGroup = svg.append("g");
+
+  // Delta bar
+  const barX = 580, barY = 50, barW = 20, barH = 200;
+  svg.append("rect").attr("x",barX).attr("y",barY).attr("width",barW).attr("height",barH)
+    .attr("fill","#f0f0f0").attr("stroke","#ccc");
+  svg.append("line").attr("x1",barX-5).attr("y1",barY+barH/2).attr("x2",barX+barW+5).attr("y2",barY+barH/2)
+    .attr("stroke","#333").attr("stroke-width",1);
+  svg.append("text").attr("x",barX+barW/2).attr("y",barY-8).attr("text-anchor","middle")
+    .attr("font-size","12px").attr("fill","#666").text("Δ");
+
+  const deltaBar = svg.append("rect")
+    .attr("x",barX+2).attr("width",barW-4).attr("fill","#388c46");
+
+  const a_e = 2, b_e = 1.5; // ellipse
+  const a_h = 1.5, b_h = 1; // hyperbola
+
+  function drawEllipse() {
+    curvePath2.attr("d","");
+    asymLine1.attr("x1",0).attr("y1",0).attr("x2",0).attr("y2",0);
+    asymLine2.attr("x1",0).attr("y1",0).attr("x2",0).attr("y2",0);
+    const pts = d3.range(0, 2*Math.PI+0.05, 0.05).map(t =>
+      [cx + a_e*scale*Math.cos(t), cy - b_e*scale*Math.sin(t)]
+    );
+    curvePath.attr("d", d3.line()(pts) + "Z");
+  }
+
+  function drawHyperbola() {
+    const pts1 = d3.range(-2, 2.01, 0.05).map(t =>
+      [cx + a_h*scale*Math.cosh(t), cy - b_h*scale*Math.sinh(t)]
+    );
+    const pts2 = d3.range(-2, 2.01, 0.05).map(t =>
+      [cx - a_h*scale*Math.cosh(t), cy - b_h*scale*Math.sinh(t)]
+    );
+    curvePath.attr("d", d3.line().curve(d3.curveBasis)(pts1));
+    curvePath2.attr("d", d3.line().curve(d3.curveBasis)(pts2));
+
+    const slope = b_h/a_h;
+    asymLine1.attr("x1",0).attr("y1",cy+cx*slope).attr("x2",W).attr("y2",cy-(W-cx)*slope);
+    asymLine2.attr("x1",0).attr("y1",cy-cx*slope).attr("x2",W).attr("y2",cy+(W-cx)*slope);
+  }
+
+  function update() {
+    const k = +document.getElementById("m4_lr_slider").value / 10;
+    const curveType = document.getElementById("m4_lr_curve").value;
+    document.getElementById("m4_lr_label").textContent = "k = " + k.toFixed(1);
+
+    if (curveType === "ellipse") drawEllipse();
+    else drawHyperbola();
+
+    // Fixed point for the line
+    const px = 0.5, py = 0;
+    const ext = 5;
+    linePath
+      .attr("x1", cx + (px-ext)*scale).attr("y1", cy + (py-k*(-ext))*scale*(-1) + k*px*scale)
+      .attr("x2", cx + (px+ext)*scale).attr("y2", cy - (k*ext)*scale + k*px*scale*(-1));
+
+    // Actually compute line: y = k(x - px) => y = kx - k*px
+    const m = -k * px;
+    // Ellipse: x²/a² + y²/b² = 1 => (b²+a²k²)x² + 2a²kmx + a²m² - a²b² = 0
+    let A_coeff, B_coeff, C_coeff;
+    if (curveType === "ellipse") {
+      A_coeff = b_e*b_e + a_e*a_e*k*k;
+      B_coeff = 2*a_e*a_e*k*m;
+      C_coeff = a_e*a_e*m*m - a_e*a_e*b_e*b_e;
+    } else {
+      // x²/a² - y²/b² = 1 => (b²-a²k²)x² - 2a²kmx - a²m² - a²b² = 0
+      A_coeff = b_h*b_h - a_h*a_h*k*k;
+      B_coeff = -2*a_h*a_h*k*m;
+      C_coeff = -a_h*a_h*m*m - a_h*a_h*b_h*b_h;
+    }
+
+    dotGroup.selectAll("*").remove();
+
+    let delta, count;
+    if (Math.abs(A_coeff) < 0.001) {
+      // Linear case (hyperbola only)
+      delta = null;
+      if (Math.abs(B_coeff) < 0.001) { count = 0; }
+      else {
+        count = 1;
+        const xSol = -C_coeff / B_coeff;
+        const ySol = k * xSol + m;
+        dotGroup.append("circle").attr("cx", cx+xSol*scale).attr("cy", cy-ySol*scale)
+          .attr("r",6).attr("fill","#e67e22");
+      }
+      document.getElementById("m4_lr_delta").textContent = "二次项=0（平行渐近线）";
+    } else {
+      delta = B_coeff*B_coeff - 4*A_coeff*C_coeff;
+      if (delta > 0) {
+        count = 2;
+        const x1 = (-B_coeff + Math.sqrt(delta)) / (2*A_coeff);
+        const x2 = (-B_coeff - Math.sqrt(delta)) / (2*A_coeff);
+        [x1, x2].forEach(xv => {
+          const yv = k*xv + m;
+          dotGroup.append("circle").attr("cx", cx+xv*scale).attr("cy", cy-yv*scale)
+            .attr("r",6).attr("fill","#388c46");
+        });
+      } else if (Math.abs(delta) < 0.5) {
+        count = 1;
+        const x1 = -B_coeff / (2*A_coeff);
+        const y1 = k*x1 + m;
+        dotGroup.append("circle").attr("cx", cx+x1*scale).attr("cy", cy-y1*scale)
+          .attr("r",6).attr("fill","#e67e22");
+      } else {
+        count = 0;
+      }
+      document.getElementById("m4_lr_delta").textContent = "Δ = " + delta.toFixed(1);
+    }
+    document.getElementById("m4_lr_count").textContent = "交点数: " + count;
+
+    // Delta bar visualization
+    if (delta !== null) {
+      const maxD = 50;
+      const normD = Math.max(-1, Math.min(1, delta / maxD));
+      const barMid = barY + barH/2;
+      if (normD >= 0) {
+        deltaBar.attr("y", barMid - normD*barH/2).attr("height", normD*barH/2)
+          .attr("fill", normD > 0.01 ? "#388c46" : "#e67e22");
+      } else {
+        deltaBar.attr("y", barMid).attr("height", -normD*barH/2)
+          .attr("fill", "#c74440");
+      }
+    } else {
+      deltaBar.attr("height", 0);
+    }
+  }
+
+  document.getElementById("m4_lr_slider").addEventListener("input", update);
+  document.getElementById("m4_lr_curve").addEventListener("change", update);
+  update();
+})();
+</script>
+```
+
+拖动斜率滑块，观察：
+- 椭圆：交点数只取决于 $\Delta$ 的符号
+- 双曲线：当斜率等于渐近线斜率时，二次项系数为零，出现"第四种情况"
+
+### 椭圆 vs 双曲线：关键区别
+
+设直线 $y = kx + m$，代入 $\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2} = 1$（椭圆）：
+
+$$\left(\frac{1}{a^2} + \frac{k^2}{b^2}\right)x^2 + \cdots = 0$$
+
+二次项系数 $= \dfrac{b^2 + a^2 k^2}{a^2 b^2} > 0$，**恒为正**——永远是二次方程。
+
+代入 $\dfrac{x^2}{a^2} - \dfrac{y^2}{b^2} = 1$（双曲线）：
+
+$$\left(\frac{1}{a^2} - \frac{k^2}{b^2}\right)x^2 + \cdots = 0$$
+
+当 $k = \pm\dfrac{b}{a}$（渐近线斜率）时，二次项系数为零！
+
+### 弦长公式
+
+$$|AB| = \sqrt{1+k^2}\,|x_1 - x_2| = \sqrt{1+k^2} \cdot \frac{\sqrt{\Delta}}{|A|}$$
+
+其中 $|x_1 - x_2| = \sqrt{(x_1+x_2)^2 - 4x_1 x_2}$。
+
+## Worked Example
+
+**题目：** 过点 $\left(\dfrac{1}{2},\, 2\right)$ 作直线，与双曲线 $4x^2 - y^2 = 1$ 有且仅有一个公共点。求所有直线方程。
+
+---
+
+**【子目标1：渐近线 $y = \pm 2x$】**
+
+判断定点位置：$\left(\dfrac{1}{2},\, 2\right)$，右顶点 $x = \pm\dfrac{1}{2}$。定点在双曲线右支的顶点上方，属于双曲线"外部"区域。
+
+---
+
+**【子目标2：$k$ 不存在】**
+
+$x = \dfrac{1}{2}$，代入 $4 \cdot \dfrac{1}{4} - y^2 = 1$，得 $y = 0$。只有一个交点 $\left(\dfrac{1}{2}, 0\right)$。
+
+直线 $x = \dfrac{1}{2}$ 满足条件。
+
+---
+
+**【子目标3：$k$ 存在，设 $y - 2 = k(x - \tfrac{1}{2})$】**
+
+联立化简后得 $(4 - k^2)x^2 + (k^2 - 4k)x + \cdots = 0$。
+
+**情况 A：** $4 - k^2 = 0$，即 $k = \pm 2$（与渐近线平行）。
+
+- $k = 2$：代入验证，$y = 2x + 1$，一次方程有一个解 → 满足。
+- $k = -2$：$y = -2x + 3$，一次方程有一个解 → 满足。
+
+**情况 B：** $4 - k^2 \neq 0$，令 $\Delta = 0$，解出 $k = \dfrac{5}{2}$。
+
+验证：此时直线与双曲线相切。
+
+---
+
+**【结论】** 共 4 条直线：$x = \dfrac{1}{2}$，$y = 2x+1$，$y = -2x+3$，$y = \dfrac{5}{2}x + \dfrac{3}{4}$。
+
+## 子技能训练
+
+### 训练1：判断定点位置
+
+::: {.callout-note}
+## 练习
+
+对于双曲线 $\dfrac{x^2}{2} - y^2 = 1$：
+
+1. 点 $(3, 0)$ 在双曲线的\_\_\_\_（内部/外部/上）
+2. 点 $(1, 0)$ 在双曲线的\_\_\_\_
+3. 渐近线斜率为\_\_\_\_
+4. 过点 $(1, 0)$ 的直线，与双曲线至少有\_\_\_\_个交点
+:::
+
+::: {.callout-caution collapse="true"}
+## 参考答案
+
+1. 外部（在右支的右侧）
+2. 内部（在两支之间的"肚子"外，但在渐近线围成的区域内——实际代入 $\dfrac{1}{2} - 0 = \dfrac{1}{2} < 1$，在双曲线内部）
+3. $\pm\dfrac{1}{\sqrt{2}} = \pm\dfrac{\sqrt{2}}{2}$
+4. 1个（在内部的点，任何方向的直线都至少有1个交点）
+:::
+
+### 训练2：写出联立结果
+
+::: {.callout-note}
+## 练习
+
+直线 $y = kx + 1$ 与双曲线 $x^2 - \dfrac{y^2}{4} = 1$ 联立，写出二次方程并指出何时二次项系数为零。
+:::
+
+::: {.callout-caution collapse="true"}
+## 参考答案
+
+$4x^2 - (kx+1)^2 = 4$，即 $(4-k^2)x^2 - 2kx - 5 = 0$。
+
+当 $k = \pm 2$ 时二次项系数为零。
+:::
+
+## Faded Example
+
+**题目：** 2024北京高考。直线 $y = kx + 1$ 与双曲线 $\dfrac{x^2}{2} - y^2 = 1$ 交于右支两个不同的点，求 $k$ 的取值范围。
+
+**【第一步：联立】**
+
+$x^2 - 2(kx+1)^2 = 2$，整理：$(1-2k^2)x^2 - 4kx - 4 = 0$。
+
+**【第二步：条件】**
+
+需同时满足：
+
+1. 二次项系数 $1 - 2k^2 \neq $ \_\_\_\_
+2. $\Delta > $ \_\_\_\_
+3. 两根都在右支 → $x_1 > 0$ 且 $x_2 > 0$ → $x_1 + x_2 > $ \_\_\_\_，$x_1 x_2 > $ \_\_\_\_
+
+**【第三步：用韦达列不等式】**
+
+$$x_1 + x_2 = \frac{-4k}{1-2k^2} > 0, \quad x_1 x_2 = \frac{-4}{1-2k^2} > 0$$
+
+（请完成求解。）
+
+::: {.callout-caution collapse="true"}
+## 参考答案
+
+$1-2k^2 \neq 0 \Rightarrow k \neq \pm\dfrac{\sqrt{2}}{2}$
+
+$x_1 x_2 > 0 \Rightarrow 1-2k^2 < 0 \Rightarrow k^2 > \dfrac{1}{2}$
+
+$x_1 + x_2 > 0$ 结合 $1-2k^2 < 0$，需 $-4k < 0 \Rightarrow k > 0$
+
+所以 $k > \dfrac{\sqrt{2}}{2}$。再验证 $\Delta > 0$：$16k^2 + 16(1-2k^2) > 0 \Rightarrow 16 - 16k^2 > 0 \Rightarrow k < 1$。
+
+最终 $k \in \left(\dfrac{\sqrt{2}}{2},\, 1\right)$。
+:::
+
+## ⚠ 常见错误
+
+::: {.callout-warning}
+## 错误1：双曲线忘记讨论二次项系数
+
+直接令 $\Delta = 0$ 求相切，漏掉了与渐近线平行的情况（退化为一次方程，也只有一个交点但不是相切）。
+:::
+
+::: {.callout-warning}
+## 错误2：两点在同一支却只列 $\Delta > 0$
+
+$\Delta > 0$ 只保证两个交点，不保证都在同一支。需要额外条件：两根同号 → 韦达：$x_1 + x_2$ 和 $x_1 x_2$ 同时满足符号要求。
+:::
+
+::: {.callout-warning}
+## 错误3：弦长公式中用了错误的 $k$
+
+设 $x = ty + n$ 时，弦长公式变为 $\sqrt{1+t^2}\,|y_1-y_2|$，其中 $t$ 不是斜率 $k$！$t = 1/k$。
+:::
+
+## Desmos验证
+
+```{=html}
+<div id="m4_02_desmos" class="desmos-container"></div>
+<script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+<script>
+  var m4_02_calc = Desmos.GraphingCalculator(document.getElementById('m4_02_desmos'), {
+    expressions: true, settingsMenu: false
+  });
+  m4_02_calc.setExpression({ id: 'hyp', latex: '\\frac{x^2}{2}-y^2=1', color: '#2d70b3' });
+  m4_02_calc.setExpression({ id: 'k_val', latex: 'k=0.8', sliderBounds: { min: -3, max: 3, step: 0.01 } });
+  m4_02_calc.setExpression({ id: 'line', latex: 'y=kx+1', color: '#c74440' });
+  m4_02_calc.setExpression({ id: 'asym1', latex: 'y=\\frac{x}{\\sqrt{2}}', color: '#999', lineStyle: 'DASHED' });
+  m4_02_calc.setExpression({ id: 'asym2', latex: 'y=-\\frac{x}{\\sqrt{2}}', color: '#999', lineStyle: 'DASHED' });
+  m4_02_calc.setMathBounds({ left: -5, right: 5, bottom: -4, top: 4 });
+</script>
+```
+
+调节 $k$ 值，验证当 $k \in \left(\dfrac{\sqrt{2}}{2}, 1\right)$ 时，直线确实与双曲线右支有两个交点。
+
+## 参考视频
+
+```{=html}
+<div class="video-container"><iframe src="//player.bilibili.com/player.html?bvid=BV1F615BpErW&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%;height:100%;position:absolute;top:0;left:0;"></iframe></div>
+```
+
+## 关键帧
+
+![直线与双曲线的位置关系](../images/ch08/frame_01.jpg)
+
+![渐近线平行时的特殊情况](../images/ch08/frame_02.jpg)
+
+![定点在内部 vs 外部](../images/ch08/frame_03.jpg)
+
+![弦长公式的应用](../images/ch08/frame_04.jpg)
+
+## 速查表
+
+::: {.callout-important}
+## 直线与圆锥曲线位置关系速查
+
+**椭圆：** 联立后必为二次方程，只看 $\Delta$。
+
+**双曲线：** 联立后看三层：
+
+| 层级 | 条件 | 含义 |
+|------|------|------|
+| 1 | 二次项系数 $= 0$？ | 与渐近线平行，退化为一次方程 |
+| 2 | $\Delta$ 的符号？ | 决定交点数 |
+| 3 | 两根符号？ | 决定交点在哪个支上 |
+
+**弦长公式：** $|AB| = \sqrt{1+k^2} \cdot \sqrt{(x_1+x_2)^2 - 4x_1 x_2}$
+
+**两根同在右支：** $x_1 + x_2 > 0$ 且 $x_1 x_2 > 0$
+
+**两根同在左支：** $x_1 + x_2 < 0$ 且 $x_1 x_2 > 0$
+
+**左右各一：** $x_1 x_2 < 0$
+:::

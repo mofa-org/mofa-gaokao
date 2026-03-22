@@ -1,0 +1,285 @@
+---
+title: "双曲线：差的几何"
+subtitle: "模块一 · 第3课"
+date: 2026-03-22
+---
+
+当你听到两个音箱发出的声音，声波差产生的图形就是双曲线。椭圆是"和"的曲线，双曲线是"差"的曲线——看似相反，却是一对孪生兄弟。
+
+## 探索问题
+
+::: {.callout-tip}
+## 先想一想
+
+两个基站同时发出信号。你的手机接收到两个信号的时间差是固定的。
+
+1. 这意味着你到两个基站的距离差是多少？（提示：信号速度乘以时间差）
+2. 满足"到两点距离差为常数"的所有位置，会形成什么形状？
+3. 如果再加一个基站，得到另一条"距离差恒定"的曲线，两条曲线的交点是什么？
+:::
+
+## 几何直觉：双曲线的定义
+
+### 动画1：拖动点 P，观察距离差
+
+```{=html}
+<div class="d3-container" id="m1_hyp_diff"></div>
+<div class="d3-controls">
+  <span class="value-display" id="m1_hyp_diff_info">拖动双曲线上的蓝色点 P</span>
+</div>
+<script>
+(function() {
+  const W = 700, H = 420, margin = {top: 20, right: 20, bottom: 40, left: 20};
+  const w = W - margin.left - margin.right, h = H - margin.top - margin.bottom;
+  const cx = w / 2, cy = h / 2;
+
+  const svg = d3.select("#m1_hyp_diff").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`)
+    .append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+  const a = 100, bParam = 75;
+  const cLen = Math.sqrt(a * a + bParam * bParam);
+  const f1 = {x: cx - cLen, y: cy};
+  const f2 = {x: cx + cLen, y: cy};
+
+  // Axes
+  svg.append("line").attr("x1", 0).attr("y1", cy).attr("x2", w).attr("y2", cy)
+    .attr("stroke", "#ddd").attr("stroke-width", 1);
+  svg.append("line").attr("x1", cx).attr("y1", 0).attr("x2", cx).attr("y2", h)
+    .attr("stroke", "#ddd").attr("stroke-width", 1);
+
+  // Asymptotes
+  svg.append("line").attr("x1", cx - w/2).attr("y1", cy - bParam/a * w/2)
+    .attr("x2", cx + w/2).attr("y2", cy + bParam/a * w/2)
+    .attr("stroke", "#aaa").attr("stroke-dasharray", "6,4").attr("stroke-width", 1);
+  svg.append("line").attr("x1", cx - w/2).attr("y1", cy + bParam/a * w/2)
+    .attr("x2", cx + w/2).attr("y2", cy - bParam/a * w/2)
+    .attr("stroke", "#aaa").attr("stroke-dasharray", "6,4").attr("stroke-width", 1);
+
+  // Hyperbola branches
+  function hypPoints(sign) {
+    return d3.range(-2.2, 2.21, 0.04).map(t => [
+      cx + sign * a * Math.cosh(t), cy + bParam * Math.sinh(t)
+    ]);
+  }
+  svg.append("path").attr("d", d3.line().curve(d3.curveBasis)(hypPoints(1)))
+    .attr("fill", "none").attr("stroke", "#2d70b3").attr("stroke-width", 2);
+  svg.append("path").attr("d", d3.line().curve(d3.curveBasis)(hypPoints(-1)))
+    .attr("fill", "none").attr("stroke", "#2d70b3").attr("stroke-width", 2);
+
+  // Foci
+  svg.append("circle").attr("cx", f1.x).attr("cy", f1.y).attr("r", 6).attr("fill", "#c74440");
+  svg.append("circle").attr("cx", f2.x).attr("cy", f2.y).attr("r", 6).attr("fill", "#c74440");
+  svg.append("text").attr("x", f1.x).attr("y", f1.y + 22).attr("text-anchor", "middle")
+    .attr("font-size", "14px").attr("fill", "#c74440").attr("font-weight", "bold").text("F₁");
+  svg.append("text").attr("x", f2.x).attr("y", f2.y + 22).attr("text-anchor", "middle")
+    .attr("font-size", "14px").attr("fill", "#c74440").attr("font-weight", "bold").text("F₂");
+
+  // Lines to foci
+  const line1 = svg.append("line").attr("stroke", "#e67e22").attr("stroke-width", 2);
+  const line2 = svg.append("line").attr("stroke", "#27ae60").attr("stroke-width", 2);
+
+  const dist1Label = svg.append("text").attr("font-size", "13px").attr("fill", "#e67e22").attr("font-weight", "bold");
+  const dist2Label = svg.append("text").attr("font-size", "13px").attr("fill", "#27ae60").attr("font-weight", "bold");
+
+  const diffDisplay = svg.append("text")
+    .attr("x", w - 10).attr("y", 30).attr("text-anchor", "end")
+    .attr("font-size", "18px").attr("font-weight", "bold").attr("fill", "#2d70b3");
+
+  const constDisplay = svg.append("text")
+    .attr("x", w - 10).attr("y", 55).attr("text-anchor", "end")
+    .attr("font-size", "14px").attr("fill", "#888");
+
+  // Draggable point
+  let tParam = 0.8;
+  let onRight = true;
+  const pointP = svg.append("circle").attr("r", 10).attr("fill", "#2d70b3")
+    .attr("stroke", "white").attr("stroke-width", 2).attr("cursor", "pointer");
+  const pointLabel = svg.append("text").attr("font-size", "16px").attr("fill", "#2d70b3")
+    .attr("font-weight", "bold").text("P");
+
+  function updateP(px, py) {
+    // Snap to nearest point on hyperbola
+    onRight = px >= cx;
+    const sign = onRight ? 1 : -1;
+    // Find closest t
+    tParam = Math.asinh((py - cy) / bParam);
+    const ex = cx + sign * a * Math.cosh(tParam);
+    const ey = cy + bParam * Math.sinh(tParam);
+
+    pointP.attr("cx", ex).attr("cy", ey);
+    pointLabel.attr("x", ex + 15).attr("y", ey - 10);
+
+    line1.attr("x1", f1.x).attr("y1", f1.y).attr("x2", ex).attr("y2", ey);
+    line2.attr("x1", f2.x).attr("y1", f2.y).attr("x2", ex).attr("y2", ey);
+
+    const d1 = Math.sqrt((ex - f1.x) ** 2 + (ey - f1.y) ** 2);
+    const d2 = Math.sqrt((ex - f2.x) ** 2 + (ey - f2.y) ** 2);
+    const diff = Math.abs(d1 - d2);
+
+    dist1Label.attr("x", (f1.x + ex) / 2 - 15).attr("y", (f1.y + ey) / 2 - 8)
+      .text(`${(d1 / 50).toFixed(2)}`);
+    dist2Label.attr("x", (f2.x + ex) / 2 + 10).attr("y", (f2.y + ey) / 2 - 8)
+      .text(`${(d2 / 50).toFixed(2)}`);
+
+    diffDisplay.text(`||PF₁| - |PF₂|| = ${(diff / 50).toFixed(2)}`);
+    constDisplay.text(`2a = ${(2 * a / 50).toFixed(2)}（始终相等！）`);
+
+    document.getElementById("m1_hyp_diff_info").textContent =
+      `|PF₁| = ${(d1/50).toFixed(2)}, |PF₂| = ${(d2/50).toFixed(2)}, |差| = ${(diff/50).toFixed(2)}`;
+  }
+
+  pointP.call(d3.drag().on("drag", function(event) { updateP(event.x, event.y); }));
+  updateP(cx + a * Math.cosh(tParam), cy + bParam * Math.sinh(tParam));
+})();
+</script>
+```
+
+拖动蓝色点 P 在双曲线的两支上移动。无论 P 在哪个位置，$||PF_1| - |PF_2||$ 始终等于 $2a$。这就是双曲线的定义——和椭圆相比，只是把"和"变成了"差"。
+
+### 动画2：渐近线的引导作用
+
+```{=html}
+<div class="d3-container" id="m1_hyp_asymp"></div>
+<div class="d3-controls">
+  <label>b/a 比值：</label>
+  <input type="range" id="m1_asymp_slider" min="20" max="200" value="75" step="5">
+  <span class="value-display" id="m1_asymp_val">b/a = 0.75</span>
+  <button id="m1_asymp_zoom">放大远处 🔍</button>
+</div>
+<script>
+(function() {
+  const W = 700, H = 400, margin = {top: 20, right: 20, bottom: 40, left: 20};
+  const w = W - margin.left - margin.right, h = H - margin.top - margin.bottom;
+  const cx = w / 2, cy = h / 2;
+
+  const svg = d3.select("#m1_hyp_asymp").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`)
+    .append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+  // Axes
+  svg.append("line").attr("x1", 0).attr("y1", cy).attr("x2", w).attr("y2", cy)
+    .attr("stroke", "#ddd").attr("stroke-width", 1);
+  svg.append("line").attr("x1", cx).attr("y1", 0).attr("x2", cx).attr("y2", h)
+    .attr("stroke", "#ddd").attr("stroke-width", 1);
+
+  const asymp1 = svg.append("line").attr("stroke", "#c74440").attr("stroke-dasharray", "8,4").attr("stroke-width", 2);
+  const asymp2 = svg.append("line").attr("stroke", "#c74440").attr("stroke-dasharray", "8,4").attr("stroke-width", 2);
+
+  const branch1 = svg.append("path").attr("fill", "none").attr("stroke", "#2d70b3").attr("stroke-width", 2.5);
+  const branch2 = svg.append("path").attr("fill", "none").attr("stroke", "#2d70b3").attr("stroke-width", 2.5);
+
+  const asympLabel = svg.append("text")
+    .attr("x", w - 10).attr("y", 30).attr("text-anchor", "end")
+    .attr("font-size", "15px").attr("fill", "#c74440").attr("font-weight", "bold");
+
+  const gapLabel = svg.append("text")
+    .attr("x", w - 10).attr("y", 55).attr("text-anchor", "end")
+    .attr("font-size", "13px").attr("fill", "#888");
+
+  let zoomLevel = 1;
+  const a = 80;
+
+  function update(bVal) {
+    const bParam = bVal / 100 * a;
+    const ratio = bParam / a;
+    const scale = 1 / zoomLevel;
+
+    const tMax = 2.5 * zoomLevel;
+    function hypPts(sign) {
+      return d3.range(-tMax, tMax + 0.02, 0.04).map(t => [
+        cx + sign * a * Math.cosh(t) * scale, cy + bParam * Math.sinh(t) * scale
+      ]).filter(p => p[0] >= -20 && p[0] <= w + 20 && p[1] >= -20 && p[1] <= h + 20);
+    }
+
+    branch1.attr("d", d3.line().curve(d3.curveBasis)(hypPts(1)));
+    branch2.attr("d", d3.line().curve(d3.curveBasis)(hypPts(-1)));
+
+    const extent = w * 0.6;
+    asymp1.attr("x1", cx - extent).attr("y1", cy - ratio * extent)
+      .attr("x2", cx + extent).attr("y2", cy + ratio * extent);
+    asymp2.attr("x1", cx - extent).attr("y1", cy + ratio * extent)
+      .attr("x2", cx + extent).attr("y2", cy - ratio * extent);
+
+    asympLabel.text(`渐近线: y = ±(${ratio.toFixed(2)})x`);
+    gapLabel.text(zoomLevel > 1 ? "放大后：曲线越来越靠近渐近线，但永远不会碰到" : "点击放大按钮看远处的趋势");
+
+    document.getElementById("m1_asymp_val").textContent = `b/a = ${ratio.toFixed(2)}`;
+  }
+
+  const slider = document.getElementById("m1_asymp_slider");
+  slider.addEventListener("input", () => update(+slider.value));
+
+  document.getElementById("m1_asymp_zoom").addEventListener("click", function() {
+    zoomLevel = zoomLevel === 1 ? 3 : 1;
+    this.textContent = zoomLevel > 1 ? "恢复原始比例" : "放大远处 🔍";
+    update(+slider.value);
+  });
+
+  update(75);
+})();
+</script>
+```
+
+调节 b/a 比值，观察渐近线的斜率如何变化。渐近线就像双曲线的"骨架"——曲线在远处无限趋近渐近线，却永远不会碰到它。
+
+## 生活中的曲线
+
+::: {.callout-note}
+## 双曲线在生活中
+
+- **GPS/北斗定位**：接收多个卫星信号的时间差，每个时间差确定一条双曲线，交点就是你的位置
+- **声波定位**：鲸鱼通过声波的时间差来判断猎物的位置
+- **冷却塔**：发电厂的冷却塔是双曲面形状，这种形状能承受最大风力，同时用最少的材料
+- **超音速飞行**：飞机超音速飞行时产生的锥形冲击波，与地面相交形成双曲线
+:::
+
+## Desmos探索
+
+```{=html}
+<div id="m1_03_desmos" class="desmos-container"></div>
+<script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+<script>
+  var m1_03_calc = Desmos.GraphingCalculator(document.getElementById('m1_03_desmos'), {
+    expressions: true, settingsMenu: false
+  });
+  m1_03_calc.setExpression({ id: 'a', latex: 'a = 2', sliderBounds: { min: 0.5, max: 4, step: 0.1 } });
+  m1_03_calc.setExpression({ id: 'b', latex: 'b = 1.5', sliderBounds: { min: 0.5, max: 4, step: 0.1 } });
+  m1_03_calc.setExpression({ id: 'hyp', latex: '\\frac{x^2}{a^2} - \\frac{y^2}{b^2} = 1', color: '#2d70b3' });
+  m1_03_calc.setExpression({ id: 'asymp1', latex: 'y = \\frac{b}{a} x', color: '#c74440', lineStyle: 'DASHED' });
+  m1_03_calc.setExpression({ id: 'asymp2', latex: 'y = -\\frac{b}{a} x', color: '#c74440', lineStyle: 'DASHED' });
+  m1_03_calc.setExpression({ id: 'c_val', latex: 'c = \\sqrt{a^2 + b^2}' });
+  m1_03_calc.setExpression({ id: 'f1', latex: '(-c, 0)', color: '#388c46', pointStyle: 'POINT', pointSize: 8 });
+  m1_03_calc.setExpression({ id: 'f2', latex: '(c, 0)', color: '#388c46', pointStyle: 'POINT', pointSize: 8 });
+  m1_03_calc.setMathBounds({ left: -8, right: 8, bottom: -6, top: 6 });
+</script>
+```
+
+调节 $a$ 和 $b$，观察双曲线的开口大小和渐近线的变化。注意：双曲线的 $c^2 = a^2 + b^2$，和椭圆的 $c^2 = a^2 - b^2$ 正好相反。
+
+## 参考视频
+
+```{=html}
+<div class="video-container"><iframe src="//player.bilibili.com/player.html?bvid=BV15t4y1N7UN&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%;height:100%;position:absolute;top:0;left:0;"></iframe></div>
+```
+
+## 关键帧
+
+![双曲线的两焦点定义](../images/ch04/frame_01.jpg)
+
+![距离差保持不变](../images/ch04/frame_02.jpg)
+
+![渐近线引导曲线走向](../images/ch04/frame_03.jpg)
+
+![双曲线的两支](../images/ch04/frame_04.jpg)
+
+## 本课要点
+
+::: {.callout-important}
+## 记住这些
+
+1. **双曲线的定义**：平面上到两定点距离**差**的绝对值为常数（$2a$）的点的轨迹
+2. 椭圆是"和"，双曲线是"差"——这是最核心的区别
+3. **渐近线** $y = \pm\frac{b}{a}x$ 是双曲线的"骨架"，曲线在远处无限趋近但不相交
+4. 双曲线有**两支**，分别在两条渐近线围成的对角区域内
+:::

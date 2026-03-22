@@ -1,0 +1,266 @@
+---
+title: "椭圆：两焦点的舞蹈"
+subtitle: "模块一 · 第2课"
+date: 2026-03-22
+---
+
+用两根钉子和一根线就能画椭圆。把线的两端固定在钉子上，用铅笔绷紧线，绕一圈——你画出的就是一个完美的椭圆。这根线的长度不变，就是椭圆最本质的秘密。
+
+## 探索问题
+
+::: {.callout-tip}
+## 先想一想
+
+把两根钉子钉在纸上，相距10厘米。取一根长15厘米的线，两端系在钉子上。用铅笔绷紧线画一圈。
+
+1. 画出来的图形是什么形状？
+2. 如果我们把两根钉子靠得更近（比如相距2厘米），画出来的形状会有什么变化？
+3. 如果两根钉子重合在一起呢？
+:::
+
+## 几何直觉：椭圆的定义
+
+### 动画1：拖动点 P，验证距离之和
+
+```{=html}
+<div class="d3-container" id="m1_ellipse_sum"></div>
+<div class="d3-controls">
+  <span class="value-display" id="m1_ellipse_sum_info">拖动椭圆上的蓝色点 P</span>
+</div>
+<script>
+(function() {
+  const W = 700, H = 420, margin = {top: 20, right: 20, bottom: 40, left: 20};
+  const w = W - margin.left - margin.right, h = H - margin.top - margin.bottom;
+  const cx = w / 2, cy = h / 2;
+
+  const svg = d3.select("#m1_ellipse_sum").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`)
+    .append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+  const a = 200, b = 130;
+  const c = Math.sqrt(a * a - b * b);
+  const f1 = {x: cx - c, y: cy};
+  const f2 = {x: cx + c, y: cy};
+
+  // Axes
+  svg.append("line").attr("x1", 0).attr("y1", cy).attr("x2", w).attr("y2", cy)
+    .attr("stroke", "#ddd").attr("stroke-width", 1);
+  svg.append("line").attr("x1", cx).attr("y1", 0).attr("x2", cx).attr("y2", h)
+    .attr("stroke", "#ddd").attr("stroke-width", 1);
+
+  // Ellipse path
+  const ellipsePoints = d3.range(0, 2 * Math.PI + 0.05, 0.03).map(t => [
+    cx + a * Math.cos(t), cy + b * Math.sin(t)
+  ]);
+  svg.append("path").attr("d", d3.line()(ellipsePoints) + "Z")
+    .attr("fill", "rgba(45,112,179,0.08)").attr("stroke", "#2d70b3").attr("stroke-width", 2);
+
+  // Foci
+  svg.append("circle").attr("cx", f1.x).attr("cy", f1.y).attr("r", 6).attr("fill", "#c74440");
+  svg.append("circle").attr("cx", f2.x).attr("cy", f2.y).attr("r", 6).attr("fill", "#c74440");
+  svg.append("text").attr("x", f1.x).attr("y", f1.y + 22).attr("text-anchor", "middle")
+    .attr("font-size", "14px").attr("fill", "#c74440").attr("font-weight", "bold").text("F₁");
+  svg.append("text").attr("x", f2.x).attr("y", f2.y + 22).attr("text-anchor", "middle")
+    .attr("font-size", "14px").attr("fill", "#c74440").attr("font-weight", "bold").text("F₂");
+
+  // Rubber band lines
+  const line1 = svg.append("line").attr("stroke", "#e67e22").attr("stroke-width", 2);
+  const line2 = svg.append("line").attr("stroke", "#27ae60").attr("stroke-width", 2);
+
+  // Distance labels on lines
+  const dist1Label = svg.append("text").attr("font-size", "13px").attr("fill", "#e67e22").attr("font-weight", "bold");
+  const dist2Label = svg.append("text").attr("font-size", "13px").attr("fill", "#27ae60").attr("font-weight", "bold");
+
+  // Sum display
+  const sumDisplay = svg.append("text")
+    .attr("x", w - 10).attr("y", 30).attr("text-anchor", "end")
+    .attr("font-size", "18px").attr("font-weight", "bold").attr("fill", "#2d70b3");
+
+  const constDisplay = svg.append("text")
+    .attr("x", w - 10).attr("y", 55).attr("text-anchor", "end")
+    .attr("font-size", "14px").attr("fill", "#888");
+
+  // Draggable point P
+  let theta = Math.PI / 4;
+  const pointP = svg.append("circle").attr("r", 10).attr("fill", "#2d70b3")
+    .attr("stroke", "white").attr("stroke-width", 2).attr("cursor", "pointer");
+
+  const pointLabel = svg.append("text").attr("font-size", "16px").attr("fill", "#2d70b3")
+    .attr("font-weight", "bold").text("P");
+
+  function updateP(px, py) {
+    // Snap to ellipse: find closest theta
+    const dx = (px - cx) / a, dy = (py - cy) / b;
+    theta = Math.atan2(dy, dx);
+    const ex = cx + a * Math.cos(theta);
+    const ey = cy + b * Math.sin(theta);
+
+    pointP.attr("cx", ex).attr("cy", ey);
+    pointLabel.attr("x", ex + 15).attr("y", ey - 10);
+
+    line1.attr("x1", f1.x).attr("y1", f1.y).attr("x2", ex).attr("y2", ey);
+    line2.attr("x1", f2.x).attr("y1", f2.y).attr("x2", ex).attr("y2", ey);
+
+    const d1 = Math.sqrt((ex - f1.x) ** 2 + (ey - f1.y) ** 2);
+    const d2 = Math.sqrt((ex - f2.x) ** 2 + (ey - f2.y) ** 2);
+
+    dist1Label.attr("x", (f1.x + ex) / 2 - 15).attr("y", (f1.y + ey) / 2 - 8)
+      .text(`${(d1 / 50).toFixed(2)}`);
+    dist2Label.attr("x", (f2.x + ex) / 2 + 10).attr("y", (f2.y + ey) / 2 - 8)
+      .text(`${(d2 / 50).toFixed(2)}`);
+
+    sumDisplay.text(`|PF₁| + |PF₂| = ${((d1 + d2) / 50).toFixed(2)}`);
+    constDisplay.text(`2a = ${(2 * a / 50).toFixed(2)}（始终相等！）`);
+
+    document.getElementById("m1_ellipse_sum_info").textContent =
+      `|PF₁| = ${(d1/50).toFixed(2)}, |PF₂| = ${(d2/50).toFixed(2)}, 和 = ${((d1+d2)/50).toFixed(2)}`;
+  }
+
+  const drag = d3.drag()
+    .on("drag", function(event) {
+      updateP(event.x, event.y);
+    });
+
+  pointP.call(drag);
+  updateP(cx + a * Math.cos(theta), cy + b * Math.sin(theta));
+})();
+</script>
+```
+
+拖动蓝色点 P 在椭圆上移动。注意观察：无论 P 在椭圆的什么位置，$|PF_1| + |PF_2|$ 的值**始终不变**，等于 $2a$。这就是椭圆的几何定义。
+
+### 动画2：离心率改变形状
+
+```{=html}
+<div class="d3-container" id="m1_ellipse_ecc"></div>
+<div class="d3-controls">
+  <label>离心率 e：</label>
+  <input type="range" id="m1_ecc_slider" min="0" max="99" value="50" step="1">
+  <span class="value-display" id="m1_ecc_val">e = 0.50</span>
+</div>
+<script>
+(function() {
+  const W = 700, H = 380, margin = {top: 20, right: 20, bottom: 40, left: 20};
+  const w = W - margin.left - margin.right, h = H - margin.top - margin.bottom;
+  const cxView = w / 2, cyView = h / 2;
+
+  const svg = d3.select("#m1_ellipse_ecc").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`)
+    .append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+  // Fixed axes
+  svg.append("line").attr("x1", 0).attr("y1", cyView).attr("x2", w).attr("y2", cyView)
+    .attr("stroke", "#ddd").attr("stroke-width", 1);
+  svg.append("line").attr("x1", cxView).attr("y1", 0).attr("x2", cxView).attr("y2", h)
+    .attr("stroke", "#ddd").attr("stroke-width", 1);
+
+  const ellipsePath = svg.append("path")
+    .attr("fill", "rgba(45,112,179,0.1)").attr("stroke", "#2d70b3").attr("stroke-width", 2.5);
+
+  const focus1 = svg.append("circle").attr("r", 5).attr("fill", "#c74440");
+  const focus2 = svg.append("circle").attr("r", 5).attr("fill", "#c74440");
+  const f1Label = svg.append("text").attr("font-size", "13px").attr("fill", "#c74440").text("F₁");
+  const f2Label = svg.append("text").attr("font-size", "13px").attr("fill", "#c74440").text("F₂");
+
+  const shapeLabel = svg.append("text")
+    .attr("x", w - 10).attr("y", 30).attr("text-anchor", "end")
+    .attr("font-size", "16px").attr("fill", "#2d70b3").attr("font-weight", "bold");
+
+  const aFixed = 180;
+
+  function update(eVal) {
+    const e = eVal / 100;
+    const aLen = aFixed;
+    const bLen = aLen * Math.sqrt(1 - e * e);
+    const cLen = aLen * e;
+
+    const pts = d3.range(0, 2 * Math.PI + 0.05, 0.03).map(t => [
+      cxView + aLen * Math.cos(t), cyView + bLen * Math.sin(t)
+    ]);
+    ellipsePath.transition().duration(50)
+      .attr("d", d3.line()(pts) + "Z");
+
+    focus1.attr("cx", cxView - cLen).attr("cy", cyView);
+    focus2.attr("cx", cxView + cLen).attr("cy", cyView);
+    f1Label.attr("x", cxView - cLen - 10).attr("y", cyView + 20);
+    f2Label.attr("x", cxView + cLen + 5).attr("y", cyView + 20);
+
+    let desc = "";
+    if (e === 0) desc = "完美的圆";
+    else if (e < 0.3) desc = "接近圆的椭圆";
+    else if (e < 0.7) desc = "标准椭圆";
+    else if (e < 0.9) desc = "比较扁的椭圆";
+    else desc = "非常扁，接近线段";
+
+    shapeLabel.text(desc);
+    document.getElementById("m1_ecc_val").textContent = `e = ${e.toFixed(2)}`;
+  }
+
+  const slider = document.getElementById("m1_ecc_slider");
+  slider.addEventListener("input", () => update(+slider.value));
+  update(50);
+})();
+</script>
+```
+
+当 $e=0$ 时，两个焦点重合，椭圆变成**圆**。当 $e$ 接近1时，椭圆越来越扁，最终退化为一条线段。地球绕太阳的轨道离心率只有0.017——几乎是圆形的。
+
+## 生活中的曲线
+
+::: {.callout-note}
+## 椭圆在生活中
+
+- **行星轨道**：所有行星绕太阳运动的轨道都是椭圆，太阳位于一个焦点
+- **耳语廊**：椭圆形大厅中，站在一个焦点说悄悄话，站在另一个焦点的人能清楚听到——声波从一个焦点反射后全部汇聚到另一个焦点
+- **碎石机**：医学上用椭圆反射原理粉碎肾结石，将冲击波从一个焦点聚焦到另一个焦点
+- **鸡蛋的形状**近似椭圆（严格来说是卵形线）
+:::
+
+## Desmos探索
+
+```{=html}
+<div id="m1_02_desmos" class="desmos-container"></div>
+<script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+<script>
+  var m1_02_calc = Desmos.GraphingCalculator(document.getElementById('m1_02_desmos'), {
+    expressions: true, settingsMenu: false
+  });
+  m1_02_calc.setExpression({ id: 'a', latex: 'a = 3', sliderBounds: { min: 1, max: 5, step: 0.1 } });
+  m1_02_calc.setExpression({ id: 'b', latex: 'b = 2', sliderBounds: { min: 0.5, max: 5, step: 0.1 } });
+  m1_02_calc.setExpression({ id: 'ellipse', latex: '\\frac{x^2}{a^2} + \\frac{y^2}{b^2} = 1', color: '#2d70b3' });
+  m1_02_calc.setExpression({ id: 'c_val', latex: 'c = \\sqrt{a^2 - b^2}' });
+  m1_02_calc.setExpression({ id: 'f1', latex: '(-c, 0)', color: '#c74440', pointStyle: 'POINT', pointSize: 8 });
+  m1_02_calc.setExpression({ id: 'f2', latex: '(c, 0)', color: '#c74440', pointStyle: 'POINT', pointSize: 8 });
+  m1_02_calc.setExpression({ id: 'ecc', latex: 'e = \\frac{c}{a}' });
+  m1_02_calc.setMathBounds({ left: -7, right: 7, bottom: -5, top: 5 });
+</script>
+```
+
+调节 $a$ 和 $b$，观察焦点位置和离心率的变化。注意：当 $a < b$ 时，焦点在哪条轴上？
+
+## 参考视频
+
+```{=html}
+<div class="video-container"><iframe src="//player.bilibili.com/player.html?bvid=BV1wP4y1273G&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%;height:100%;position:absolute;top:0;left:0;"></iframe></div>
+```
+
+## 关键帧
+
+![椭圆的两焦点定义](../images/ch01/frame_01.jpg)
+
+![距离之和保持不变](../images/ch01/frame_02.jpg)
+
+![离心率与椭圆形状](../images/ch01/frame_03.jpg)
+
+![椭圆的焦点反射性质](../images/ch01/frame_04.jpg)
+
+## 本课要点
+
+::: {.callout-important}
+## 记住这些
+
+1. **椭圆的定义**：平面上到两个定点（焦点）距离之和为常数（$2a$）的点的轨迹
+2. **离心率** $e = c/a$ 决定椭圆的"扁"程度：$e=0$ 是圆，$e$ 越大越扁
+3. **焦点越分散**，椭圆越扁；**焦点越集中**，椭圆越圆
+4. 椭圆的反射性质：从一个焦点发出的光（声波）都会汇聚到另一个焦点
+:::

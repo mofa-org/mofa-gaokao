@@ -2,45 +2,51 @@
 title: "圆锥曲线专题"
 ---
 
-面向高考的圆锥曲线交互式课程，包含 D3.js 动画演示、Desmos 交互图形，内容来源于B站顶级数学创作者。
+基于认知科学设计的高考圆锥曲线交互式课程。几何直觉优先，代数操作其次。
 
-## 第一部分：基础结论
-
-| 课 | 主题 |
-|----|------|
-| 1 | [椭圆的二级结论](lessons/ch01-ellipse-conclusions.qmd) |
-| 2 | [最常考的二级结论](lessons/ch02-most-tested-conclusions.qmd) |
-| 3 | [圆锥曲线实用性质全梳理](lessons/ch03-practical-properties.qmd) |
-| 4 | [双曲线方法、题型与性质](lessons/ch04-hyperbola-framework.qmd) |
-| 5 | [离心率求解技巧](lessons/ch05-eccentricity-techniques.qmd) |
-| 6 | [椭圆离心率的出题思路](lessons/ch06-eccentricity-problem-design.qmd) |
-| 7 | [一口气学完二级结论](lessons/ch07-all-conclusions.qmd) |
-| 8 | [直线与双曲线](lessons/ch08-line-hyperbola.qmd) |
-| 9 | [抛物线二级结论](lessons/ch09-parabola-conclusions.qmd) |
-
-## 第二部分：大题技巧
+## 模块一：看见曲线
 
 | 课 | 主题 |
 |----|------|
-| 10 | [技巧大全：齐次化、点乘双根、非对称韦达](lessons/ch10-technique-compendium.qmd) |
-| 11 | [圆锥曲线大题通解思路](lessons/ch11-general-approach.qmd) |
-| 12 | [定点问题](lessons/ch12-fixed-point.qmd) |
-| 13 | [非对称韦达](lessons/ch13-asymmetric-vieta.qmd) |
-| 14 | [点差法及应用](lessons/ch14-point-difference.qmd) |
-| 15 | [齐次化简化计算](lessons/ch15-homogenization.qmd) |
-| 16 | [硬解定理简化计算](lessons/ch16-hard-solve-theorem.qmd) |
+| 1.1 | [什么是圆锥曲线](lessons/m1-01-what-are-conics.qmd) |
+| 1.2 | [椭圆：两焦点的舞蹈](lessons/m1-02-ellipse-intuition.qmd) |
+| 1.3 | [双曲线：差的几何](lessons/m1-03-hyperbola-intuition.qmd) |
+| 1.4 | [抛物线：反射的魔法](lessons/m1-04-parabola-intuition.qmd) |
 
-## 第三部分：进阶方法
+## 模块二：掌握工具
 
 | 课 | 主题 |
 |----|------|
-| 17 | [仿射变换](lessons/ch17-affine-transform.qmd) |
-| 18 | [双曲线仿射变换](lessons/ch18-hyperbola-affine.qmd) |
-| 19 | [极点极线](lessons/ch19-pole-polar.qmd) |
-| 20 | [定比点差](lessons/ch20-ratio-point-difference.qmd) |
-| 21 | [射影几何：调和点列与极点极线](lessons/ch21-projective-geometry.qmd) |
-| 22 | [焦点三角形与内切圆](lessons/ch22-focal-triangle-incircle.qmd) |
+| 2.1 | [从定义到方程](lessons/m2-01-definition-to-equation.qmd) |
+| 2.2 | [焦半径公式](lessons/m2-02-focal-radius.qmd) |
+| 2.3 | [离心率：一个数决定一切](lessons/m2-03-eccentricity.qmd) |
+| 2.4 | [韦达定理：解析几何最强工具](lessons/m2-04-vieta.qmd) |
 
-## 关于
+## 模块三：小题速解
 
-内容来源于B站顶级数学创作者：**一数**（9M粉丝）和**赵礼显**。使用 D3.js 动画和 Desmos 交互图形增强学习体验。
+| 课 | 主题 |
+|----|------|
+| 3.1 | [离心率计算与范围](lessons/m3-01-eccentricity-calc.qmd) |
+| 3.2 | [标准方程求解](lessons/m3-02-standard-equation.qmd) |
+| 3.3 | [焦点三角形](lessons/m3-03-focal-triangle.qmd) |
+| 3.4 | [渐近线与几何性质](lessons/m3-04-asymptotes.qmd) |
+| 3.5 | [二级结论速查](lessons/m3-05-secondary-conclusions.qmd) |
+
+## 模块四：大题攻略
+
+| 课 | 主题 |
+|----|------|
+| 4.1 | [通解流程：设→联→韦→代](lessons/m4-01-general-workflow.qmd) |
+| 4.2 | [直线与曲线的交点](lessons/m4-02-line-conic-intersection.qmd) |
+| 4.3 | [定点问题](lessons/m4-03-fixed-point.qmd) |
+| 4.4 | [定值问题](lessons/m4-04-fixed-value.qmd) |
+| 4.5 | [中点弦与点差法](lessons/m4-05-midpoint-chord.qmd) |
+| 4.6 | [面积、范围与存在性](lessons/m4-06-area-range-existence.qmd) |
+
+## 模块五：提分技巧（选学）
+
+| 课 | 主题 |
+|----|------|
+| 5.1 | [齐次化与硬解定理](lessons/m5-01-homogenization.qmd) |
+| 5.2 | [仿射变换](lessons/m5-02-affine-transform.qmd) |
+| 5.3 | [极点极线与射影几何](lessons/m5-03-projective.qmd) |

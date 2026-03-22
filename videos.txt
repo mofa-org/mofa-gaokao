@@ -1,0 +1,44 @@
+# 圆锥曲线课程视频列表 - 一数 (Yi Shu) Bilibili
+# 按教学顺序排列
+
+# 01 - 椭圆二级结论 (Ellipse Secondary Conclusions) ~3.36M views
+https://www.bilibili.com/video/BV1wP4y1273G/
+
+# 02 - 最常考的二级结论 (Most-tested Conclusions) ~2.83M views
+https://www.bilibili.com/video/BV1qH4y1B7dm/
+
+# 03 - 圆锥曲线实用性质全梳理 (Practical Properties Overview) ~2.19M views
+https://www.bilibili.com/video/BV1iq4y1B7Km/
+
+# 04 - 双曲线框架梳理 (Hyperbola Framework) ~2.10M views
+https://www.bilibili.com/video/BV15t4y1N7UN/
+
+# 05 - 离心率技巧 (Eccentricity Techniques) ~1.07M views
+https://www.bilibili.com/video/BV1BZhEz5Esd/
+
+# 06 - 椭圆离心率出题思路 (Ellipse Eccentricity Problem Design)
+https://www.bilibili.com/video/BV1chytYaE4C/
+
+# 07 - 一口气学完二级结论 (All Conclusions in One Go) ~1.02M views
+https://www.bilibili.com/video/BV1K7q5YEEAR/
+
+# 08 - 直线与双曲线 (Lines and Hyperbolas) ~1.02M views
+https://www.bilibili.com/video/BV1F615BpErW/
+
+# 09 - 抛物线二级结论 (Parabola Conclusions)
+https://www.bilibili.com/video/BV14WDAYQEyy/
+
+# 10 - 圆锥曲线技巧大全 (Technique Compendium) ~2.38M views
+https://www.bilibili.com/video/BV1UXW4zNEBS/
+
+# 11 - 圆锥曲线大题入门到入土 (Big Problems: Beginner to Advanced)
+https://www.bilibili.com/video/BV1GgZUYCEHu/
+
+# 12 - 射影几何：调和点列+极点极线 (Projective Geometry)
+https://www.bilibili.com/video/BV19YUwBEEX7/
+
+# Bonus: 赵礼显 - 椭圆焦点三角形 (Zhao Lixian - Focal Triangle)
+https://www.bilibili.com/video/BV1US4FzAEeD/
+
+# Bonus: 李永乐 - 为什么叫圆锥曲线 (Li Yongle - Why "Conic Sections"?)
+https://www.bilibili.com/video/BV14s41157M4/

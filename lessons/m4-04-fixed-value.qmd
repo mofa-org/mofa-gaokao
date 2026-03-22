@@ -1,0 +1,340 @@
+---
+title: "定值问题"
+subtitle: "模块四 · 第4课"
+date: 2026-03-22
+---
+
+"某个表达式是否为定值？"——这类题目的答案几乎总是"是"。我们今天学习一个强大的策略：**先猜后证**。用特殊情况猜出定值，再用通解流程证明。
+
+## 探索问题
+
+::: {.callout-tip}
+## 先试一试
+
+已知椭圆 $\dfrac{x^2}{4} + y^2 = 1$，$A(-2, 0)$ 和 $B(2, 0)$ 是左右顶点。椭圆上一点 $C$（不在顶点上），求 $k_{AC} \cdot k_{BC}$ 的值。
+
+提示：取一个特殊的 $C$ 点（比如 $C(0, 1)$），算一下试试？
+:::
+
+## 方法讲解："先猜后证"策略
+
+### 策略说明
+
+高考定值问题的解题分两步：
+
+1. **猜值：** 取一个特殊（但合法）的情况，计算出具体数值
+2. **证明：** 用通解流程证明对所有情况都成立
+
+"先猜后证"不是投机取巧——这是一种**有效的数学思维方式**。特殊情况给出候选值，通解证明普遍性。
+
+### 动画：定值的直觉
+
+```{=html}
+<div class="d3-container" id="m4_fixed_value_demo"></div>
+<div class="d3-controls">
+  <label>点C的位置 (参数角 θ)：</label>
+  <input type="range" id="m4_fv_slider" min="5" max="175" value="90" step="1">
+  <span class="value-display" id="m4_fv_angle">θ = 90°</span>
+  <br>
+  <span class="value-display" id="m4_fv_kac">k_AC = ?</span>
+  <span class="value-display" id="m4_fv_kbc">k_BC = ?</span>
+  <span class="value-display" id="m4_fv_product" style="font-weight:bold;color:#c74440;">k_AC · k_BC = ?</span>
+</div>
+<script>
+(function() {
+  const W = 700, H = 400;
+  const svg = d3.select("#m4_fixed_value_demo").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`);
+
+  const cx = W/2, cy = H/2, sc = 80;
+  const a = 2, b = 1;
+
+  // Axes
+  svg.append("line").attr("x1",0).attr("y1",cy).attr("x2",W).attr("y2",cy).attr("stroke","#ddd");
+  svg.append("line").attr("x1",cx).attr("y1",0).attr("x2",cx).attr("y2",H).attr("stroke","#ddd");
+
+  // Ellipse
+  const ePts = d3.range(0, 2*Math.PI+0.05, 0.05).map(t =>
+    [cx + a*sc*Math.cos(t), cy - b*sc*Math.sin(t)]
+  );
+  svg.append("path").attr("d", d3.line()(ePts)+"Z")
+    .attr("fill","none").attr("stroke","#2d70b3").attr("stroke-width",2.5);
+
+  // A and B
+  svg.append("circle").attr("cx", cx-a*sc).attr("cy", cy).attr("r",5).attr("fill","#333");
+  svg.append("text").attr("x", cx-a*sc-5).attr("y", cy+20).attr("font-size","14px").text("A(-2,0)");
+  svg.append("circle").attr("cx", cx+a*sc).attr("cy", cy).attr("r",5).attr("fill","#333");
+  svg.append("text").attr("x", cx+a*sc-5).attr("y", cy+20).attr("font-size","14px").text("B(2,0)");
+
+  const dotC = svg.append("circle").attr("r",6).attr("fill","#c74440");
+  const labelC = svg.append("text").attr("font-size","13px").attr("fill","#c74440").attr("font-weight","bold");
+  const lineAC = svg.append("line").attr("stroke","#388c46").attr("stroke-width",1.5);
+  const lineBC = svg.append("line").attr("stroke","#9b59b6").attr("stroke-width",1.5);
+
+  // Value display box
+  const valueBox = svg.append("g");
+  valueBox.append("rect").attr("x",20).attr("y",20).attr("width",200).attr("height",45).attr("rx",8)
+    .attr("fill","#fff8f0").attr("stroke","#e67e22").attr("stroke-width",2);
+  const valueText = valueBox.append("text").attr("x",120).attr("y",48)
+    .attr("text-anchor","middle").attr("font-size","20px").attr("font-weight","bold").attr("fill","#c74440");
+
+  // History trail
+  const trailGroup = svg.append("g");
+  let trail = [];
+
+  function update() {
+    const theta = +document.getElementById("m4_fv_slider").value;
+    const thetaRad = theta * Math.PI / 180;
+    document.getElementById("m4_fv_angle").textContent = "θ = " + theta + "°";
+
+    const Cx = a * Math.cos(thetaRad);
+    const Cy = b * Math.sin(thetaRad);
+
+    dotC.attr("cx", cx+Cx*sc).attr("cy", cy-Cy*sc);
+    labelC.attr("x", cx+Cx*sc+10).attr("y", cy-Cy*sc-10).text("C");
+
+    lineAC.attr("x1", cx-a*sc).attr("y1", cy).attr("x2", cx+Cx*sc).attr("y2", cy-Cy*sc);
+    lineBC.attr("x1", cx+a*sc).attr("y1", cy).attr("x2", cx+Cx*sc).attr("y2", cy-Cy*sc);
+
+    const kAC = Cy / (Cx + a);
+    const kBC = Cy / (Cx - a);
+    const product = kAC * kBC;
+
+    document.getElementById("m4_fv_kac").textContent = "k_AC = " + kAC.toFixed(3);
+    document.getElementById("m4_fv_kbc").textContent = "k_BC = " + kBC.toFixed(3);
+    document.getElementById("m4_fv_product").textContent = "k_AC · k_BC = " + product.toFixed(4);
+
+    valueText.text("乘积 = " + product.toFixed(4));
+
+    // Trail dot showing product stays constant
+    trail.push({ theta: theta, val: product });
+    if (trail.length > 100) trail.shift();
+  }
+
+  document.getElementById("m4_fv_slider").addEventListener("input", update);
+  update();
+})();
+</script>
+```
+
+拖动滑块移动点 $C$，观察 $k_{AC} \cdot k_{BC}$ 的值——它始终等于 $-\dfrac{1}{4}$！这就是椭圆的**周角定理**。
+
+### 二级结论：椭圆/双曲线的周角定理
+
+这个定值不是巧合，而是**点差法**的直接推论：
+
+- 椭圆 $\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2} = 1$：$k_{AC} \cdot k_{BC} = -\dfrac{b^2}{a^2}$
+- 双曲线 $\dfrac{x^2}{a^2} - \dfrac{y^2}{b^2} = 1$：$k_{AC} \cdot k_{BC} = +\dfrac{b^2}{a^2}$
+
+其中 $A$、$B$ 是左右顶点，$C$ 是曲线上任意一点。
+
+### 更一般的情形：垂径定理
+
+对于任意弦 $AB$（中点为 $M$）和椭圆中心 $O$：
+
+$$k_{AB} \cdot k_{OM} = -\frac{b^2}{a^2}$$
+
+椭圆和双曲线各有三个版本——垂径定理、周角定理、周角定理特殊情况——一共六个图，但定值都是 $\dfrac{b^2}{a^2}$（椭圆取负，双曲线取正）。
+
+## Worked Example
+
+**题目：** 椭圆 $\dfrac{x^2}{4} + y^2 = 1$，$A(-2, 0)$，$B(2, 0)$。椭圆上任意一点 $C$（不在顶点上）。证明 $k_{AC} \cdot k_{BC} = -\dfrac{1}{4}$。
+
+---
+
+**【子目标1：先猜——取特殊点】**
+
+取 $C(0, 1)$：$k_{AC} = \dfrac{1}{0+2} = \dfrac{1}{2}$，$k_{BC} = \dfrac{1}{0-2} = -\dfrac{1}{2}$。
+
+乘积 $= -\dfrac{1}{4}$。猜测定值为 $-\dfrac{1}{4}$。
+
+---
+
+**【子目标2：点差法证明】**
+
+设 $C(x_0, y_0)$ 在椭圆上，$A(-2, 0)$，$B(2, 0)$ 也在椭圆上。
+
+$$\frac{x_0^2}{4} + y_0^2 = 1 \quad \text{且} \quad \frac{4}{4} + 0 = 1$$
+
+两式相减：
+
+$$\frac{x_0^2 - 4}{4} + y_0^2 - 0 = 0$$
+
+$$\frac{(x_0+2)(x_0-2)}{4} + y_0^2 = 0$$
+
+$$\frac{y_0^2}{(x_0+2)(x_0-2)} = -\frac{1}{4}$$
+
+左边恰好是：
+
+$$\frac{y_0}{x_0+2} \cdot \frac{y_0}{x_0-2} = k_{AC} \cdot k_{BC}$$
+
+所以 $k_{AC} \cdot k_{BC} = -\dfrac{1}{4}$。证毕。
+
+## 子技能训练
+
+### 训练1："先猜"——取特殊值
+
+::: {.callout-note}
+## 练习
+
+椭圆 $\dfrac{x^2}{3} + y^2 = 1$，过右焦点 $F(\sqrt{2}, 0)$ 的弦 $AB$ 的中点为 $M$，原点为 $O$。
+
+取一个特殊弦（如水平弦 $y = 0$ 或竖直弦 $x = \sqrt{2}$），计算 $k_{AB} \cdot k_{OM}$ 的值。
+:::
+
+::: {.callout-caution collapse="true"}
+## 参考答案
+
+取竖直弦 $x = \sqrt{2}$，代入椭圆得 $y = \pm\dfrac{1}{\sqrt{3}}$。中点 $M = (\sqrt{2}, 0)$。
+
+$k_{AB}$ 不存在，$k_{OM} = 0$——这是特殊情况，不好用。
+
+取 $y = 1 \cdot (x - \sqrt{2})$（斜率为1的弦），联立得交点，计算中点和斜率……
+
+更快的方法：直接用结论 $k_{AB} \cdot k_{OM} = -\dfrac{b^2}{a^2} = -\dfrac{1}{3}$。
+:::
+
+### 训练2：点差法
+
+::: {.callout-note}
+## 练习
+
+对双曲线 $\dfrac{x^2}{2} - y^2 = 1$，$A(\sqrt{2}, 0)$，$B(-\sqrt{2}, 0)$，$C(x_0, y_0)$ 在曲线上。用点差法证明 $k_{AC} \cdot k_{BC} = \dfrac{1}{2}$。
+
+提示：写出 $C$ 和 $A$ 满足的方程，相减。
+:::
+
+::: {.callout-caution collapse="true"}
+## 参考答案
+
+$\dfrac{x_0^2}{2} - y_0^2 = 1$，$\dfrac{2}{2} - 0 = 1$。
+
+相减：$\dfrac{x_0^2 - 2}{2} - y_0^2 = 0$
+
+$\dfrac{(x_0+\sqrt{2})(x_0-\sqrt{2})}{2} = y_0^2$
+
+$\dfrac{y_0^2}{(x_0+\sqrt{2})(x_0-\sqrt{2})} = \dfrac{1}{2}$
+
+即 $k_{AC} \cdot k_{BC} = \dfrac{1}{2}$。
+:::
+
+## Faded Example
+
+**题目：** 椭圆 $\dfrac{x^2}{4} + \dfrac{y^2}{3} = 1$ 上任意一条弦 $AB$，中点为 $M$，原点 $O$。证明 $k_{AB} \cdot k_{OM} = -\dfrac{3}{4}$。
+
+**【第一步：猜值】**
+
+取水平弦（如 $y = 1$），求 $A$、$B$，计算 $k_{AB}$ 和 $k_{OM}$，验证乘积 = \_\_\_\_。
+
+**【第二步：点差法】**
+
+设 $A(x_1, y_1)$，$B(x_2, y_2)$ 都在椭圆上：
+
+$$\frac{x_1^2}{4} + \frac{y_1^2}{3} = 1, \quad \frac{x_2^2}{4} + \frac{y_2^2}{3} = 1$$
+
+相减：
+
+$$\frac{x_1^2 - x_2^2}{4} + \frac{y_1^2 - y_2^2}{3} = \text{\_\_\_\_}$$
+
+平方差展开：
+
+$$\frac{(x_1+x_2)(x_1-x_2)}{4} + \frac{(y_1+y_2)(y_1-y_2)}{3} = 0$$
+
+两边除以 $(x_1-x_2)(x_1+x_2)$，注意 $M = \left(\dfrac{x_1+x_2}{2}, \dfrac{y_1+y_2}{2}\right)$：
+
+$$k_{AB} \cdot k_{OM} = \text{\_\_\_\_}$$
+
+::: {.callout-caution collapse="true"}
+## 参考答案
+
+相减得 $0$。
+
+$$\frac{(x_1+x_2)(x_1-x_2)}{4} = -\frac{(y_1+y_2)(y_1-y_2)}{3}$$
+
+$$\frac{y_1-y_2}{x_1-x_2} \cdot \frac{y_1+y_2}{x_1+x_2} = -\frac{3}{4}$$
+
+即 $k_{AB} \cdot k_{OM} = -\dfrac{3}{4}$。
+:::
+
+## ⚠ 常见错误
+
+::: {.callout-warning}
+## 错误1：不用特殊值先猜
+
+直接开始通解推导，算了一页纸才发现答案是 $-\dfrac{1}{4}$。如果先用特殊值30秒猜出答案，不仅能验证计算，还能在考试中"保底得分"（即使证明没写完）。
+:::
+
+::: {.callout-warning}
+## 错误2：点差法忘记条件 $x_1 \neq x_2$
+
+点差法的前提是两点不重合且 $x_1 \neq x_2$。如果弦是竖直的（$x_1 = x_2$），需要单独验证。
+:::
+
+::: {.callout-warning}
+## 错误3：椭圆双曲线的符号搞反
+
+椭圆的 $k_{AC} \cdot k_{BC} = -\dfrac{b^2}{a^2}$（**负号**），双曲线的 $= +\dfrac{b^2}{a^2}$（**正号**）。记忆技巧：看斜率方向——椭圆中 $AC$ 和 $BC$ 斜率异号，双曲线中同号。
+:::
+
+## Desmos验证
+
+```{=html}
+<div id="m4_04_desmos" class="desmos-container"></div>
+<script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+<script>
+  var m4_04_calc = Desmos.GraphingCalculator(document.getElementById('m4_04_desmos'), {
+    expressions: true, settingsMenu: false
+  });
+  m4_04_calc.setExpression({ id: 'ell', latex: '\\frac{x^2}{4}+y^2=1', color: '#2d70b3' });
+  m4_04_calc.setExpression({ id: 't_val', latex: 't=1', sliderBounds: { min: 0.1, max: 3.1, step: 0.01 } });
+  m4_04_calc.setExpression({ id: 'Cx', latex: 'C_x=2\\cos(t)', color: '#c74440' });
+  m4_04_calc.setExpression({ id: 'Cy', latex: 'C_y=\\sin(t)', color: '#c74440' });
+  m4_04_calc.setExpression({ id: 'C', latex: '(C_x, C_y)', color: '#c74440', showLabel: true, label: 'C' });
+  m4_04_calc.setExpression({ id: 'A', latex: '(-2, 0)', color: '#333', showLabel: true, label: 'A' });
+  m4_04_calc.setExpression({ id: 'B', latex: '(2, 0)', color: '#333', showLabel: true, label: 'B' });
+  m4_04_calc.setExpression({ id: 'kac', latex: 'k_1=\\frac{C_y}{C_x+2}' });
+  m4_04_calc.setExpression({ id: 'kbc', latex: 'k_2=\\frac{C_y}{C_x-2}' });
+  m4_04_calc.setExpression({ id: 'prod', latex: 'k_1 \\cdot k_2' });
+  m4_04_calc.setMathBounds({ left: -4, right: 4, bottom: -2.5, top: 2.5 });
+</script>
+```
+
+拖动参数 $t$，在表达式面板中观察 $k_1 \cdot k_2$ 始终等于 $-0.25 = -\dfrac{1}{4}$。
+
+## 参考视频
+
+```{=html}
+<div class="video-container"><iframe src="//player.bilibili.com/player.html?bvid=BV1GgZUYCEHu&page=2" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%;height:100%;position:absolute;top:0;left:0;"></iframe></div>
+```
+
+## 关键帧
+
+![定值问题的"先猜后证"策略](../images/ch12/frame_01.jpg)
+
+![点差法的推导过程](../images/ch12/frame_02.jpg)
+
+![椭圆的垂径定理](../images/ch12/frame_03.jpg)
+
+![六个图一起记](../images/ch12/frame_04.jpg)
+
+## 速查表
+
+::: {.callout-important}
+## 定值问题速查
+
+**解题策略：先猜后证**
+
+1. 取特殊值（如顶点、短轴端点等），30秒猜出定值
+2. 用点差法或通解流程证明
+
+**六个核心定值（一起记！）**
+
+| 曲线 | 结论 | 定值 |
+|------|------|------|
+| 椭圆 | $k_{AB} \cdot k_{OM}$（垂径定理） | $-\dfrac{b^2}{a^2}$ |
+| 椭圆 | $k_{AC} \cdot k_{BC}$（周角定理） | $-\dfrac{b^2}{a^2}$ |
+| 椭圆 | $k_{PA} \cdot k_{PB}$（$A$、$B$ 为左右顶点） | $-\dfrac{b^2}{a^2}$ |
+| 双曲线 | 以上三个 | $+\dfrac{b^2}{a^2}$ |
+
+**点差法三步：** 写两点方程 → 相减 → 平方差 → 提取斜率
+:::

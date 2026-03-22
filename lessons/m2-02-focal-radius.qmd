@@ -1,0 +1,327 @@
+---
+title: "焦半径公式 — |PF|的两种形式"
+subtitle: "模块二 · 第2课"
+date: 2026-03-22
+---
+
+上一课我们从几何定义推导出了标准方程。今天我们要学一个非常实用的公式——**焦半径公式**。它能让我们用一个简洁的表达式来计算椭圆（或双曲线）上任意一点到焦点的距离，避免使用复杂的两点距离公式。
+
+## 探索问题
+
+::: {.callout-tip}
+## 先想一想
+
+椭圆 $\dfrac{x^2}{25} + \dfrac{y^2}{9} = 1$ 上有一点 $P(3, y_0)$。不求 $y_0$ 的值，你能直接算出 $P$ 到右焦点 $F_2$ 的距离吗？
+
+提示：回忆椭圆的定义和第二定义（焦点-准线关系）。
+:::
+
+## 几何直觉：焦半径的两种来源
+
+焦半径公式有两种推导方式，分别来自椭圆的两个定义：
+
+- **第一定义**（距离和）：$|PF_1| + |PF_2| = 2a$，所以知道一个就知道另一个
+- **第二定义**（焦点-准线）：$\dfrac{|PF|}{d} = e$，其中 $d$ 是点到同侧准线的距离
+
+两种方法殊途同归，最终得到同一个公式。
+
+### 动画：焦半径公式的动态验证
+
+```{=html}
+<div class="d3-container" id="m2_focal_radius"></div>
+<div class="d3-controls">
+  <label>点 P 的位置（参数角）：</label>
+  <input type="range" id="m2_focal_angle" min="0" max="360" value="45" step="1">
+  <span class="value-display" id="m2_focal_label">θ = 45°</span>
+</div>
+<script>
+(function() {
+  const W = 720, H = 480;
+  const svg = d3.select("#m2_focal_radius").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`);
+
+  const plotG = svg.append("g").attr("transform", "translate(30, 20)");
+  const plotW = 420, plotH = 360;
+  const cx = plotW / 2, cy = plotH / 2;
+
+  // Axes
+  plotG.append("line").attr("x1", 0).attr("y1", cy).attr("x2", plotW).attr("y2", cy)
+    .attr("stroke", "#ddd").attr("stroke-width", 1);
+  plotG.append("line").attr("x1", cx).attr("y1", 0).attr("x2", cx).attr("y2", plotH)
+    .attr("stroke", "#ddd").attr("stroke-width", 1);
+
+  const aVal = 150, bVal = 100;
+  const cVal = Math.sqrt(aVal * aVal - bVal * bVal);
+  const eVal = cVal / aVal;
+
+  // Ellipse
+  const ellPts = d3.range(0, 2 * Math.PI + 0.05, 0.05).map(t =>
+    [cx + aVal * Math.cos(t), cy + bVal * Math.sin(t)]);
+  plotG.append("path").attr("d", d3.line()(ellPts))
+    .attr("fill", "rgba(45,112,179,0.05)").attr("stroke", "#2d70b3").attr("stroke-width", 2);
+
+  // Directrices
+  const dxLeft = aVal * aVal / cVal;
+  const dxRight = aVal * aVal / cVal;
+  plotG.append("line").attr("x1", cx - dxLeft).attr("y1", 0).attr("x2", cx - dxLeft).attr("y2", plotH)
+    .attr("stroke", "#388c46").attr("stroke-width", 1.5).attr("stroke-dasharray", "6,4");
+  plotG.append("line").attr("x1", cx + dxRight).attr("y1", 0).attr("x2", cx + dxRight).attr("y2", plotH)
+    .attr("stroke", "#388c46").attr("stroke-width", 1.5).attr("stroke-dasharray", "6,4");
+  plotG.append("text").attr("x", cx - dxLeft - 5).attr("y", 15).attr("text-anchor", "end")
+    .attr("font-size", "11px").attr("fill", "#388c46").text("左准线");
+  plotG.append("text").attr("x", cx + dxRight + 5).attr("y", 15)
+    .attr("font-size", "11px").attr("fill", "#388c46").text("右准线");
+
+  // Foci
+  plotG.append("circle").attr("cx", cx - cVal).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
+  plotG.append("circle").attr("cx", cx + cVal).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
+  plotG.append("text").attr("x", cx - cVal).attr("y", cy + 20).attr("text-anchor", "middle")
+    .attr("font-size", "12px").attr("fill", "#c74440").text("F₁");
+  plotG.append("text").attr("x", cx + cVal).attr("y", cy + 20).attr("text-anchor", "middle")
+    .attr("font-size", "12px").attr("fill", "#c74440").text("F₂");
+
+  // Dynamic elements
+  const pDot = plotG.append("circle").attr("r", 6).attr("fill", "#fa7e19");
+  const pLabel = plotG.append("text").attr("font-size", "13px").attr("fill", "#fa7e19").attr("font-weight", "bold");
+  const linePF1 = plotG.append("line").attr("stroke", "#c74440").attr("stroke-width", 2);
+  const linePF2 = plotG.append("line").attr("stroke", "#c74440").attr("stroke-width", 2);
+  const linePD1 = plotG.append("line").attr("stroke", "#388c46").attr("stroke-width", 1.5).attr("stroke-dasharray", "4,3");
+  const linePD2 = plotG.append("line").attr("stroke", "#388c46").attr("stroke-width", 1.5).attr("stroke-dasharray", "4,3");
+
+  // Info panel
+  const infoG = svg.append("g").attr("transform", "translate(470, 40)");
+  const infoLines = [];
+  const labels = [
+    "P 的坐标：", "x₀ = ", "",
+    "── 焦半径公式 ──",
+    "|PF₁| = a + ex₀", "|PF₂| = a - ex₀",
+    "── 实际计算 ──",
+    "|PF₁| = ", "|PF₂| = ",
+    "── 验证 ──",
+    "|PF₁|+|PF₂| = ", "2a = "
+  ];
+  for (let i = 0; i < labels.length; i++) {
+    const t = infoG.append("text").attr("x", 0).attr("y", i * 26)
+      .attr("font-size", i === 3 || i === 6 || i === 9 ? "13px" : "15px")
+      .attr("fill", i === 3 || i === 6 || i === 9 ? "#999" : (i === 4 || i === 5 ? "#2d70b3" : "#333"))
+      .attr("font-weight", i === 4 || i === 5 ? "bold" : "normal");
+    infoLines.push(t);
+  }
+
+  const aReal = 5, bReal = 100 / aVal * aVal / 100 * (100 / bVal) > 0 ? 10 / 3 : 3;
+  // Use simpler real-world values for display
+  const aR = (aVal / 30).toFixed(1);
+
+  function update(angleDeg) {
+    const theta = angleDeg * Math.PI / 180;
+    const px = cx + aVal * Math.cos(theta);
+    const py = cy + bVal * Math.sin(theta);
+
+    // Real coordinates (normalized)
+    const x0 = aVal * Math.cos(theta) / 30; // scale to real units
+    const y0 = bVal * Math.sin(theta) / 30;
+
+    pDot.attr("cx", px).attr("cy", py);
+    pLabel.attr("x", px + 10).attr("y", py - 10).text(`P(${x0.toFixed(2)}, ${y0.toFixed(2)})`);
+
+    linePF1.attr("x1", px).attr("y1", py).attr("x2", cx - cVal).attr("y2", cy);
+    linePF2.attr("x1", px).attr("y1", py).attr("x2", cx + cVal).attr("y2", cy);
+
+    // Lines to directrices (horizontal)
+    linePD1.attr("x1", px).attr("y1", py).attr("x2", cx - dxLeft).attr("y2", py);
+    linePD2.attr("x1", px).attr("y1", py).attr("x2", cx + dxRight).attr("y2", py);
+
+    // Calculate focal radii
+    const pf1 = Math.sqrt((px - (cx - cVal)) ** 2 + (py - cy) ** 2);
+    const pf2 = Math.sqrt((px - (cx + cVal)) ** 2 + (py - cy) ** 2);
+
+    // Normalized values
+    const pf1N = pf1 / 30;
+    const pf2N = pf2 / 30;
+    const aN = aVal / 30;
+    const eN = eVal;
+
+    // Formula values
+    const formulaPF1 = aN + eN * x0;
+    const formulaPF2 = aN - eN * x0;
+
+    infoLines[0].text(`P 的坐标：(${x0.toFixed(2)}, ${y0.toFixed(2)})`);
+    infoLines[1].text(`x₀ = ${x0.toFixed(2)},  e = ${eN.toFixed(3)}`);
+    infoLines[2].text(`a = ${aN.toFixed(2)}`);
+    infoLines[3].text("── 焦半径公式 ──");
+    infoLines[4].text(`|PF₁| = a + ex₀ = ${formulaPF1.toFixed(3)}`).attr("fill", "#2d70b3");
+    infoLines[5].text(`|PF₂| = a − ex₀ = ${formulaPF2.toFixed(3)}`).attr("fill", "#2d70b3");
+    infoLines[6].text("── 距离公式验证 ──");
+    infoLines[7].text(`|PF₁| = ${pf1N.toFixed(3)}`);
+    infoLines[8].text(`|PF₂| = ${pf2N.toFixed(3)}`);
+    infoLines[9].text("── 和为 2a ──");
+    infoLines[10].text(`|PF₁|+|PF₂| = ${(pf1N + pf2N).toFixed(3)}`);
+    infoLines[11].text(`2a = ${(2 * aN).toFixed(3)}  ✓`).attr("fill", "#388c46");
+
+    document.getElementById("m2_focal_label").textContent = `θ = ${angleDeg}°`;
+  }
+
+  const slider = document.getElementById("m2_focal_angle");
+  slider.addEventListener("input", () => update(+slider.value));
+  update(45);
+})();
+</script>
+```
+
+拖动滑块移动点 $P$，观察两条焦半径 $|PF_1|$ 和 $|PF_2|$ 如何随 $P$ 的位置变化，同时验证焦半径公式的正确性。
+
+## 公式推导
+
+### 从第二定义推导焦半径公式
+
+椭圆的第二定义告诉我们：椭圆上任意一点 $P(x_0, y_0)$ 到焦点的距离与到同侧准线的距离之比为离心率 $e$。
+
+**右焦点 $F_2$ 的焦半径：**
+
+右准线方程为 $x = \dfrac{a^2}{c} = \dfrac{a}{e}$，$P$ 到右准线的距离为 $\dfrac{a}{e} - x_0$。
+
+$$\frac{|PF_2|}{\dfrac{a}{e} - x_0} = e$$
+
+$$|PF_2| = e \cdot \left(\frac{a}{e} - x_0\right) = a - ex_0$$
+
+**左焦点 $F_1$ 的焦半径：**
+
+左准线方程为 $x = -\dfrac{a}{e}$，$P$ 到左准线的距离为 $x_0 + \dfrac{a}{e}$。
+
+$$|PF_1| = e \cdot \left(x_0 + \frac{a}{e}\right) = a + ex_0$$
+
+::: {.callout-important}
+## 椭圆焦半径公式
+
+$$|PF_1| = a + ex_0, \quad |PF_2| = a - ex_0$$
+
+其中 $P(x_0, y_0)$ 是椭圆上任意一点，$F_1$ 为左焦点，$F_2$ 为右焦点。
+
+记忆口诀：**"左加右减"**——左焦点用加号，右焦点用减号。
+
+验证：$|PF_1| + |PF_2| = (a + ex_0) + (a - ex_0) = 2a$ ✓
+:::
+
+### 双曲线的焦半径公式
+
+双曲线的推导方法完全相同（用第二定义），但要注意绝对值：
+
+- 右支上的点 $(x_0 > 0)$：$|PF_1| = a + ex_0$，$|PF_2| = -a + ex_0$
+- 左支上的点 $(x_0 < 0)$：$|PF_1| = -a - ex_0$，$|PF_2| = a - ex_0$
+
+统一写法：$|PF_1| = |a + ex_0|$，$|PF_2| = |a - ex_0|$
+
+### 抛物线的焦半径公式
+
+对于抛物线 $y^2 = 2px$，焦点 $F(\dfrac{p}{2}, 0)$，准线 $x = -\dfrac{p}{2}$。
+
+由抛物线定义：$|PF| = $ 到准线距离 $= x_0 + \dfrac{p}{2}$
+
+$$\boxed{|PF| = x_0 + \frac{p}{2}}$$
+
+### 极坐标（角度）形式
+
+以焦点为极点时，焦半径也可以用角度表示。对椭圆以左焦点为极点：
+
+$$|PF_1| = \frac{b^2/a}{1 - e\cos\theta}$$
+
+其中 $\theta$ 是 $PF_1$ 与正 $x$ 轴的夹角。这个形式在处理焦点三角形时特别有用。
+
+## Worked Example
+
+::: {.callout-note}
+## 例题：焦半径公式的应用
+
+**题目：** 椭圆 $\dfrac{x^2}{25} + \dfrac{y^2}{16} = 1$ 上一点 $P$ 到左焦点 $F_1$ 的距离为 $2$，求 $P$ 到右焦点 $F_2$ 的距离。
+
+**解题过程：**
+
+**Step 1：读取参数**
+
+- $a^2 = 25$，$b^2 = 16$ → $a = 5$，$b = 4$
+- $c^2 = a^2 - b^2 = 9$ → $c = 3$
+- $e = \dfrac{c}{a} = \dfrac{3}{5}$
+
+**Step 2：利用定义直接求解**
+
+由椭圆定义：$|PF_1| + |PF_2| = 2a = 10$
+
+$$|PF_2| = 2a - |PF_1| = 10 - 2 = 8$$
+
+**Step 3：用焦半径公式反求 $x_0$（附加练习）**
+
+由 $|PF_1| = a + ex_0 = 5 + \dfrac{3}{5}x_0 = 2$
+
+$$x_0 = \frac{2 - 5}{3/5} = -5$$
+
+验证：$|PF_2| = a - ex_0 = 5 - \dfrac{3}{5} \times (-5) = 5 + 3 = 8$ ✓
+
+注意：$x_0 = -5$ 正好是左顶点，$P$ 在左顶点时到左焦点最近。
+:::
+
+## Desmos探索
+
+```{=html}
+<div id="m2_02_desmos" class="desmos-container"></div>
+<script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+<script>
+  var m2_02_calc = Desmos.GraphingCalculator(document.getElementById('m2_02_desmos'), {
+    expressions: true, settingsMenu: false
+  });
+  m2_02_calc.setExpression({ id: 'a_sl', latex: 'a = 5', sliderBounds: { min: 2, max: 8, step: 0.1 } });
+  m2_02_calc.setExpression({ id: 'b_sl', latex: 'b = 3', sliderBounds: { min: 1, max: 7, step: 0.1 } });
+  m2_02_calc.setExpression({ id: 'ell', latex: '\\frac{x^2}{a^2} + \\frac{y^2}{b^2} = 1', color: '#2d70b3' });
+  m2_02_calc.setExpression({ id: 'c_val', latex: 'c = \\sqrt{a^2 - b^2}' });
+  m2_02_calc.setExpression({ id: 'e_val', latex: 'e_0 = c / a' });
+  m2_02_calc.setExpression({ id: 't_sl', latex: 't = 0.8', sliderBounds: { min: 0, max: 6.28, step: 0.01 } });
+  m2_02_calc.setExpression({ id: 'px', latex: 'x_0 = a \\cos(t)' });
+  m2_02_calc.setExpression({ id: 'py', latex: 'y_0 = b \\sin(t)' });
+  m2_02_calc.setExpression({ id: 'pt', latex: '(x_0, y_0)', color: '#fa7e19', pointStyle: 'POINT', pointSize: 10 });
+  m2_02_calc.setExpression({ id: 'pf1', latex: 'r_1 = a + e_0 \\cdot x_0' });
+  m2_02_calc.setExpression({ id: 'pf2', latex: 'r_2 = a - e_0 \\cdot x_0' });
+  m2_02_calc.setMathBounds({ left: -10, right: 10, bottom: -7, top: 7 });
+</script>
+```
+
+调节参数 $t$ 移动椭圆上的点 $P$，观察焦半径 $r_1 = a + ex_0$ 和 $r_2 = a - ex_0$ 的实时变化。
+
+## 参考视频
+
+```{=html}
+<div class="video-container"><iframe src="//player.bilibili.com/player.html?bvid=BV1wP4y1273G&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%;height:100%;position:absolute;top:0;left:0;"></iframe></div>
+```
+
+## 关键帧
+
+![焦半径的几何意义](../images/ch01/frame_01.jpg)
+
+![第二定义与准线](../images/ch01/frame_02.jpg)
+
+![焦半径公式推导过程](../images/ch01/frame_03.jpg)
+
+![焦半径公式在不同曲线中的形式](../images/ch01/frame_04.jpg)
+
+## 速查表
+
+::: {.callout-important}
+## 焦半径公式速查
+
+| 曲线 | 公式 | 条件 |
+|------|------|------|
+| 椭圆 | $\|PF_1\| = a + ex_0$，$\|PF_2\| = a - ex_0$ | 焦点在 $x$ 轴，$F_1$ 左 $F_2$ 右 |
+| 双曲线（右支） | $\|PF_1\| = a + ex_0$，$\|PF_2\| = ex_0 - a$ | $x_0 > 0$ |
+| 双曲线（左支） | $\|PF_1\| = -a - ex_0$，$\|PF_2\| = a - ex_0$ | $x_0 < 0$ |
+| 抛物线 | $\|PF\| = x_0 + \dfrac{p}{2}$ | $y^2 = 2px$ |
+
+**焦点在 $y$ 轴时**：把公式中的 $x_0$ 换成 $y_0$ 即可。
+:::
+
+::: {.callout-warning}
+## ⚠️ 常见错误
+
+1. **"左加右减"记反**：$|PF_1|$（左焦点）= $a \mathbf{+}\, ex_0$，$|PF_2|$（右焦点）= $a \mathbf{-}\, ex_0$。左焦点距离在 $x_0 > 0$ 时更大，所以用加号！
+2. **双曲线忘记分支**：双曲线左右支的公式不同，必须判断点在哪一支上（看 $x_0$ 的正负）
+3. **焦点在 $y$ 轴时套错公式**：焦点在 $y$ 轴时，焦半径中应使用 $y_0$ 而非 $x_0$
+4. **抛物线忘记加 $p/2$**：$|PF| = x_0 + \dfrac{p}{2}$，不是 $x_0$！"加半个 $p$"
+5. **不检查焦半径的范围**：椭圆上焦半径范围为 $[a-c, a+c]$，即 $[a(1-e), a(1+e)]$
+:::

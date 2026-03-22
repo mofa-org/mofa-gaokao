@@ -1,0 +1,405 @@
+---
+title: "什么是圆锥曲线 — 平面切圆锥"
+subtitle: "模块一 · 第1课"
+date: 2026-03-22
+---
+
+开普勒在1609年发现行星轨道是椭圆形的。但早在两千年前，古希腊数学家阿波罗尼乌斯就已经知道：只需要一个圆锥和一把刀，就能切出四种美丽的曲线。我们今天就来"看见"这个过程。
+
+## 探索问题
+
+::: {.callout-tip}
+## 先想一想
+
+拿一个冰淇淋甜筒（圆锥），用一把刀去切它。如果刀的角度不同，切出来的截面形状一样吗？你觉得能切出几种不同的曲线？
+
+试着在纸上画一画，然后再看下面的动画。
+:::
+
+## 几何直觉：平面切圆锥
+
+我们用一个动画来展示这个过程。拖动滑块改变切面角度，观察截面曲线如何从圆变为椭圆、抛物线、双曲线。
+
+### 动画1：切面角度与曲线类型
+
+```{=html}
+<div class="d3-container" id="m1_cone_slice"></div>
+<div class="d3-controls">
+  <label>切面角度：</label>
+  <input type="range" id="m1_cone_slice_angle" min="0" max="100" value="20" step="1">
+  <span class="value-display" id="m1_cone_slice_label">椭圆</span>
+</div>
+<script>
+(function() {
+  const W = 700, H = 450;
+  const svg = d3.select("#m1_cone_slice").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`);
+
+  const coneApex = {x: 350, y: 40};
+  const coneBaseY = 410;
+  const coneHalfWidth = 160;
+  const coneLeftBase = {x: coneApex.x - coneHalfWidth, y: coneBaseY};
+  const coneRightBase = {x: coneApex.x + coneHalfWidth, y: coneBaseY};
+
+  // Cone body (triangle)
+  svg.append("path")
+    .attr("d", `M${coneApex.x},${coneApex.y} L${coneLeftBase.x},${coneLeftBase.y} L${coneRightBase.x},${coneRightBase.y} Z`)
+    .attr("fill", "#e8d5b7").attr("stroke", "#8b7355").attr("stroke-width", 2).attr("opacity", 0.6);
+
+  // Cone outline
+  svg.append("line").attr("x1", coneApex.x).attr("y1", coneApex.y)
+    .attr("x2", coneLeftBase.x).attr("y2", coneLeftBase.y)
+    .attr("stroke", "#8b7355").attr("stroke-width", 2);
+  svg.append("line").attr("x1", coneApex.x).attr("y1", coneApex.y)
+    .attr("x2", coneRightBase.x).attr("y2", coneRightBase.y)
+    .attr("stroke", "#8b7355").attr("stroke-width", 2);
+
+  // Cutting plane line
+  const cutLine = svg.append("line")
+    .attr("stroke", "#c74440").attr("stroke-width", 3).attr("stroke-dasharray", "8,4");
+
+  // Intersection curve highlight
+  const curveHighlight = svg.append("path")
+    .attr("fill", "none").attr("stroke", "#2d70b3").attr("stroke-width", 4);
+
+  // Label
+  const typeLabel = svg.append("text")
+    .attr("x", 600).attr("y", 60).attr("font-size", "22px").attr("font-weight", "bold")
+    .attr("fill", "#2d70b3").attr("text-anchor", "middle");
+
+  const descLabel = svg.append("text")
+    .attr("x", 600).attr("y", 90).attr("font-size", "14px")
+    .attr("fill", "#555").attr("text-anchor", "middle");
+
+  // Cone half-angle (from vertical)
+  const coneAngle = Math.atan2(coneHalfWidth, coneBaseY - coneApex.y);
+
+  function lerp(a, b, t) { return a + (b - a) * t; }
+
+  function getConeXAtY(yVal) {
+    const t = (yVal - coneApex.y) / (coneBaseY - coneApex.y);
+    return coneHalfWidth * t;
+  }
+
+  function update(val) {
+    // val 0-100 maps to different cut angles
+    // 0-15: circle (perpendicular to axis)
+    // 16-55: ellipse
+    // 56-65: parabola (parallel to slant)
+    // 66-100: hyperbola (steeper than slant)
+
+    let cutCenterY = 250;
+    let cutAngleDeg, typeName, typeDesc;
+    let leftX, leftY, rightX, rightY;
+
+    if (val <= 15) {
+      // Circle: horizontal cut
+      typeName = "圆";
+      typeDesc = "切面与轴垂直";
+      cutAngleDeg = 0;
+      const hw = getConeXAtY(cutCenterY);
+      leftX = coneApex.x - hw; rightX = coneApex.x + hw;
+      leftY = cutCenterY; rightY = cutCenterY;
+    } else if (val <= 55) {
+      // Ellipse: tilted but less steep than slant
+      const t = (val - 16) / 39;
+      typeName = "椭圆";
+      typeDesc = "切面比锥面缓";
+      const tiltPx = t * 80;
+      leftY = cutCenterY + tiltPx * 0.5;
+      rightY = cutCenterY - tiltPx * 0.5;
+      leftX = coneApex.x - getConeXAtY(leftY);
+      rightX = coneApex.x + getConeXAtY(rightY);
+    } else if (val <= 65) {
+      // Parabola: parallel to slant
+      typeName = "抛物线";
+      typeDesc = "切面与锥面平行";
+      const slopeY = coneBaseY - coneApex.y;
+      const slopeX = coneHalfWidth;
+      // Line parallel to right slant edge, shifted left
+      leftX = coneApex.x - 120; leftY = 380;
+      rightX = coneApex.x + 20; rightY = 100;
+    } else {
+      // Hyperbola: steeper than slant
+      const t = (val - 66) / 34;
+      typeName = "双曲线";
+      typeDesc = "切面比锥面陡";
+      leftX = coneApex.x - 60 - t * 40; leftY = 380;
+      rightX = coneApex.x + 60 + t * 40; rightY = 80;
+    }
+
+    cutLine.attr("x1", leftX).attr("y1", leftY)
+      .attr("x2", rightX).attr("y2", rightY);
+
+    typeLabel.text(typeName);
+    descLabel.text(typeDesc);
+
+    document.getElementById("m1_cone_slice_label").textContent = typeName;
+
+    // Draw a small curve icon at the right side
+    const iconCx = 600, iconCy = 180, iconR = 60;
+    if (val <= 15) {
+      curveHighlight.attr("d", describeArc(iconCx, iconCy, iconR, 0, 359.99));
+    } else if (val <= 55) {
+      const t = (val - 16) / 39;
+      const ry = iconR * (1 - t * 0.6);
+      curveHighlight.attr("d", describeEllipse(iconCx, iconCy, iconR, ry));
+    } else if (val <= 65) {
+      curveHighlight.attr("d", describeParabola(iconCx, iconCy, iconR));
+    } else {
+      curveHighlight.attr("d", describeHyperbola(iconCx, iconCy, iconR));
+    }
+  }
+
+  function describeArc(cx, cy, r, startAngle, endAngle) {
+    const pts = d3.range(0, 361, 3).map(a => {
+      const rad = a * Math.PI / 180;
+      return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)];
+    });
+    return d3.line()(pts);
+  }
+
+  function describeEllipse(cx, cy, rx, ry) {
+    const pts = d3.range(0, 361, 3).map(a => {
+      const rad = a * Math.PI / 180;
+      return [cx + rx * Math.cos(rad), cy + ry * Math.sin(rad)];
+    });
+    return d3.line()(pts);
+  }
+
+  function describeParabola(cx, cy, r) {
+    const pts = d3.range(-r, r + 1, 2).map(t => {
+      return [cx + t, cy - (t * t) / (r * 0.8) + r * 0.6];
+    });
+    return d3.line().curve(d3.curveBasis)(pts);
+  }
+
+  function describeHyperbola(cx, cy, r) {
+    const a = r * 0.4, b = r * 0.5;
+    const pts1 = d3.range(-1.8, 1.81, 0.1).map(t => {
+      return [cx - a / Math.cosh(t) - a * 0.5, cy + b * Math.tanh(t)];
+    });
+    const pts2 = d3.range(-1.8, 1.81, 0.1).map(t => {
+      return [cx + a / Math.cosh(t) + a * 0.5, cy + b * Math.tanh(t)];
+    });
+    return d3.line().curve(d3.curveBasis)(pts1) + " " + d3.line().curve(d3.curveBasis)(pts2);
+  }
+
+  const slider = document.getElementById("m1_cone_slice_angle");
+  slider.addEventListener("input", () => update(+slider.value));
+  update(20);
+})();
+</script>
+```
+
+慢慢拖动滑块，观察切面从水平（圆）到倾斜（椭圆）到平行于锥面（抛物线）再到更陡（双曲线）的过程。这四种曲线，统称为**圆锥曲线**。
+
+### 动画2：三种曲线连续变形
+
+```{=html}
+<div class="d3-container" id="m1_morph_curves"></div>
+<div class="d3-controls">
+  <label>形状参数：</label>
+  <input type="range" id="m1_morph_param" min="0" max="100" value="0" step="1">
+  <span class="value-display" id="m1_morph_label">圆 (e=0)</span>
+  <button id="m1_morph_play">自动播放 ▶</button>
+</div>
+<script>
+(function() {
+  const W = 700, H = 400, margin = {top: 20, right: 20, bottom: 40, left: 20};
+  const w = W - margin.left - margin.right, h = H - margin.top - margin.bottom;
+  const cx = w / 2, cy = h / 2;
+
+  const svg = d3.select("#m1_morph_curves").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`)
+    .append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+  // Axes
+  svg.append("line").attr("x1", 0).attr("y1", cy).attr("x2", w).attr("y2", cy)
+    .attr("stroke", "#ccc").attr("stroke-width", 1);
+  svg.append("line").attr("x1", cx).attr("y1", 0).attr("x2", cx).attr("y2", h)
+    .attr("stroke", "#ccc").attr("stroke-width", 1);
+
+  const curvePath = svg.append("path")
+    .attr("fill", "none").attr("stroke", "#2d70b3").attr("stroke-width", 3);
+
+  const focusGroup = svg.append("g");
+  const eLabel = svg.append("text")
+    .attr("x", w - 10).attr("y", 30).attr("text-anchor", "end")
+    .attr("font-size", "18px").attr("font-weight", "bold").attr("fill", "#c74440");
+
+  const scale = 120;
+
+  function update(val) {
+    // val 0-40: circle to ellipse (e: 0 to 0.9)
+    // val 41-60: ellipse to parabola (e: 0.9 to 1.0) - conceptual
+    // val 61-100: hyperbola (e: 1.1 to 3.0)
+    let e, label;
+    if (val <= 40) {
+      e = val / 40 * 0.9;
+      label = val === 0 ? "圆 (e=0)" : `椭圆 (e=${e.toFixed(2)})`;
+    } else if (val <= 60) {
+      e = 0.9 + (val - 40) / 20 * 0.1;
+      label = e >= 0.99 ? "抛物线 (e≈1)" : `椭圆 (e=${e.toFixed(2)})`;
+    } else {
+      e = 1.1 + (val - 61) / 39 * 1.9;
+      label = `双曲线 (e=${e.toFixed(2)})`;
+    }
+
+    document.getElementById("m1_morph_label").textContent = label;
+    eLabel.text(`e = ${e.toFixed(2)}`);
+
+    focusGroup.selectAll("*").remove();
+
+    let pts = [];
+    if (e < 0.99) {
+      // Ellipse / circle
+      const a = scale;
+      const b = a * Math.sqrt(1 - e * e);
+      const c = a * e;
+      pts = d3.range(0, 2 * Math.PI + 0.05, 0.05).map(t => [
+        cx + a * Math.cos(t), cy + b * Math.sin(t)
+      ]);
+      // Foci
+      focusGroup.append("circle").attr("cx", cx - c).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
+      focusGroup.append("circle").attr("cx", cx + c).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
+      focusGroup.append("text").attr("x", cx - c).attr("y", cy + 20).attr("text-anchor", "middle")
+        .attr("font-size", "12px").attr("fill", "#c74440").text("F₁");
+      focusGroup.append("text").attr("x", cx + c).attr("y", cy + 20).attr("text-anchor", "middle")
+        .attr("font-size", "12px").attr("fill", "#c74440").text("F₂");
+    } else if (e <= 1.05) {
+      // Parabola approximation
+      const p = scale * 0.5;
+      pts = d3.range(-2.5, 2.51, 0.05).map(t => [
+        cx + p * t * t, cy + p * 2 * t
+      ]);
+      // Focus
+      focusGroup.append("circle").attr("cx", cx + p).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
+      focusGroup.append("text").attr("x", cx + p).attr("y", cy + 20).attr("text-anchor", "middle")
+        .attr("font-size", "12px").attr("fill", "#c74440").text("F");
+    } else {
+      // Hyperbola
+      const a = scale * 0.5;
+      const b = a * Math.sqrt(e * e - 1);
+      const c = a * e;
+      // Right branch
+      const pts1 = d3.range(-2.0, 2.01, 0.05).map(t => [
+        cx + a * Math.cosh(t), cy + b * Math.sinh(t)
+      ]);
+      // Left branch
+      const pts2 = d3.range(2.0, -2.01, -0.05).map(t => [
+        cx - a * Math.cosh(t), cy + b * Math.sinh(t)
+      ]);
+      pts = pts1;
+      // Draw second branch separately
+      svg.selectAll(".m1_branch2").remove();
+      svg.append("path").attr("class", "m1_branch2")
+        .attr("d", d3.line().curve(d3.curveBasis)(pts2))
+        .attr("fill", "none").attr("stroke", "#2d70b3").attr("stroke-width", 3);
+      // Foci
+      focusGroup.append("circle").attr("cx", cx - c).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
+      focusGroup.append("circle").attr("cx", cx + c).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
+      // Asymptotes
+      focusGroup.append("line").attr("x1", cx - w/2).attr("y1", cy - b/a * w/2)
+        .attr("x2", cx + w/2).attr("y2", cy + b/a * w/2)
+        .attr("stroke", "#999").attr("stroke-dasharray", "5,5").attr("stroke-width", 1);
+      focusGroup.append("line").attr("x1", cx - w/2).attr("y1", cy + b/a * w/2)
+        .attr("x2", cx + w/2).attr("y2", cy - b/a * w/2)
+        .attr("stroke", "#999").attr("stroke-dasharray", "5,5").attr("stroke-width", 1);
+    }
+
+    if (e <= 1.05) {
+      svg.selectAll(".m1_branch2").remove();
+    }
+
+    curvePath.attr("d", d3.line().curve(e < 0.99 ? d3.curveLinearClosed : d3.curveBasis)(pts));
+  }
+
+  const slider = document.getElementById("m1_morph_param");
+  slider.addEventListener("input", () => update(+slider.value));
+
+  let animTimer = null;
+  document.getElementById("m1_morph_play").addEventListener("click", function() {
+    if (animTimer) { clearInterval(animTimer); animTimer = null; this.textContent = "自动播放 ▶"; return; }
+    this.textContent = "暂停 ⏸";
+    let v = 0;
+    slider.value = v;
+    animTimer = setInterval(() => {
+      v++;
+      if (v > 100) { clearInterval(animTimer); animTimer = null; document.getElementById("m1_morph_play").textContent = "自动播放 ▶"; return; }
+      slider.value = v;
+      update(v);
+    }, 80);
+  });
+
+  update(0);
+})();
+</script>
+```
+
+点击"自动播放"，观察曲线如何随着离心率 $e$ 的变化而连续变形：圆 → 椭圆 → 抛物线 → 双曲线。离心率是控制曲线"形状"的核心参数。
+
+## 生活中的曲线
+
+::: {.callout-note}
+## 圆锥曲线无处不在
+
+- **行星轨道**是椭圆（开普勒第一定律），太阳在一个焦点上
+- **抛体运动**的轨迹是抛物线（忽略空气阻力）
+- **卫星天线**是抛物面，利用抛物线的反射性质
+- **冷却塔**的轮廓是双曲线，因为双曲线的结构最省材料
+- **GPS定位**利用了双曲线的距离差性质
+:::
+
+## Desmos探索
+
+```{=html}
+<div id="m1_01_desmos" class="desmos-container"></div>
+<script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+<script>
+  var m1_01_calc = Desmos.GraphingCalculator(document.getElementById('m1_01_desmos'), {
+    expressions: true, settingsMenu: false
+  });
+  // Ellipse
+  m1_01_calc.setExpression({ id: 'a_val', latex: 'a = 3', sliderBounds: { min: 1, max: 5, step: 0.1 } });
+  m1_01_calc.setExpression({ id: 'b_val', latex: 'b = 2', sliderBounds: { min: 0.5, max: 5, step: 0.1 } });
+  m1_01_calc.setExpression({ id: 'ellipse', latex: '\\frac{x^2}{a^2} + \\frac{y^2}{b^2} = 1', color: '#2d70b3' });
+  // Parabola
+  m1_01_calc.setExpression({ id: 'p_val', latex: 'p = 1', sliderBounds: { min: 0.2, max: 3, step: 0.1 } });
+  m1_01_calc.setExpression({ id: 'parabola', latex: 'y^2 = 4px', color: '#388c46' });
+  // Hyperbola
+  m1_01_calc.setExpression({ id: 'h_a', latex: 'h = 2', sliderBounds: { min: 0.5, max: 4, step: 0.1 } });
+  m1_01_calc.setExpression({ id: 'h_b', latex: 'k = 1.5', sliderBounds: { min: 0.5, max: 4, step: 0.1 } });
+  m1_01_calc.setExpression({ id: 'hyperbola', latex: '\\frac{x^2}{h^2} - \\frac{y^2}{k^2} = 1', color: '#c74440' });
+  m1_01_calc.setMathBounds({ left: -8, right: 8, bottom: -6, top: 6 });
+</script>
+```
+
+试着调节参数 $a$、$b$、$p$、$h$、$k$，观察三种曲线的形状如何变化。
+
+## 参考视频
+
+```{=html}
+<div class="video-container"><iframe src="//player.bilibili.com/player.html?bvid=BV14s41157M4&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%;height:100%;position:absolute;top:0;left:0;"></iframe></div>
+```
+
+## 关键帧
+
+![圆锥与切面的关系](../images/ch22/frame_01.jpg)
+
+![不同角度产生不同曲线](../images/ch22/frame_02.jpg)
+
+![三种圆锥曲线的对比](../images/ch22/frame_03.jpg)
+
+![离心率与曲线类型](../images/ch22/frame_04.jpg)
+
+## 本课要点
+
+::: {.callout-important}
+## 记住这些
+
+1. **圆锥曲线**得名于用平面切圆锥：不同切面角度产生不同曲线
+2. 切面**垂直于轴** → 圆；**倾斜但比锥面缓** → 椭圆；**平行于锥面** → 抛物线；**比锥面更陡** → 双曲线
+3. **离心率** $e$ 是统一描述曲线类型的参数：$e=0$ 圆，$0<e<1$ 椭圆，$e=1$ 抛物线，$e>1$ 双曲线
+4. 这四种曲线在自然界和工程中无处不在
+:::

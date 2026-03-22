@@ -1,0 +1,507 @@
+---
+title: "从定义到方程 — 三种标准方程的推导"
+subtitle: "模块二 · 第1课"
+date: 2026-03-22
+---
+
+在模块一中，我们已经"看见"了椭圆、双曲线和抛物线的几何形状。但只有几何直觉是不够的——我们需要用方程来精确描述这些曲线，才能用代数的力量解决问题。今天，我们将从每种曲线的几何定义出发，一步步推导出它的标准方程。
+
+## 探索问题
+
+::: {.callout-tip}
+## 先想一想
+
+我们已经看见了椭圆——它是到两个焦点距离之和为定值的点的轨迹。现在问题来了：如果把椭圆放在坐标系里，$|PF_1| + |PF_2| = 2a$ 这个条件能变成什么样的方程？
+
+试着建一个坐标系，把两个焦点放在 $x$ 轴上，然后用两点距离公式写出 $|PF_1| + |PF_2| = 2a$，看看你能化简到什么程度。
+:::
+
+## 几何直觉：从定义到坐标
+
+我们的策略很简单：**把几何定义翻译成代数语言**。
+
+1. 选定坐标系——把中心放在原点，焦点放在坐标轴上
+2. 用距离公式写出几何条件
+3. 代数化简，消除根号
+4. 得到标准方程
+
+下面的动画展示了这个"翻译"过程。每一步代数操作都对应着明确的几何意义。
+
+### 动画1：椭圆标准方程推导过程
+
+```{=html}
+<div class="d3-container" id="m2_derivation_ellipse"></div>
+<div class="d3-controls">
+  <label>推导步骤：</label>
+  <input type="range" id="m2_derivation_step" min="0" max="5" value="0" step="1">
+  <span class="value-display" id="m2_derivation_label">第0步：几何定义</span>
+</div>
+<script>
+(function() {
+  const W = 720, H = 500;
+  const svg = d3.select("#m2_derivation_ellipse").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`);
+
+  const geoG = svg.append("g").attr("transform", "translate(30, 20)");
+  const plotW = 350, plotH = 280;
+  const cx = plotW / 2, cy = plotH / 2;
+
+  // Coordinate axes
+  geoG.append("line").attr("x1", 0).attr("y1", cy).attr("x2", plotW).attr("y2", cy)
+    .attr("stroke", "#ccc").attr("stroke-width", 1);
+  geoG.append("line").attr("x1", cx).attr("y1", 0).attr("x2", cx).attr("y2", plotH)
+    .attr("stroke", "#ccc").attr("stroke-width", 1);
+  geoG.append("text").attr("x", plotW - 5).attr("y", cy - 8).text("x").attr("font-size", "14px").attr("fill", "#999");
+  geoG.append("text").attr("x", cx + 8).attr("y", 12).text("y").attr("font-size", "14px").attr("fill", "#999");
+
+  const a = 130, bVal = 90;
+  const c = Math.sqrt(a * a - bVal * bVal);
+
+  // Ellipse path
+  const ellipsePath = geoG.append("path").attr("fill", "none").attr("stroke", "#2d70b3").attr("stroke-width", 2.5);
+  const pts = d3.range(0, 2 * Math.PI + 0.05, 0.05).map(t => [cx + a * Math.cos(t), cy + bVal * Math.sin(t)]);
+  ellipsePath.attr("d", d3.line()(pts));
+
+  // Foci
+  geoG.append("circle").attr("cx", cx - c).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
+  geoG.append("circle").attr("cx", cx + c).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
+  geoG.append("text").attr("x", cx - c).attr("y", cy + 22).attr("text-anchor", "middle")
+    .attr("font-size", "13px").attr("fill", "#c74440").text("F₁(-c,0)");
+  geoG.append("text").attr("x", cx + c).attr("y", cy + 22).attr("text-anchor", "middle")
+    .attr("font-size", "13px").attr("fill", "#c74440").text("F₂(c,0)");
+
+  // Moving point P
+  const pAngle = Math.PI * 0.3;
+  const px = cx + a * Math.cos(pAngle), py = cy + bVal * Math.sin(pAngle);
+  const pDot = geoG.append("circle").attr("cx", px).attr("cy", py).attr("r", 6).attr("fill", "#388c46");
+  geoG.append("text").attr("x", px + 10).attr("y", py - 10).text("P(x,y)")
+    .attr("font-size", "13px").attr("fill", "#388c46").attr("font-weight", "bold");
+
+  // Lines PF1, PF2
+  const linePF1 = geoG.append("line").attr("x1", px).attr("y1", py).attr("x2", cx - c).attr("y2", cy)
+    .attr("stroke", "#c74440").attr("stroke-width", 1.5).attr("stroke-dasharray", "4,3");
+  const linePF2 = geoG.append("line").attr("x1", px).attr("y1", py).attr("x2", cx + c).attr("y2", cy)
+    .attr("stroke", "#c74440").attr("stroke-width", 1.5).attr("stroke-dasharray", "4,3");
+
+  // Formula display area
+  const formulaG = svg.append("g").attr("transform", "translate(400, 30)");
+
+  const stepTexts = [
+    ["第0步：几何定义",
+     "|PF₁| + |PF₂| = 2a",
+     "",
+     "椭圆上任意一点 P 到两焦点",
+     "距离之和等于 2a。"],
+    ["第1步：建立坐标系",
+     "F₁(-c, 0),  F₂(c, 0)",
+     "P(x, y)",
+     "中心在原点，焦点在 x 轴上。",
+     "设椭圆上任意一点为 P(x, y)。"],
+    ["第2步：距离公式代入",
+     "√[(x+c)²+y²]",
+     "  + √[(x-c)²+y²] = 2a",
+     "把 |PF₁| 和 |PF₂| 用",
+     "两点距离公式展开。"],
+    ["第3步：移项，两边平方",
+     "√[(x+c)²+y²]",
+     "  = 2a - √[(x-c)²+y²]",
+     "移项后平方，消除一个根号。",
+     "展开整理后再次平方。"],
+    ["第4步：化简整理",
+     "(a²-c²)x² + a²y² = a²(a²-c²)",
+     "",
+     "令 b² = a² - c²，",
+     "两边除以 a²b²。"],
+    ["第5步：标准方程",
+     "x²/a² + y²/b² = 1",
+     "(a > b > 0)",
+     "这就是椭圆的标准方程！",
+     "a, b, c 满足 a² = b² + c²。"]
+  ];
+
+  const titleText = formulaG.append("text").attr("x", 0).attr("y", 0)
+    .attr("font-size", "16px").attr("font-weight", "bold").attr("fill", "#333");
+  const formula1 = formulaG.append("text").attr("x", 0).attr("y", 40)
+    .attr("font-size", "18px").attr("fill", "#2d70b3").attr("font-family", "serif");
+  const formula2 = formulaG.append("text").attr("x", 0).attr("y", 68)
+    .attr("font-size", "18px").attr("fill", "#2d70b3").attr("font-family", "serif");
+  const desc1 = formulaG.append("text").attr("x", 0).attr("y", 110)
+    .attr("font-size", "14px").attr("fill", "#555");
+  const desc2 = formulaG.append("text").attr("x", 0).attr("y", 132)
+    .attr("font-size", "14px").attr("fill", "#555");
+
+  // Step indicator dots
+  const dotsG = formulaG.append("g").attr("transform", "translate(0, 170)");
+  for (let i = 0; i <= 5; i++) {
+    dotsG.append("circle").attr("cx", i * 30).attr("cy", 0).attr("r", 8)
+      .attr("fill", "#eee").attr("stroke", "#aaa").attr("class", "m2_step_dot_" + i);
+    dotsG.append("text").attr("x", i * 30).attr("y", 4).attr("text-anchor", "middle")
+      .attr("font-size", "11px").attr("fill", "#666").text(i);
+  }
+
+  // Highlight box for final equation
+  const highlightRect = formulaG.append("rect")
+    .attr("x", -10).attr("y", 20).attr("width", 280).attr("height", 60)
+    .attr("fill", "none").attr("stroke", "#388c46").attr("stroke-width", 3)
+    .attr("rx", 8).attr("opacity", 0);
+
+  function update(step) {
+    const s = stepTexts[step];
+    titleText.text(s[0]);
+    formula1.text(s[1]);
+    formula2.text(s[2]);
+    desc1.text(s[3]);
+    desc2.text(s[4]);
+    document.getElementById("m2_derivation_label").textContent = s[0];
+
+    // Update step dots
+    for (let i = 0; i <= 5; i++) {
+      dotsG.select(".m2_step_dot_" + i)
+        .attr("fill", i <= step ? "#2d70b3" : "#eee")
+        .attr("stroke", i <= step ? "#2d70b3" : "#aaa");
+    }
+
+    // Highlight final equation
+    highlightRect.attr("opacity", step === 5 ? 1 : 0);
+
+    // Show/hide geometric elements based on step
+    linePF1.attr("opacity", step >= 1 ? 1 : 0.3);
+    linePF2.attr("opacity", step >= 1 ? 1 : 0.3);
+  }
+
+  const slider = document.getElementById("m2_derivation_step");
+  slider.addEventListener("input", () => update(+slider.value));
+  update(0);
+})();
+</script>
+```
+
+拖动滑块，逐步观察从几何定义到标准方程的推导过程。注意：每一步代数变形都有明确的几何意义。
+
+## 公式推导
+
+### 椭圆标准方程推导
+
+设椭圆的两个焦点为 $F_1(-c, 0)$ 和 $F_2(c, 0)$，椭圆上任意一点 $P(x, y)$。
+
+由椭圆定义 $|PF_1| + |PF_2| = 2a$，代入距离公式：
+
+$$\sqrt{(x+c)^2 + y^2} + \sqrt{(x-c)^2 + y^2} = 2a$$
+
+**第一次移项平方：** 把一个根号移到右边，两边平方：
+
+$$\sqrt{(x+c)^2 + y^2} = 2a - \sqrt{(x-c)^2 + y^2}$$
+
+$$(x+c)^2 + y^2 = 4a^2 - 4a\sqrt{(x-c)^2 + y^2} + (x-c)^2 + y^2$$
+
+展开后化简，$y^2$ 抵消，$(x+c)^2 - (x-c)^2 = 4cx$：
+
+$$4cx - 4a^2 = -4a\sqrt{(x-c)^2 + y^2}$$
+
+即 $a\sqrt{(x-c)^2 + y^2} = a^2 - cx$
+
+**第二次平方：**
+
+$$a^2[(x-c)^2 + y^2] = (a^2 - cx)^2$$
+
+$$a^2 x^2 - 2a^2 cx + a^2 c^2 + a^2 y^2 = a^4 - 2a^2 cx + c^2 x^2$$
+
+化简得：
+
+$$(a^2 - c^2)x^2 + a^2 y^2 = a^2(a^2 - c^2)$$
+
+令 $b^2 = a^2 - c^2$（因为 $a > c$，所以 $b^2 > 0$），两边除以 $a^2 b^2$：
+
+$$\boxed{\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2} = 1 \quad (a > b > 0)}$$
+
+### 双曲线标准方程推导
+
+双曲线定义：$||PF_1| - |PF_2|| = 2a$，其中 $2a < |F_1F_2| = 2c$。
+
+推导过程与椭圆类似（两次平方消根号），最终得到：
+
+$$(c^2 - a^2)x^2 - a^2 y^2 = a^2(c^2 - a^2)$$
+
+令 $b^2 = c^2 - a^2$（注意：双曲线中 $c > a$），两边除以 $a^2 b^2$：
+
+$$\boxed{\dfrac{x^2}{a^2} - \dfrac{y^2}{b^2} = 1 \quad (a > 0,\, b > 0)}$$
+
+### 抛物线标准方程推导
+
+抛物线定义：到焦点 $F$ 的距离等于到准线 $l$ 的距离。
+
+设焦点 $F(\dfrac{p}{2}, 0)$，准线 $x = -\dfrac{p}{2}$，$P(x, y)$。
+
+$$\sqrt{\left(x - \frac{p}{2}\right)^2 + y^2} = x + \frac{p}{2}$$
+
+两边平方：$x^2 - px + \dfrac{p^2}{4} + y^2 = x^2 + px + \dfrac{p^2}{4}$
+
+化简得：
+
+$$\boxed{y^2 = 2px \quad (p > 0)}$$
+
+### 动画2：焦点在不同轴上的方程对比
+
+```{=html}
+<div class="d3-container" id="m2_axis_toggle"></div>
+<div class="d3-controls">
+  <label>焦点位置：</label>
+  <button id="m2_axis_x" class="active">焦点在x轴</button>
+  <button id="m2_axis_y">焦点在y轴</button>
+  <label style="margin-left:20px;">曲线类型：</label>
+  <select id="m2_curve_type">
+    <option value="ellipse">椭圆</option>
+    <option value="hyperbola">双曲线</option>
+    <option value="parabola">抛物线</option>
+  </select>
+</div>
+<script>
+(function() {
+  const W = 720, H = 420;
+  const svg = d3.select("#m2_axis_toggle").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`);
+
+  const plotG = svg.append("g").attr("transform", "translate(40, 20)");
+  const plotW = 380, plotH = 360;
+  const cx = plotW / 2, cy = plotH / 2;
+
+  // Axes
+  plotG.append("line").attr("x1", 0).attr("y1", cy).attr("x2", plotW).attr("y2", cy)
+    .attr("stroke", "#ccc").attr("stroke-width", 1);
+  plotG.append("line").attr("x1", cx).attr("y1", 0).attr("x2", cx).attr("y2", plotH)
+    .attr("stroke", "#ccc").attr("stroke-width", 1);
+  plotG.append("text").attr("x", plotW - 5).attr("y", cy - 8).text("x").attr("font-size", "14px").attr("fill", "#999");
+  plotG.append("text").attr("x", cx + 8).attr("y", 14).text("y").attr("font-size", "14px").attr("fill", "#999");
+
+  const curvePath = plotG.append("path").attr("fill", "none").attr("stroke", "#2d70b3").attr("stroke-width", 2.5);
+  const curvePath2 = plotG.append("path").attr("fill", "none").attr("stroke", "#2d70b3").attr("stroke-width", 2.5);
+  const foci = plotG.append("g");
+
+  // Formula area
+  const formulaG = svg.append("g").attr("transform", "translate(460, 60)");
+  const eqTitle = formulaG.append("text").attr("x", 0).attr("y", 0)
+    .attr("font-size", "16px").attr("font-weight", "bold").attr("fill", "#333");
+  const eqText = formulaG.append("text").attr("x", 0).attr("y", 40)
+    .attr("font-size", "20px").attr("fill", "#2d70b3").attr("font-family", "serif");
+  const eqCond = formulaG.append("text").attr("x", 0).attr("y", 70)
+    .attr("font-size", "14px").attr("fill", "#888");
+  const fociText = formulaG.append("text").attr("x", 0).attr("y", 110)
+    .attr("font-size", "14px").attr("fill", "#c74440");
+  const noteText = formulaG.append("text").attr("x", 0).attr("y", 150)
+    .attr("font-size", "13px").attr("fill", "#555");
+  const noteText2 = formulaG.append("text").attr("x", 0).attr("y", 172)
+    .attr("font-size", "13px").attr("fill", "#555");
+
+  let axisX = true;
+  let curveType = "ellipse";
+
+  function draw() {
+    foci.selectAll("*").remove();
+    curvePath2.attr("d", "");
+
+    const a = 120, bV = 80;
+    const cE = Math.sqrt(a * a - bV * bV);
+    const cH = Math.sqrt(a * a + bV * bV);
+
+    if (curveType === "ellipse") {
+      eqTitle.text("椭圆标准方程");
+      if (axisX) {
+        const pts = d3.range(0, 2 * Math.PI + 0.05, 0.05).map(t =>
+          [cx + a * Math.cos(t), cy + bV * Math.sin(t)]);
+        curvePath.attr("d", d3.line()(pts));
+        eqText.text("x²/a² + y²/b² = 1");
+        eqCond.text("a > b > 0");
+        fociText.text("焦点：(±c, 0)，c² = a² - b²");
+        foci.append("circle").attr("cx", cx - cE).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
+        foci.append("circle").attr("cx", cx + cE).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
+        noteText.text("长轴在 x 轴上");
+        noteText2.text("x² 项分母较大");
+      } else {
+        const pts = d3.range(0, 2 * Math.PI + 0.05, 0.05).map(t =>
+          [cx + bV * Math.cos(t), cy + a * Math.sin(t)]);
+        curvePath.attr("d", d3.line()(pts));
+        eqText.text("x²/b² + y²/a² = 1");
+        eqCond.text("a > b > 0");
+        fociText.text("焦点：(0, ±c)，c² = a² - b²");
+        foci.append("circle").attr("cx", cx).attr("cy", cy - cE).attr("r", 5).attr("fill", "#c74440");
+        foci.append("circle").attr("cx", cx).attr("cy", cy + cE).attr("r", 5).attr("fill", "#c74440");
+        noteText.text("长轴在 y 轴上");
+        noteText2.text("y² 项分母较大");
+      }
+    } else if (curveType === "hyperbola") {
+      eqTitle.text("双曲线标准方程");
+      const aH = 70, bH = 50;
+      if (axisX) {
+        const pts1 = d3.range(-2, 2.01, 0.05).map(t =>
+          [cx + aH * Math.cosh(t), cy + bH * Math.sinh(t)]);
+        const pts2 = d3.range(-2, 2.01, 0.05).map(t =>
+          [cx - aH * Math.cosh(t), cy + bH * Math.sinh(t)]);
+        curvePath.attr("d", d3.line().curve(d3.curveBasis)(pts1));
+        curvePath2.attr("d", d3.line().curve(d3.curveBasis)(pts2));
+        eqText.text("x²/a² - y²/b² = 1");
+        eqCond.text("a > 0, b > 0");
+        fociText.text("焦点：(±c, 0)，c² = a² + b²");
+        const cV = Math.sqrt(aH * aH + bH * bH);
+        foci.append("circle").attr("cx", cx - cV).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
+        foci.append("circle").attr("cx", cx + cV).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
+        noteText.text("实轴在 x 轴上");
+        noteText2.text("x² 项系数为正");
+      } else {
+        const pts1 = d3.range(-2, 2.01, 0.05).map(t =>
+          [cx + bH * Math.sinh(t), cy + aH * Math.cosh(t)]);
+        const pts2 = d3.range(-2, 2.01, 0.05).map(t =>
+          [cx + bH * Math.sinh(t), cy - aH * Math.cosh(t)]);
+        curvePath.attr("d", d3.line().curve(d3.curveBasis)(pts1));
+        curvePath2.attr("d", d3.line().curve(d3.curveBasis)(pts2));
+        eqText.text("y²/a² - x²/b² = 1");
+        eqCond.text("a > 0, b > 0");
+        fociText.text("焦点：(0, ±c)，c² = a² + b²");
+        const cV = Math.sqrt(aH * aH + bH * bH);
+        foci.append("circle").attr("cx", cx).attr("cy", cy - cV).attr("r", 5).attr("fill", "#c74440");
+        foci.append("circle").attr("cx", cx).attr("cy", cy + cV).attr("r", 5).attr("fill", "#c74440");
+        noteText.text("实轴在 y 轴上");
+        noteText2.text("y² 项系数为正");
+      }
+    } else {
+      eqTitle.text("抛物线标准方程");
+      const p = 60;
+      if (axisX) {
+        const pts = d3.range(-2.5, 2.51, 0.05).map(t =>
+          [cx + p * t * t / 2, cy + p * t]);
+        curvePath.attr("d", d3.line().curve(d3.curveBasis)(pts));
+        curvePath2.attr("d", "");
+        eqText.text("y² = 2px");
+        eqCond.text("p > 0，开口向右");
+        fociText.text("焦点：(p/2, 0)");
+        foci.append("circle").attr("cx", cx + p / 2).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
+        // Directrix
+        foci.append("line").attr("x1", cx - p / 2).attr("y1", 0).attr("x2", cx - p / 2).attr("y2", plotH)
+          .attr("stroke", "#388c46").attr("stroke-width", 1.5).attr("stroke-dasharray", "5,4");
+        noteText.text("准线：x = -p/2");
+        noteText2.text("对称轴为 x 轴");
+      } else {
+        const pts = d3.range(-2.5, 2.51, 0.05).map(t =>
+          [cx + p * t, cy - p * t * t / 2]);
+        curvePath.attr("d", d3.line().curve(d3.curveBasis)(pts));
+        curvePath2.attr("d", "");
+        eqText.text("x² = 2py");
+        eqCond.text("p > 0，开口向上");
+        fociText.text("焦点：(0, p/2)");
+        foci.append("circle").attr("cx", cx).attr("cy", cy - p / 2).attr("r", 5).attr("fill", "#c74440");
+        foci.append("line").attr("x1", 0).attr("y1", cy + p / 2).attr("x2", plotW).attr("y2", cy + p / 2)
+          .attr("stroke", "#388c46").attr("stroke-width", 1.5).attr("stroke-dasharray", "5,4");
+        noteText.text("准线：y = -p/2");
+        noteText2.text("对称轴为 y 轴");
+      }
+    }
+  }
+
+  document.getElementById("m2_axis_x").addEventListener("click", function() {
+    axisX = true;
+    this.classList.add("active");
+    document.getElementById("m2_axis_y").classList.remove("active");
+    draw();
+  });
+  document.getElementById("m2_axis_y").addEventListener("click", function() {
+    axisX = false;
+    this.classList.add("active");
+    document.getElementById("m2_axis_x").classList.remove("active");
+    draw();
+  });
+  document.getElementById("m2_curve_type").addEventListener("change", function() {
+    curveType = this.value;
+    draw();
+  });
+
+  draw();
+})();
+</script>
+```
+
+切换按钮和下拉菜单，对比焦点在 $x$ 轴和 $y$ 轴时方程的区别。注意关键规律：**哪个轴上有焦点，哪个变量的分母就更大（椭圆）或系数为正（双曲线）**。
+
+## Worked Example
+
+::: {.callout-note}
+## 例题：已知条件求标准方程
+
+**题目：** 椭圆的两个焦点为 $F_1(-2, 0)$ 和 $F_2(2, 0)$，椭圆上一点 $P$ 到两焦点的距离之和为 $6$。求椭圆的标准方程。
+
+**解题过程：**
+
+**Step 1：确定基本参数**
+
+- 焦点在 $x$ 轴上 → 方程形式为 $\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2} = 1$
+- $|PF_1| + |PF_2| = 6 = 2a$ → $a = 3$ → $a^2 = 9$
+- $|F_1F_2| = 4 = 2c$ → $c = 2$ → $c^2 = 4$
+
+**Step 2：求 $b^2$**
+
+- $b^2 = a^2 - c^2 = 9 - 4 = 5$
+
+**Step 3：写出标准方程**
+
+$$\boxed{\dfrac{x^2}{9} + \dfrac{y^2}{5} = 1}$$
+
+**验证：** $a = 3 > b = \sqrt{5} > 0$ ✓，$a^2 = b^2 + c^2 = 5 + 4 = 9$ ✓
+:::
+
+## Desmos探索
+
+```{=html}
+<div id="m2_01_desmos" class="desmos-container"></div>
+<script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+<script>
+  var m2_01_calc = Desmos.GraphingCalculator(document.getElementById('m2_01_desmos'), {
+    expressions: true, settingsMenu: false
+  });
+  m2_01_calc.setExpression({ id: 'a_sl', latex: 'a = 3', sliderBounds: { min: 1, max: 6, step: 0.1 } });
+  m2_01_calc.setExpression({ id: 'b_sl', latex: 'b = 2', sliderBounds: { min: 0.5, max: 6, step: 0.1 } });
+  m2_01_calc.setExpression({ id: 'ell', latex: '\\frac{x^2}{a^2} + \\frac{y^2}{b^2} = 1', color: '#2d70b3' });
+  m2_01_calc.setExpression({ id: 'c_val', latex: 'c = \\sqrt{a^2 - b^2}' });
+  m2_01_calc.setExpression({ id: 'f1', latex: '(-c, 0)', color: '#c74440', pointStyle: 'POINT', pointSize: 8 });
+  m2_01_calc.setExpression({ id: 'f2', latex: '(c, 0)', color: '#c74440', pointStyle: 'POINT', pointSize: 8 });
+  m2_01_calc.setExpression({ id: 'hyp', latex: '\\frac{x^2}{a^2} - \\frac{y^2}{b^2} = 1', color: '#388c46', hidden: true });
+  m2_01_calc.setExpression({ id: 'para', latex: 'y^2 = 4x', color: '#fa7e19', hidden: true });
+  m2_01_calc.setMathBounds({ left: -8, right: 8, bottom: -6, top: 6 });
+</script>
+```
+
+调节 $a$ 和 $b$ 的值，观察椭圆的形状变化。在表达式列表中取消隐藏双曲线或抛物线，同时显示多种曲线进行对比。
+
+## 参考视频
+
+```{=html}
+<div class="video-container"><iframe src="//player.bilibili.com/player.html?bvid=BV1iq4y1B7Km&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%;height:100%;position:absolute;top:0;left:0;"></iframe></div>
+```
+
+## 关键帧
+
+![几何定义到坐标系建立](../images/ch03/frame_01.jpg)
+
+![距离公式代入与化简](../images/ch03/frame_02.jpg)
+
+![两次平方消根号过程](../images/ch03/frame_03.jpg)
+
+![三种标准方程总结](../images/ch03/frame_04.jpg)
+
+## 速查表
+
+::: {.callout-important}
+## 三种标准方程速查
+
+| 曲线 | 焦点在 $x$ 轴 | 焦点在 $y$ 轴 | 参数关系 |
+|------|---------------|---------------|---------|
+| 椭圆 | $\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2} = 1$ | $\dfrac{x^2}{b^2} + \dfrac{y^2}{a^2} = 1$ | $a^2 = b^2 + c^2$ |
+| 双曲线 | $\dfrac{x^2}{a^2} - \dfrac{y^2}{b^2} = 1$ | $\dfrac{y^2}{a^2} - \dfrac{x^2}{b^2} = 1$ | $c^2 = a^2 + b^2$ |
+| 抛物线 | $y^2 = 2px$（右开） | $x^2 = 2py$（上开） | 焦点 $\dfrac{p}{2}$ |
+:::
+
+::: {.callout-warning}
+## ⚠️ 常见错误
+
+1. **椭圆 $a$、$b$ 搞反**：分母大的对应焦点所在轴。$a > b > 0$，$a^2$ 一定是较大的那个分母！
+2. **椭圆与双曲线的 $c^2$ 公式混淆**：椭圆 $a^2 = b^2 + c^2$，双曲线 $c^2 = a^2 + b^2$。记忆口诀：椭圆 $a$ 最大，双曲线 $c$ 最大
+3. **抛物线系数搞错**：$y^2 = 2px$ 中焦点在 $(\frac{p}{2}, 0)$，不是 $(p, 0)$！焦距是 $\frac{p}{2}$
+4. **忘记验证条件**：椭圆必须 $2a > 2c$，即 $a > c$；双曲线必须 $2a < 2c$
+:::

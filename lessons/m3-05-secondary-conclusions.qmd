@@ -1,0 +1,395 @@
+---
+title: "二级结论速查 — 12条最实用结论"
+subtitle: "模块三 · 第5课"
+date: 2026-03-22
+---
+
+圆锥曲线的"二级结论"有几十条，但高考真正常考的就那么十几条。我们今天精选**12条最实用的结论**，每一条都配上几何直觉和使用场景。记住：**会推导 > 死背公式**——考场上忘了可以快速现推。
+
+## 探索问题
+
+::: {.callout-tip}
+## 先试一试
+
+**（2022年全国甲卷）** 椭圆 $\dfrac{x^2}{4} + y^2 = 1$ 的左顶点为 $A$，$P$、$Q$ 均在椭圆上且关于 $y$ 轴对称。若直线 $AP$ 与 $AQ$ 的斜率之积为 $\dfrac{1}{4}$，求离心率。
+
+你能用一个二级结论10秒秒杀吗？
+:::
+
+## 题型识别
+
+::: {.callout-note}
+## 什么时候该用二级结论
+
+**关键信号：**
+
+| 看到这些 | 联想到这个结论 |
+|---|---|
+| 两个斜率之积为定值 | 椭圆第三定义（垂径定理） |
+| $|PF_1| \cdot |PF_2|$ 最值 | 基本不等式 + 定义 |
+| 焦点三角形面积 + 角度 | $S = b^2\tan\frac{\theta}{2}$ |
+| 过焦点且垂直长轴的弦 | 通径 $= \frac{2b^2}{a}$ |
+| 过焦点做渐近线垂线 | 距离 $= b$ |
+| 切线方程 | "二次项换一个" |
+| 中点弦 + 斜率关系 | 点差法 |
+
+**原则：** 小题大胆用结论秒杀；大题用常规方法，过程要写完整。
+:::
+
+## 12条最实用结论
+
+我们把12条结论分成四组来学习。
+
+---
+
+### 第一组：距离类结论
+
+#### 结论1：通径
+
+过焦点做长轴（实轴）的垂线，与曲线的交弦称为**通径**。
+
+$$\text{通径} = \frac{2b^2}{a} \quad \text{（椭圆、双曲线通用）}$$
+
+半通径（即焦点处纵坐标的绝对值）$= \dfrac{b^2}{a}$。
+
+**推导：** 将 $x = c$ 代入椭圆方程，$y^2 = b^2(1 - \frac{c^2}{a^2}) = \frac{b^4}{a^2}$，所以 $|y| = \frac{b^2}{a}$。
+
+#### 结论2：焦半径公式
+
+椭圆上点 $P(x_0, y_0)$ 到焦点的距离：
+
+$$|PF_1| = a + ex_0 \quad \text{（左加）}$$
+$$|PF_2| = a - ex_0 \quad \text{（右减）}$$
+
+双曲线需加绝对值：$|PF_1| = |a + ex_0|$，$|PF_2| = |a - ex_0|$。
+
+#### 结论3：椭圆上点到焦点的距离范围
+
+$$a - c \leqslant |PF| \leqslant a + c$$
+
+最近在近焦点端（$a - c$），最远在远焦点端（$a + c$）。
+
+#### 结论4：焦点到渐近线距离
+
+双曲线焦点到任一渐近线的距离恒为 $b$，形成特征直角三角形（三边 $a$、$b$、$c$）。
+
+---
+
+### 第二组：面积与角度类
+
+#### 结论5：焦点三角形面积
+
+$$S_{\triangle F_1PF_2} = b^2 \cdot \tan\frac{\theta}{2} \quad \text{（椭圆）}$$
+
+$$S_{\triangle F_1PF_2} = \frac{b^2}{\tan\frac{\theta}{2}} \quad \text{（双曲线，$P$ 在某支上）}$$
+
+#### 结论6：焦点三角形内切圆
+
+$$r = \frac{c \cdot |y_0|}{a + c}, \quad I(ex_0, \;\frac{c \cdot |y_0|}{a+c})$$
+
+其中 $x_I = ex_0$ 是最简洁的形式。
+
+---
+
+### 第三组：斜率类结论
+
+#### 结论7：椭圆第三定义（垂径定理）
+
+$A$、$B$ 关于原点对称（包括左右顶点），$P$ 为椭圆上任意一点：
+
+$$k_{PA} \cdot k_{PB} = -\frac{b^2}{a^2}$$
+
+**双曲线版本：** $k_{PA} \cdot k_{PB} = \dfrac{b^2}{a^2}$（正号！）
+
+**特殊情况：** 当 $A$、$B$ 为左右顶点时即为经典形式。
+
+#### 结论8：中点弦斜率（点差法结论）
+
+弦 $PQ$ 的中点为 $M$，则：
+
+$$k_{PQ} \cdot k_{OM} = -\frac{b^2}{a^2} \quad \text{（椭圆）}$$
+
+$$k_{PQ} \cdot k_{OM} = \frac{b^2}{a^2} \quad \text{（双曲线）}$$
+
+---
+
+### 第四组：方程与切线类
+
+#### 结论9：切线方程
+
+曲线上点 $(x_0, y_0)$ 处的切线——"二次项换一个"：
+
+| 曲线 | 切线方程 |
+|---|---|
+| 椭圆 $\frac{x^2}{a^2} + \frac{y^2}{b^2} = 1$ | $\frac{x_0 x}{a^2} + \frac{y_0 y}{b^2} = 1$ |
+| 双曲线 $\frac{x^2}{a^2} - \frac{y^2}{b^2} = 1$ | $\frac{x_0 x}{a^2} - \frac{y_0 y}{b^2} = 1$ |
+| 抛物线 $y^2 = 2px$ | $y_0 y = p(x + x_0)$ |
+
+#### 结论10：焦点弦长（抛物线）
+
+过抛物线 $y^2 = 2px$ 焦点的弦长：$|AB| = \dfrac{2p}{\sin^2\alpha}$
+
+其中 $\alpha$ 是弦与 $x$ 轴正方向的夹角。
+
+#### 结论11：$|PF_1| \cdot |PF_2|$ 的范围
+
+椭圆上：$|PF_1| \cdot |PF_2| \leqslant \left(\frac{|PF_1| + |PF_2|}{2}\right)^2 = a^2$
+
+等号在 $|PF_1| = |PF_2| = a$（短轴端点）时取到。
+
+最小值：当 $\angle F_1PF_2 = 90°$ 时，$|PF_1| \cdot |PF_2| = b^2$。
+
+#### 结论12：四点共圆
+
+椭圆（或双曲线）上四点 $A$、$B$、$C$、$D$ 共圆 → $k_{AC} + k_{BD} = 0$（两对连线斜率之和为零）。
+
+---
+
+## D3动画：结论闪卡
+
+点击结论名称，查看公式和动画图示。
+
+```{=html}
+<div class="d3-container" id="m3_flashcard"></div>
+<div class="d3-controls">
+  <select id="m3_fc_select">
+    <option value="0">1. 通径</option>
+    <option value="1">2. 焦半径公式</option>
+    <option value="2">3. 距离范围</option>
+    <option value="3">4. 焦点到渐近线</option>
+    <option value="4">5. 焦点三角形面积</option>
+    <option value="5">6. 内切圆</option>
+    <option value="6">7. 第三定义</option>
+    <option value="7">8. 中点弦斜率</option>
+    <option value="8">9. 切线方程</option>
+    <option value="9">10. 焦点弦长</option>
+    <option value="10">11. PF₁·PF₂范围</option>
+    <option value="11">12. 四点共圆</option>
+  </select>
+  <button id="m3_fc_show">显示公式</button>
+  <button id="m3_fc_random">随机抽取</button>
+</div>
+<script>
+(function() {
+  const W = 700, H = 380;
+  const svg = d3.select("#m3_flashcard").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`);
+
+  const cards = [
+    { title: "结论1：通径", formula: "通径 = 2b²/a", desc: "过焦点做长轴垂线的弦长", color: "#2d70b3" },
+    { title: "结论2：焦半径", formula: "|PF₁| = a + ex₀（左加右减）", desc: "已知横坐标直接求焦距", color: "#2d70b3" },
+    { title: "结论3：距离范围", formula: "a-c ≤ |PF| ≤ a+c", desc: "焦点距离在长轴端点取极值", color: "#2d70b3" },
+    { title: "结论4：焦点到渐近线", formula: "距离 = b，三边a,b,c直角三角形", desc: "双曲线特征三角形", color: "#c74440" },
+    { title: "结论5：焦点三角形面积", formula: "S = b²·tan(θ/2)", desc: "知道顶角直接出面积", color: "#388c46" },
+    { title: "结论6：内切圆", formula: "r = c|y₀|/(a+c), xᵢ = ex₀", desc: "等面积法+切线长推导", color: "#388c46" },
+    { title: "结论7：第三定义", formula: "k_PA · k_PB = -b²/a²", desc: "椭圆上点与对称两点斜率之积", color: "#9b59b6" },
+    { title: "结论8：中点弦斜率", formula: "k_PQ · k_OM = -b²/a²", desc: "点差法结论，弦中点连原点", color: "#9b59b6" },
+    { title: "结论9：切线方程", formula: "x₀x/a² + y₀y/b² = 1", desc: "二次项换一个", color: "#e67e22" },
+    { title: "结论10：焦点弦长", formula: "|AB| = 2p/sin²α", desc: "抛物线过焦点弦", color: "#e67e22" },
+    { title: "结论11：PF₁·PF₂", formula: "max=a², min=b²(当∠=90°)", desc: "基本不等式+焦点三角形", color: "#e67e22" },
+    { title: "结论12：四点共圆", formula: "k_AC + k_BD = 0", desc: "两对连线斜率之和为零", color: "#e67e22" }
+  ];
+
+  const cardBg = svg.append("rect")
+    .attr("x", 40).attr("y", 30).attr("width", 620).attr("height", 320)
+    .attr("rx", 16).attr("fill", "#f8f9ff").attr("stroke", "#ddd").attr("stroke-width", 2);
+
+  const titleText = svg.append("text")
+    .attr("x", 350).attr("y", 90).attr("text-anchor", "middle")
+    .attr("font-size", "24px").attr("font-weight", "bold");
+
+  const formulaText = svg.append("text")
+    .attr("x", 350).attr("y", 170).attr("text-anchor", "middle")
+    .attr("font-size", "22px").attr("font-weight", "bold").attr("fill", "#c74440");
+
+  const descText = svg.append("text")
+    .attr("x", 350).attr("y", 230).attr("text-anchor", "middle")
+    .attr("font-size", "16px").attr("fill", "#666");
+
+  const hintText = svg.append("text")
+    .attr("x", 350).attr("y", 290).attr("text-anchor", "middle")
+    .attr("font-size", "14px").attr("fill", "#999").attr("font-style", "italic");
+
+  let currentIdx = 0;
+  let revealed = false;
+
+  function showCard(idx, reveal) {
+    currentIdx = idx;
+    const card = cards[idx];
+    titleText.text(card.title).attr("fill", card.color);
+    cardBg.attr("stroke", card.color);
+
+    if (reveal) {
+      formulaText.text(card.formula).attr("opacity", 1);
+      descText.text(card.desc).attr("opacity", 1);
+      hintText.text("").attr("opacity", 0);
+      revealed = true;
+    } else {
+      formulaText.text("???").attr("opacity", 0.3);
+      descText.text("").attr("opacity", 0);
+      hintText.text("点击「显示公式」查看").attr("opacity", 1);
+      revealed = false;
+    }
+  }
+
+  document.getElementById("m3_fc_select").addEventListener("change", function() {
+    showCard(+this.value, false);
+  });
+
+  document.getElementById("m3_fc_show").addEventListener("click", function() {
+    showCard(currentIdx, true);
+  });
+
+  document.getElementById("m3_fc_random").addEventListener("click", function() {
+    const idx = Math.floor(Math.random() * cards.length);
+    document.getElementById("m3_fc_select").value = idx;
+    showCard(idx, false);
+  });
+
+  showCard(0, false);
+})();
+</script>
+```
+
+从下拉菜单选择结论，或点击"随机抽取"进行自测。先想公式，再点"显示公式"验证。
+
+## Worked Example（第三定义秒杀）
+
+**题目：** （2022年全国甲卷）椭圆 $\dfrac{x^2}{4} + y^2 = 1$ 的左顶点为 $A$，$P$、$Q$ 在椭圆上且关于 $y$ 轴对称，$k_{AP} \cdot k_{AQ} = \dfrac{1}{4}$。求离心率。
+
+::: {.callout-caution collapse="true"}
+## 完整解答
+
+**第一步：识别结论**
+
+$P$、$Q$ 关于 $y$ 轴对称 → $AP$ 和 $AQ$ 关于 $y$ 轴对称 → $k_{AP} = -k_{BQ}$（$B$ 为右顶点）。
+
+**第二步：利用第三定义**
+
+$$k_{AP} \cdot k_{AQ} = \frac{1}{4}$$
+
+$$k_{AP} \cdot (-k_{BQ}) = -\frac{b^2}{a^2}$$（第三定义）
+
+所以 $k_{AP} \cdot k_{AQ} = \frac{b^2}{a^2} = \frac{1}{4}$
+
+等等——这里有个符号问题。由对称性：$k_{AQ} = -k_{BP}$，所以
+
+$$k_{AP} \cdot k_{AQ} = k_{AP} \cdot (-k_{BP}) = \frac{b^2}{a^2}$$
+
+（因为第三定义给出 $k_{AP} \cdot k_{BP} = -\frac{b^2}{a^2}$）
+
+所以 $\dfrac{b^2}{a^2} = \dfrac{1}{4}$。
+
+**第三步：求离心率**
+
+$$\frac{b^2}{a^2} = \frac{1}{4} \implies b^2 = \frac{a^2}{4}$$
+
+$$c^2 = a^2 - b^2 = a^2 - \frac{a^2}{4} = \frac{3a^2}{4}$$
+
+$$e = \frac{c}{a} = \frac{\sqrt{3}}{2}$$
+
+$$\boxed{e = \frac{\sqrt{3}}{2}}$$
+
+**用了结论：从读题到出答案不超过30秒。**
+:::
+
+## Faded Example 1
+
+**题目：** 椭圆 $\dfrac{x^2}{9} + \dfrac{y^2}{5} = 1$ 上一点 $P$ 到左焦点距离为 $4$。利用焦半径公式求 $P$ 的横坐标。
+
+::: {.callout-warning}
+## 填空完成
+
+$a = 3$，$b^2 = 5$，$c = $ ______，$e = $ ______
+
+焦半径：$|PF_1| = a + ex_0 = $ ______
+
+已知 $|PF_1| = 4$：$3 + \dfrac{2}{3}x_0 = 4$ → $x_0 = $ ______
+:::
+
+## Faded Example 2
+
+**题目：** 椭圆 $\dfrac{x^2}{4} + \dfrac{y^2}{3} = 1$，弦 $AB$ 的中点为 $M(1, 1)$。求弦 $AB$ 的斜率。
+
+::: {.callout-warning}
+## 填空完成
+
+点差法结论：$k_{AB} \cdot k_{OM} = $ ______
+
+$k_{OM} = \dfrac{1-0}{1-0} = $ ______
+
+所以 $k_{AB} = $ ______
+:::
+
+## Desmos验证
+
+```{=html}
+<div id="m3_05_desmos" class="desmos-container"></div>
+<script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+<script>
+  var m3_05_calc = Desmos.GraphingCalculator(document.getElementById('m3_05_desmos'), {
+    expressions: true, settingsMenu: false
+  });
+  m3_05_calc.setExpression({ id: 'ell', latex: '\\frac{x^2}{4} + y^2 = 1', color: '#2d70b3' });
+  m3_05_calc.setExpression({ id: 'a_pt', latex: '(-2, 0)', color: '#c74440', label: 'A(左顶点)' });
+  m3_05_calc.setExpression({ id: 'b_pt', latex: '(2, 0)', color: '#c74440', label: 'B(右顶点)' });
+  m3_05_calc.setExpression({ id: 't_val', latex: 't_0 = 1', sliderBounds: { min: 0.1, max: 3, step: 0.01 } });
+  m3_05_calc.setExpression({ id: 'px', latex: 'p_x = 2\\cos(t_0)' });
+  m3_05_calc.setExpression({ id: 'py', latex: 'p_y = \\sin(t_0)' });
+  m3_05_calc.setExpression({ id: 'p_pt', latex: '(p_x, p_y)', color: '#388c46', label: 'P' });
+  m3_05_calc.setExpression({ id: 'kpa', latex: 'k_1 = \\frac{p_y}{p_x + 2}' });
+  m3_05_calc.setExpression({ id: 'kpb', latex: 'k_2 = \\frac{p_y}{p_x - 2}' });
+  m3_05_calc.setExpression({ id: 'prod', latex: 'k_1 \\cdot k_2' });
+  m3_05_calc.setMathBounds({ left: -4, right: 4, bottom: -2.5, top: 2.5 });
+</script>
+```
+
+拖动参数 $t_0$，观察 $k_1 \cdot k_2$ 始终等于 $-\dfrac{b^2}{a^2} = -\dfrac{1}{4}$。这就是椭圆第三定义的直观验证。
+
+## 参考视频
+
+```{=html}
+<div class="video-container"><iframe src="//player.bilibili.com/player.html?bvid=BV1qH4y1B7dm&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%;height:100%;position:absolute;top:0;left:0;"></iframe></div>
+```
+
+## 关键帧
+
+![二级结论分类总览](../images/ch02/frame_01.jpg)
+
+![焦半径公式推导](../images/ch02/frame_02.jpg)
+
+![第三定义与垂径定理](../images/ch02/frame_03.jpg)
+
+![切线方程速记法](../images/ch02/frame_04.jpg)
+
+## 速查表 + ⚠️易错点
+
+::: {.callout-important}
+## 12条结论总表
+
+| # | 结论 | 公式 | 适用范围 |
+|---|---|---|---|
+| 1 | 通径 | $\frac{2b^2}{a}$ | 椭圆/双曲线 |
+| 2 | 焦半径 | $a \pm ex_0$（左加右减） | 椭圆/双曲线 |
+| 3 | 焦距范围 | $[a-c, a+c]$ | 椭圆 |
+| 4 | 焦点到渐近线 | 距离 $= b$ | 双曲线 |
+| 5 | 焦点三角形面积 | $b^2\tan\frac{\theta}{2}$ | 椭圆 |
+| 6 | 内切圆 | $r = \frac{c\|y_0\|}{a+c}$，$x_I = ex_0$ | 椭圆 |
+| 7 | 第三定义 | $k_1 k_2 = -\frac{b^2}{a^2}$ | 椭圆（双曲线取正） |
+| 8 | 中点弦 | $k_{弦} \cdot k_{OM} = -\frac{b^2}{a^2}$ | 椭圆（双曲线取正） |
+| 9 | 切线 | $\frac{x_0 x}{a^2} + \frac{y_0 y}{b^2} = 1$ | 所有二次曲线 |
+| 10 | 焦点弦长 | $\frac{2p}{\sin^2\alpha}$ | 抛物线 |
+| 11 | $PF_1 \cdot PF_2$ | $\max = a^2$，$\min = b^2$ | 椭圆 |
+| 12 | 四点共圆 | $k_{AC} + k_{BD} = 0$ | 椭圆/双曲线 |
+:::
+
+::: {.callout-warning}
+## ⚠️ 高频易错点
+
+1. **椭圆与双曲线符号搞混**：第三定义中，椭圆取 $-\dfrac{b^2}{a^2}$（负号），双曲线取 $+\dfrac{b^2}{a^2}$（正号）。
+2. **焦半径公式的"左加右减"**：到**左**焦点的距离是 $a$ **加** $ex_0$，到**右**焦点是 $a$ **减** $ex_0$。双曲线加绝对值。
+3. **通径与半通径**：通径是整条弦长 $\frac{2b^2}{a}$，半通径是 $\frac{b^2}{a}$。题目问的是哪个要看清楚。
+4. **切线方程的记忆**：不是把 $x^2$ 换成 $x_0^2$，而是换成 $x_0 x$（一个换，一个不换）。
+5. **结论是工具不是目的**：大题中如果用了二级结论，最好附上简要推导过程，否则可能被扣分。小题可以直接用。
+6. **$|PF_1| \cdot |PF_2|$ 最小值**：最小值 $b^2$ 只在 $\angle F_1PF_2 = 90°$ 时取到。首先要确认这样的点存在（需要 $e \geqslant \frac{\sqrt{2}}{2}$）。
+:::

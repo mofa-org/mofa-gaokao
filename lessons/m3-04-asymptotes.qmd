@@ -1,0 +1,347 @@
+---
+title: "渐近线与几何性质"
+subtitle: "模块三 · 第4课"
+date: 2026-03-22
+---
+
+双曲线是高考的"易错大户"，而渐近线和几何性质是其中最核心的考点。我们今天的目标：看到双曲线，能在5秒内写出渐近线方程、判断焦点位置、画出特征三角形。
+
+## 探索问题
+
+::: {.callout-tip}
+## 先试一试（限时30秒）
+
+**快速判断：** 双曲线 $\dfrac{y^2}{4} - \dfrac{x^2}{3} = 1$，请立刻回答：
+
+1. 焦点在哪个轴？
+2. 渐近线方程是？
+3. $a = ?$，$b = ?$，$c = ?$
+
+计时开始——
+:::
+
+## 题型识别
+
+::: {.callout-note}
+## 双曲线快速判断清单
+
+**30秒判断流程：**
+
+```
+看方程 → ① 哪个变量前是正号？ → 焦点在那个轴
+       → ② 正号下的分母 = a² → 写出 a
+       → ③ 负号下的分母 = b² → 写出 b
+       → ④ 渐近线：把1改成0，解方程
+       → ⑤ c² = a² + b²（注意是加号！）
+```
+
+**渐近线方程的速记法：**
+
+| 方程形式 | 渐近线 | 记忆法 |
+|---|---|---|
+| $\dfrac{x^2}{a^2} - \dfrac{y^2}{b^2} = 1$ | $y = \pm\dfrac{b}{a}x$ | "被减的在上" |
+| $\dfrac{y^2}{a^2} - \dfrac{x^2}{b^2} = 1$ | $y = \pm\dfrac{a}{b}x$ | 同样规则 |
+:::
+
+## Worked Example 1：渐近线方程
+
+**题目：** 双曲线 $\dfrac{x^2}{9} - \dfrac{y^2}{16} = 1$，求渐近线方程、焦点坐标、离心率。
+
+::: {.callout-caution collapse="true"}
+## 完整解答
+
+**第一步：读参数**
+
+正号在 $x^2$ 前 → 焦点在 **$x$ 轴**。
+
+$a^2 = 9$，$a = 3$；$b^2 = 16$，$b = 4$。
+
+**第二步：渐近线**
+
+把 $1$ 改成 $0$：$\dfrac{x^2}{9} - \dfrac{y^2}{16} = 0$ → $y^2 = \dfrac{16}{9}x^2$ → $y = \pm\dfrac{4}{3}x$
+
+$$\boxed{y = \pm\frac{4}{3}x}$$
+
+**第三步：焦点和离心率**
+
+$c^2 = a^2 + b^2 = 9 + 16 = 25$，$c = 5$
+
+焦点：$(\pm 5, 0)$
+
+$e = \dfrac{c}{a} = \dfrac{5}{3}$
+:::
+
+## Worked Example 2：特征三角形
+
+**题目：** 双曲线 $\dfrac{x^2}{a^2} - \dfrac{y^2}{b^2} = 1$，过焦点 $F$ 作渐近线 $l$ 的垂线，垂足为 $H$，$|FH| = b$。已知 $|OH| = a$（$O$ 为原点），$|OF| = c$。求证这三边构成直角三角形。
+
+::: {.callout-caution collapse="true"}
+## 完整解答
+
+**这是双曲线最重要的几何性质之一。**
+
+过焦点做渐近线的垂线，形成直角三角形 $\triangle OHF$：
+
+- 斜边 $|OF| = c$（半焦距）
+- 一直角边 $|FH| = b$（半虚轴）
+- 另一直角边 $|OH| = a$（半实轴）
+
+**验证勾股定理：** $a^2 + b^2 = c^2$ ✓（双曲线的基本关系！）
+
+**这就是为什么 $c^2 = a^2 + b^2$ 这个公式如此自然。**
+
+**应用：** 如果题目给了 $|FH|$ 和 $|OH|$ 的关系，就可以利用这个特征三角形建立 $a$、$b$、$c$ 的方程。
+
+$$\boxed{\text{焦点到渐近线距离} = b, \quad \text{原点到垂足距离} = a}$$
+:::
+
+## Worked Example 3：渐近线与直线平行
+
+**题目：** （2024年北京高考）双曲线 $x^2 - \dfrac{y^2}{2} = 1$，过点 $(3, 0)$ 的直线与双曲线恰有一个公共点。求直线斜率 $k$ 的一个可能值。
+
+::: {.callout-caution collapse="true"}
+## 完整解答
+
+**第一步：判断点的位置**
+
+$a = 1$，左右顶点为 $(\pm 1, 0)$。点 $(3, 0)$ 在双曲线右支的"内部"（介于两条渐近线之间）。
+
+**第二步：渐近线斜率**
+
+渐近线：$y = \pm\sqrt{2}\,x$，斜率为 $\pm\sqrt{2}$。
+
+**第三步：定点在"肚子里"→ 只需平行于渐近线**
+
+当定点在两条渐近线之间时，直线与双曲线恰有一个公共点的情况只能是：**直线平行于渐近线**。
+
+$$\boxed{k = \sqrt{2} \text{ 或 } k = -\sqrt{2}}$$
+
+**为什么不需要联立求解？** 因为定点在双曲线内部时，不可能与双曲线相切（任意方向都有两个交点），唯一的"一个交点"情况就是与渐近线平行。
+:::
+
+## D3动画：双曲线渐近线与Quiz
+
+```{=html}
+<div class="d3-container" id="m3_asymptote_viz"></div>
+<div class="d3-controls">
+  <label>a：</label>
+  <input type="range" id="m3_asym_a" min="1" max="4" value="2" step="0.5">
+  <label style="margin-left:15px;">b：</label>
+  <input type="range" id="m3_asym_b" min="1" max="4" value="3" step="0.5">
+  <span class="value-display" id="m3_asym_info">a=2, b=3</span>
+  <button id="m3_asym_quiz" style="margin-left:15px;">Quiz 模式 🎯</button>
+</div>
+<script>
+(function() {
+  const W = 700, H = 450;
+  const svg = d3.select("#m3_asymptote_viz").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`);
+
+  const cx = 350, cy = 225, scale = 40;
+
+  // Grid
+  for (let x = -8; x <= 8; x++) {
+    svg.append("line")
+      .attr("x1", cx + x * scale).attr("y1", 0).attr("x2", cx + x * scale).attr("y2", H)
+      .attr("stroke", x === 0 ? "#aaa" : "#eee").attr("stroke-width", x === 0 ? 1.5 : 0.5);
+  }
+  for (let y = -5; y <= 5; y++) {
+    svg.append("line")
+      .attr("x1", 0).attr("y1", cy + y * scale).attr("x2", W).attr("y2", cy + y * scale)
+      .attr("stroke", y === 0 ? "#aaa" : "#eee").attr("stroke-width", y === 0 ? 1.5 : 0.5);
+  }
+
+  const asymLine1 = svg.append("line").attr("stroke", "#999").attr("stroke-width", 1.5).attr("stroke-dasharray", "6,4");
+  const asymLine2 = svg.append("line").attr("stroke", "#999").attr("stroke-width", 1.5).attr("stroke-dasharray", "6,4");
+
+  const hypRight = svg.append("path").attr("fill", "none").attr("stroke", "#c74440").attr("stroke-width", 2.5);
+  const hypLeft = svg.append("path").attr("fill", "none").attr("stroke", "#c74440").attr("stroke-width", 2.5);
+
+  const charTriangle = svg.append("path")
+    .attr("fill", "rgba(56,140,70,0.15)").attr("stroke", "#388c46").attr("stroke-width", 1.5).attr("stroke-dasharray", "3,3");
+
+  const f1Dot = svg.append("circle").attr("r", 5).attr("fill", "#2d70b3");
+  const f2Dot = svg.append("circle").attr("r", 5).attr("fill", "#2d70b3");
+  const f1Text = svg.append("text").attr("font-size", "13px").attr("fill", "#2d70b3").attr("text-anchor", "middle");
+  const f2Text = svg.append("text").attr("font-size", "13px").attr("fill", "#2d70b3").attr("text-anchor", "middle");
+
+  const eqText = svg.append("text").attr("x", 20).attr("y", 30).attr("font-size", "16px").attr("fill", "#c74440").attr("font-weight", "bold");
+  const asymText = svg.append("text").attr("x", 20).attr("y", 55).attr("font-size", "14px").attr("fill", "#666");
+  const eText = svg.append("text").attr("x", 20).attr("y", 78).attr("font-size", "14px").attr("fill", "#2d70b3");
+
+  const quizPanel = svg.append("g").attr("transform", "translate(500, 350)").attr("opacity", 0);
+  quizPanel.append("rect").attr("x", -10).attr("y", -20).attr("width", 200).attr("height", 80)
+    .attr("rx", 8).attr("fill", "#fffbe6").attr("stroke", "#f0c040");
+  const quizText = quizPanel.append("text").attr("y", 5).attr("font-size", "13px").attr("fill", "#333");
+  const quizAnswer = quizPanel.append("text").attr("y", 35).attr("font-size", "14px").attr("fill", "#388c46").attr("font-weight", "bold");
+
+  function update() {
+    const aVal = +document.getElementById("m3_asym_a").value;
+    const bVal = +document.getElementById("m3_asym_b").value;
+    const cVal = Math.sqrt(aVal * aVal + bVal * bVal);
+
+    document.getElementById("m3_asym_info").textContent = `a=${aVal}, b=${bVal}, c=${cVal.toFixed(2)}`;
+
+    // Asymptotes
+    const slope = bVal / aVal;
+    asymLine1.attr("x1", cx - 8 * scale).attr("y1", cy + 8 * scale * slope)
+      .attr("x2", cx + 8 * scale).attr("y2", cy - 8 * scale * slope);
+    asymLine2.attr("x1", cx - 8 * scale).attr("y1", cy - 8 * scale * slope)
+      .attr("x2", cx + 8 * scale).attr("y2", cy + 8 * scale * slope);
+
+    // Hyperbola branches
+    const rightPts = d3.range(-2.5, 2.51, 0.05).map(t => [
+      cx + aVal * Math.cosh(t) * scale, cy - bVal * Math.sinh(t) * scale
+    ]).filter(p => p[0] > 0 && p[0] < W && p[1] > -10 && p[1] < H + 10);
+
+    const leftPts = d3.range(-2.5, 2.51, 0.05).map(t => [
+      cx - aVal * Math.cosh(t) * scale, cy - bVal * Math.sinh(t) * scale
+    ]).filter(p => p[0] > -10 && p[0] < W && p[1] > -10 && p[1] < H + 10);
+
+    hypRight.attr("d", d3.line().curve(d3.curveBasis)(rightPts));
+    hypLeft.attr("d", d3.line().curve(d3.curveBasis)(leftPts));
+
+    // Characteristic triangle
+    charTriangle.attr("d", `M${cx},${cy} L${cx + cVal * scale},${cy} L${cx + aVal * scale},${cy - bVal * scale} Z`);
+
+    // Foci
+    f1Dot.attr("cx", cx - cVal * scale).attr("cy", cy);
+    f2Dot.attr("cx", cx + cVal * scale).attr("cy", cy);
+    f1Text.attr("x", cx - cVal * scale).attr("y", cy + 20).text("F₁");
+    f2Text.attr("x", cx + cVal * scale).attr("y", cy + 20).text("F₂");
+
+    eqText.text(`x²/${aVal * aVal} - y²/${bVal * bVal} = 1`);
+    asymText.text(`渐近线：y = ±${bVal}/${aVal}x`);
+    eText.text(`e = c/a = ${(cVal / aVal).toFixed(3)}`);
+  }
+
+  let quizMode = false;
+  document.getElementById("m3_asym_quiz").addEventListener("click", function() {
+    quizMode = !quizMode;
+    if (quizMode) {
+      this.textContent = "退出 Quiz";
+      const aQ = Math.floor(Math.random() * 3) + 1;
+      const bQ = Math.floor(Math.random() * 3) + 1;
+      document.getElementById("m3_asym_a").value = aQ;
+      document.getElementById("m3_asym_b").value = bQ;
+      update();
+      eqText.attr("opacity", 0);
+      asymText.attr("opacity", 0);
+      eText.attr("opacity", 0);
+      quizPanel.attr("opacity", 1);
+      quizText.text("渐近线方程是？");
+      quizAnswer.text(`点击此处查看：y=±${bQ}/${aQ}x`).attr("opacity", 0);
+      quizAnswer.on("click", () => quizAnswer.attr("opacity", 1));
+      quizPanel.on("click", () => quizAnswer.attr("opacity", 1));
+    } else {
+      this.textContent = "Quiz 模式";
+      eqText.attr("opacity", 1);
+      asymText.attr("opacity", 1);
+      eText.attr("opacity", 1);
+      quizPanel.attr("opacity", 0);
+    }
+  });
+
+  document.getElementById("m3_asym_a").addEventListener("input", update);
+  document.getElementById("m3_asym_b").addEventListener("input", update);
+  update();
+})();
+</script>
+```
+
+调节 $a$ 和 $b$，观察双曲线和渐近线的变化。绿色虚线三角形是特征三角形（三边为 $a$、$b$、$c$）。点击"Quiz 模式"测试你能否快速写出渐近线方程。
+
+## Faded Example 1
+
+**题目：** 双曲线 $\dfrac{y^2}{9} - \dfrac{x^2}{4} = 1$，过右焦点做一条渐近线的垂线，垂足为 $H$。求 $|OH|$。
+
+::: {.callout-warning}
+## 填空完成
+
+**第一步：** 正号在 $y^2$ 前 → 焦点在 ______ 轴。
+
+$a^2 = $ ______，$b^2 = $ ______，$c^2 = $ ______
+
+**第二步：** 渐近线方程：$y = \pm$ ______（注意：焦点在 $y$ 轴时，$a$ 对应 $y$，渐近线为 $y = \pm\dfrac{a}{b}x$）
+
+**第三步：** 特征三角形 → $|OH| = $ ______
+:::
+
+## Faded Example 2
+
+**题目：** 双曲线 $\dfrac{x^2}{a^2} - \dfrac{y^2}{b^2} = 1$ 的一条渐近线方程为 $y = 2x$，求离心率。
+
+::: {.callout-warning}
+## 填空完成
+
+**第一步：** $\dfrac{b}{a} = $ ______ → $b = $ ______
+
+**第二步：** $c^2 = a^2 + b^2 = a^2 + $ ______ $= $ ______
+
+**第三步：** $e = \dfrac{c}{a} = $ ______
+:::
+
+## Desmos验证
+
+```{=html}
+<div id="m3_04_desmos" class="desmos-container"></div>
+<script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+<script>
+  var m3_04_calc = Desmos.GraphingCalculator(document.getElementById('m3_04_desmos'), {
+    expressions: true, settingsMenu: false
+  });
+  m3_04_calc.setExpression({ id: 'a_val', latex: 'a = 2', sliderBounds: { min: 0.5, max: 5, step: 0.5 } });
+  m3_04_calc.setExpression({ id: 'b_val', latex: 'b = 3', sliderBounds: { min: 0.5, max: 5, step: 0.5 } });
+  m3_04_calc.setExpression({ id: 'hyp', latex: '\\frac{x^2}{a^2} - \\frac{y^2}{b^2} = 1', color: '#c74440' });
+  m3_04_calc.setExpression({ id: 'asym1', latex: 'y = \\frac{b}{a}x', color: '#999', lineStyle: 'DASHED' });
+  m3_04_calc.setExpression({ id: 'asym2', latex: 'y = -\\frac{b}{a}x', color: '#999', lineStyle: 'DASHED' });
+  m3_04_calc.setExpression({ id: 'c_val', latex: 'c = \\sqrt{a^2 + b^2}' });
+  m3_04_calc.setExpression({ id: 'f1', latex: '(-c, 0)', color: '#2d70b3', label: 'F₁' });
+  m3_04_calc.setExpression({ id: 'f2', latex: '(c, 0)', color: '#2d70b3', label: 'F₂' });
+  m3_04_calc.setMathBounds({ left: -10, right: 10, bottom: -8, top: 8 });
+</script>
+```
+
+调节 $a$ 和 $b$，验证渐近线方程 $y = \pm\dfrac{b}{a}x$。注意焦点总在渐近线之外。
+
+## 参考视频
+
+```{=html}
+<div class="video-container"><iframe src="//player.bilibili.com/player.html?bvid=BV15t4y1N7UN&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%;height:100%;position:absolute;top:0;left:0;"></iframe></div>
+```
+
+## 关键帧
+
+![双曲线基本性质](../images/ch04/frame_01.jpg)
+
+![渐近线与特征三角形](../images/ch04/frame_02.jpg)
+
+![焦点到渐近线距离等于b](../images/ch04/frame_03.jpg)
+
+![直线与双曲线位置关系](../images/ch04/frame_04.jpg)
+
+## 速查表 + ⚠️易错点
+
+::: {.callout-important}
+## 双曲线速查表
+
+| 性质 | 焦点在 $x$ 轴 | 焦点在 $y$ 轴 |
+|---|---|---|
+| 方程 | $\dfrac{x^2}{a^2} - \dfrac{y^2}{b^2} = 1$ | $\dfrac{y^2}{a^2} - \dfrac{x^2}{b^2} = 1$ |
+| 渐近线 | $y = \pm\dfrac{b}{a}x$ | $y = \pm\dfrac{a}{b}x$ |
+| $c^2$ | $a^2 + b^2$ | $a^2 + b^2$ |
+| 顶点 | $(\pm a, 0)$ | $(0, \pm a)$ |
+| 焦点到渐近线距离 | $b$ | $b$ |
+| 通径 | $\dfrac{2b^2}{a}$ | $\dfrac{2b^2}{a}$ |
+| 焦半径 | $\|PF\| = \|a \pm ex_0\|$ | $\|PF\| = \|a \pm ey_0\|$ |
+:::
+
+::: {.callout-warning}
+## ⚠️ 高频易错点
+
+1. **$\dfrac{b}{a}$ 还是 $\dfrac{a}{b}$？** 记住规则：渐近线方程中，$y$ 的系数 = $\dfrac{\text{y项分母的根号}}{\text{x项分母的根号}}$。或者直接令等式右边 $= 0$ 来推导。
+2. **双曲线 $a$ 不一定大于 $b$**！椭圆要求 $a > b$，但双曲线没有这个限制。$a$ 对应正号项，$b$ 对应负号项。
+3. **$c^2 = a^2 + b^2$，不是 $a^2 - b^2$**！这是与椭圆最常混淆的地方。
+4. **直线与渐近线平行 → 只有一个交点**：联立后二次项系数为 $0$，变成一次方程，只有一个解。不要漏掉这种情况！
+5. **定点在双曲线"肚子里"**时，与双曲线只有一个交点 = 与渐近线平行，无需联立计算。
+:::

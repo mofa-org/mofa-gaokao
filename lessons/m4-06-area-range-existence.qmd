@@ -1,0 +1,443 @@
+---
+title: "面积、范围与存在性"
+subtitle: "模块四 · 第6课"
+date: 2026-03-22
+---
+
+高考圆锥曲线大题的终极boss：求三角形面积的最大值、参数的取值范围、或者证明某个点/直线是否存在。这些问题都需要在韦达定理的基础上，进行一步优化或存在性论证。
+
+## 探索问题
+
+::: {.callout-tip}
+## 先试一试
+
+椭圆 $\dfrac{x^2}{4} + y^2 = 1$，过右焦点 $F(\sqrt{3},\, 0)$ 的直线 $l$ 交椭圆于 $A$、$B$ 两点。求 $\triangle AOB$ 面积的最大值（$O$ 为原点）。
+
+提示：面积 $= \dfrac{1}{2} |OF| \cdot |y_1 - y_2|$（为什么？）
+:::
+
+## 方法讲解：三类问题的通用框架
+
+### 面积问题
+
+三角形面积的常用表达：
+
+$$S_{\triangle} = \frac{1}{2} |底| \cdot |高|$$
+
+在圆锥曲线中，通常选取**已知定点到直线的距离**作为高，**弦长在某方向的投影**作为底。
+
+**关键技巧：** 如果三角形的一个顶点是定点 $P$，弦为 $AB$：
+
+$$S = \frac{1}{2} \cdot d(P,\, AB) \cdot |AB|$$
+
+其中 $d(P, AB)$ 是点到直线的距离，$|AB|$ 用弦长公式。
+
+或者更简洁：如果 $P$ 在 $x$ 轴上，$AB$ 的方程为 $x = ty + n$：
+
+$$S = \frac{1}{2} |x_P - n| \cdot |y_1 - y_2| \cdot \frac{1}{\sqrt{1+t^2}} \cdot \sqrt{1+t^2} = \frac{1}{2} |x_P - n| \cdot |y_1 - y_2|$$
+
+（因为高 $= \dfrac{|x_P - n|}{\sqrt{1+t^2}}$，底 $= \sqrt{1+t^2}\,|y_1-y_2|$，乘起来 $\sqrt{1+t^2}$ 约掉了！）
+
+### 动画：面积随弦旋转的变化
+
+```{=html}
+<div class="d3-container" id="m4_area_anim"></div>
+<div class="d3-controls">
+  <label>弦的方向 (参数 t)：</label>
+  <input type="range" id="m4_area_slider" min="-30" max="30" value="5" step="1">
+  <span class="value-display" id="m4_area_t_label">t = 0.5</span>
+  <br>
+  <span class="value-display" id="m4_area_val" style="font-weight:bold;color:#c74440;">面积 = ?</span>
+  <span class="value-display" id="m4_area_max" style="font-weight:bold;color:#388c46;"></span>
+</div>
+<script>
+(function() {
+  const W = 700, H = 450;
+  const svg = d3.select("#m4_area_anim").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`);
+
+  const cx = W/2, cy = H/2, sc = 80;
+  const a = 2, b = 1, a2 = 4, b2 = 1;
+  const F = Math.sqrt(a2 - b2); // sqrt(3)
+
+  // Axes
+  svg.append("line").attr("x1",0).attr("y1",cy).attr("x2",W).attr("y2",cy).attr("stroke","#ddd");
+  svg.append("line").attr("x1",cx).attr("y1",0).attr("x2",cx).attr("y2",H).attr("stroke","#ddd");
+
+  // Ellipse
+  const ePts = d3.range(0, 2*Math.PI+0.05, 0.05).map(t =>
+    [cx + a*sc*Math.cos(t), cy - b*sc*Math.sin(t)]
+  );
+  svg.append("path").attr("d", d3.line()(ePts)+"Z")
+    .attr("fill","none").attr("stroke","#2d70b3").attr("stroke-width",2.5);
+
+  // O and F
+  svg.append("circle").attr("cx",cx).attr("cy",cy).attr("r",4).attr("fill","#333");
+  svg.append("text").attr("x",cx-15).attr("y",cy+18).attr("font-size","13px").text("O");
+  svg.append("circle").attr("cx",cx+F*sc).attr("cy",cy).attr("r",4).attr("fill","#c74440");
+  svg.append("text").attr("x",cx+F*sc-5).attr("y",cy+18).attr("font-size","13px").attr("fill","#c74440").text("F");
+
+  const triPath = svg.append("path")
+    .attr("fill","rgba(56,140,70,0.15)").attr("stroke","#388c46").attr("stroke-width",1.5);
+
+  const dotA = svg.append("circle").attr("r",5).attr("fill","#388c46");
+  const dotB = svg.append("circle").attr("r",5).attr("fill","#388c46");
+  const chordLine = svg.append("line").attr("stroke","#e67e22").attr("stroke-width",2);
+
+  // Area chart on the right side
+  const chartX = 530, chartY = 30, chartW = 150, chartH = 120;
+  svg.append("rect").attr("x",chartX).attr("y",chartY).attr("width",chartW).attr("height",chartH)
+    .attr("fill","#fafafa").attr("stroke","#ccc");
+  svg.append("text").attr("x",chartX+chartW/2).attr("y",chartY-5).attr("text-anchor","middle")
+    .attr("font-size","11px").attr("fill","#666").text("面积 vs t");
+
+  let areaHistory = [];
+  const areaPath = svg.append("path").attr("fill","none").attr("stroke","#c74440").attr("stroke-width",1.5);
+  const areaDot = svg.append("circle").attr("r",4).attr("fill","#c74440");
+
+  let maxArea = 0;
+
+  function update() {
+    const t = +document.getElementById("m4_area_slider").value / 10;
+    document.getElementById("m4_area_t_label").textContent = "t = " + t.toFixed(1);
+
+    // Line: x = ty + F (through right focus)
+    // Sub into x²/4 + y² = 1: (ty+F)²/4 + y² = 1
+    // (t²/4 + 1)y² + Ft/2 * y + F²/4 - 1 = 0
+    const AA = t*t/4 + 1;
+    const BB = F*t/2;
+    const CC = F*F/4 - 1;
+    const disc = BB*BB - 4*AA*CC;
+    if (disc < 0) return;
+
+    const y1 = (-BB + Math.sqrt(disc)) / (2*AA);
+    const y2 = (-BB - Math.sqrt(disc)) / (2*AA);
+    const x1 = t*y1 + F;
+    const x2 = t*y2 + F;
+
+    // Area of triangle OAB: 1/2 * |xF| * |y1-y2| (since O is at origin, dist from O to line x=ty+F is F/sqrt(1+t²))
+    // Actually S = 1/2 * |OF on the normal to AB| * |AB|
+    // Simpler: S = 1/2 * |x1*y2 - x2*y1|
+    const area = 0.5 * Math.abs(x1*y2 - x2*y1);
+
+    document.getElementById("m4_area_val").textContent = "面积 = " + area.toFixed(4);
+    if (area > maxArea) {
+      maxArea = area;
+      document.getElementById("m4_area_max").textContent = "(最大 ≈ " + maxArea.toFixed(4) + ")";
+    }
+
+    dotA.attr("cx", cx+x1*sc).attr("cy", cy-y1*sc);
+    dotB.attr("cx", cx+x2*sc).attr("cy", cy-y2*sc);
+    chordLine.attr("x1", cx+x1*sc).attr("y1", cy-y1*sc)
+      .attr("x2", cx+x2*sc).attr("y2", cy-y2*sc);
+
+    triPath.attr("d", `M${cx},${cy} L${cx+x1*sc},${cy-y1*sc} L${cx+x2*sc},${cy-y2*sc} Z`);
+
+    // Update area chart
+    areaHistory.push({ t: t, area: area });
+    // Keep sorted
+    areaHistory.sort((a,b) => a.t - b.t);
+    if (areaHistory.length > 200) {
+      // Deduplicate
+      const seen = new Set();
+      areaHistory = areaHistory.filter(h => {
+        const key = h.t.toFixed(2);
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    }
+
+    const tMin = -3, tMax = 3, aMax = 1.5;
+    const scaleX = d => chartX + (d.t - tMin) / (tMax - tMin) * chartW;
+    const scaleY = d => chartY + chartH - (d.area / aMax) * chartH;
+
+    areaPath.attr("d", d3.line().x(scaleX).y(scaleY)(areaHistory));
+    areaDot.attr("cx", scaleX({t:t})).attr("cy", scaleY({t:t, area:area}));
+  }
+
+  document.getElementById("m4_area_slider").addEventListener("input", update);
+
+  // Seed some history
+  for (let i = -30; i <= 30; i++) {
+    document.getElementById("m4_area_slider").value = i;
+    update();
+  }
+  document.getElementById("m4_area_slider").value = 5;
+  update();
+})();
+</script>
+```
+
+拖动滑块旋转弦，观察三角形面积的变化。右上角小图显示面积与参数 $t$ 的关系曲线——最大值在 $t = 0$（弦垂直于 $x$ 轴）时取到。
+
+### 范围问题
+
+"求 $k$ 的取值范围"本质上是多个不等式的交集：
+
+1. $\Delta > 0$
+2. 可能的符号限制（如两根同正）
+3. 可能的参数范围（如 $k \neq \pm \dfrac{b}{a}$）
+
+### 存在性问题
+
+"是否存在实数 $k$，使得……" → 先假设存在，列方程求解，看是否有合法的解。
+
+## Worked Example
+
+**题目：** 椭圆 $\dfrac{x^2}{4} + y^2 = 1$，过右焦点 $F(\sqrt{3},\, 0)$ 的直线交椭圆于 $A$、$B$。求 $\triangle AOB$ 面积的最大值。
+
+---
+
+**【子目标1：设直线、联立】**
+
+$F$ 在 $x$ 轴上，设 $l: x = ty + \sqrt{3}$。
+
+代入 $x^2 + 4y^2 = 4$：
+
+$$(t^2 + 4)y^2 + 2\sqrt{3}\,t\,y + 3 - 4 = 0$$
+
+$$(t^2 + 4)y^2 + 2\sqrt{3}\,t\,y - 1 = 0$$
+
+---
+
+**【子目标2：韦达】**
+
+$$y_1 + y_2 = \frac{-2\sqrt{3}\,t}{t^2+4}, \quad y_1 y_2 = \frac{-1}{t^2+4}$$
+
+---
+
+**【子目标3：面积表达式】**
+
+$$S = \frac{1}{2} |x_1 y_2 - x_2 y_1|$$
+
+其中 $x_i = ty_i + \sqrt{3}$，代入展开：
+
+$$x_1 y_2 - x_2 y_1 = (ty_1 + \sqrt{3})y_2 - (ty_2 + \sqrt{3})y_1 = \sqrt{3}(y_2 - y_1)$$
+
+所以 $S = \dfrac{\sqrt{3}}{2} |y_1 - y_2|$。
+
+---
+
+**【子目标4：用韦达化简 $|y_1-y_2|$】**
+
+$$(y_1-y_2)^2 = (y_1+y_2)^2 - 4y_1 y_2 = \frac{12t^2}{(t^2+4)^2} + \frac{4}{t^2+4}$$
+
+$$= \frac{12t^2 + 4(t^2+4)}{(t^2+4)^2} = \frac{16t^2 + 16}{(t^2+4)^2} = \frac{16(t^2+1)}{(t^2+4)^2}$$
+
+---
+
+**【子目标5：最大值——换元求解】**
+
+$$S^2 = \frac{3}{4} \cdot \frac{16(t^2+1)}{(t^2+4)^2} = \frac{12(t^2+1)}{(t^2+4)^2}$$
+
+设 $u = t^2 + 1 \geq 1$，则 $t^2 + 4 = u + 3$：
+
+$$S^2 = \frac{12u}{(u+3)^2}$$
+
+令 $f(u) = \dfrac{u}{(u+3)^2}$。求导令 $f'(u) = 0$：
+
+$$f'(u) = \frac{(u+3)^2 - u \cdot 2(u+3)}{(u+3)^4} = \frac{3-u}{(u+3)^3} = 0 \Rightarrow u = 3$$
+
+所以 $t^2 = 2$，$S^2 = \dfrac{12 \cdot 3}{36} = 1$，$S_{\max} = 1$。
+
+---
+
+**【结论】** $\triangle AOB$ 面积的最大值为 $1$，当 $t = \pm\sqrt{2}$ 时取到。
+
+## 子技能训练
+
+### 训练1：面积公式——叉积法
+
+::: {.callout-note}
+## 练习
+
+已知 $O$ 为原点，$A(x_1, y_1)$，$B(x_2, y_2)$。
+
+证明 $S_{\triangle OAB} = \dfrac{1}{2}|x_1 y_2 - x_2 y_1|$。
+
+然后用此公式计算 $A(1, 2)$，$B(3, 1)$ 构成的三角形面积。
+:::
+
+::: {.callout-caution collapse="true"}
+## 参考答案
+
+$\vec{OA} = (x_1, y_1)$，$\vec{OB} = (x_2, y_2)$。
+
+$S = \dfrac{1}{2}|\vec{OA} \times \vec{OB}| = \dfrac{1}{2}|x_1 y_2 - x_2 y_1|$
+
+$= \dfrac{1}{2}|1 \cdot 1 - 3 \cdot 2| = \dfrac{1}{2}|1-6| = \dfrac{5}{2}$
+:::
+
+### 训练2：$|y_1 - y_2|$ 的韦达化简
+
+::: {.callout-note}
+## 练习
+
+已知 $y_1 + y_2 = \dfrac{-6t}{3t^2+4}$，$y_1 y_2 = \dfrac{-9}{3t^2+4}$。
+
+计算 $(y_1-y_2)^2$ 用韦达表示。
+:::
+
+::: {.callout-caution collapse="true"}
+## 参考答案
+
+$(y_1-y_2)^2 = (y_1+y_2)^2 - 4y_1 y_2$
+
+$= \dfrac{36t^2}{(3t^2+4)^2} + \dfrac{36}{3t^2+4}$
+
+$= \dfrac{36t^2 + 36(3t^2+4)}{(3t^2+4)^2} = \dfrac{144t^2 + 144}{(3t^2+4)^2} = \dfrac{144(t^2+1)}{(3t^2+4)^2}$
+:::
+
+### 训练3：求最值——换元法
+
+::: {.callout-note}
+## 练习
+
+求 $f(u) = \dfrac{u}{(u+3)^2}$ 在 $u \geq 1$ 上的最大值。
+
+方法1：求导。方法2：令 $v = u + 3$，用均值不等式。
+:::
+
+::: {.callout-caution collapse="true"}
+## 参考答案
+
+**方法2（均值不等式）：**
+
+$\dfrac{u}{(u+3)^2} = \dfrac{1}{(u+3)^2/u} = \dfrac{1}{u + 6 + 9/u}$
+
+由均值不等式 $u + \dfrac{9}{u} \geq 2\sqrt{9} = 6$（当 $u = 3$ 时等号）。
+
+$f(u) \leq \dfrac{1}{6+6} = \dfrac{1}{12}$
+
+$f_{\max} = \dfrac{1}{12}$，当 $u = 3$（即 $t^2 = 2$）时取到。
+:::
+
+## Faded Example
+
+**题目：** 椭圆 $\dfrac{x^2}{3} + y^2 = 1$，直线 $l$ 过右焦点 $F(\sqrt{2},\, 0)$ 交椭圆于 $A$、$B$。
+
+(1) 求 $|AB|$ 的取值范围。
+
+(2) 是否存在直线 $l$，使得 $\overrightarrow{OA} \cdot \overrightarrow{OB} = 0$？
+
+**【第(1)题：设直线联立】**
+
+设 $l: x = ty + \sqrt{2}$，代入 $x^2 + 3y^2 = 3$：
+
+$(t^2+3)y^2 + 2\sqrt{2}\,t\,y + \text{\_\_\_\_} = 0$
+
+$|AB| = \sqrt{1+t^2}\,|y_1-y_2| = \sqrt{1+t^2} \cdot \dfrac{\sqrt{\Delta}}{t^2+3}$
+
+（求 $|AB|$ 关于 $t$ 的表达式，然后分析取值范围。）
+
+**【第(2)题：存在性】**
+
+$\vec{OA} \cdot \vec{OB} = x_1 x_2 + y_1 y_2 = 0$
+
+用韦达替换 → 得到关于 $t$ 的方程 → 检查是否有实数解。
+
+（请完成。）
+
+::: {.callout-caution collapse="true"}
+## 参考答案要点
+
+(1) 常数项为 $2 - 3 = -1$。$|AB|$ 在 $t = 0$ 时最大（$= 2$，即通径），$t \to \infty$ 时 $|AB| \to \dfrac{2b^2}{a} = \dfrac{2}{{\sqrt{3}}}$。取值范围 $\left(\dfrac{2}{\sqrt{3}},\, 2\right]$。
+
+(2) $x_1 x_2 = \dfrac{-1}{t^2+3}$，$y_1 y_2 = \dfrac{-1}{t^2+3}$。
+
+$x_1 x_2 + y_1 y_2 = (t^2+1) \cdot y_1 y_2 + \sqrt{2}t(y_1+y_2) + 2 = 0$
+
+展开后是关于 $t$ 的方程。检查是否有实数解，并验证 $\Delta > 0$。
+:::
+
+## ⚠ 常见错误
+
+::: {.callout-warning}
+## 错误1：面积公式选错"底"和"高"
+
+用弦长作底时，高不是定点到弦端点的距离，而是**定点到弦所在直线的距离**。两者不同！
+:::
+
+::: {.callout-warning}
+## 错误2：忘记验证 $\Delta > 0$
+
+求出最大值后，忘记检查对应的参数值是否满足 $\Delta > 0$。如果 $\Delta \leq 0$，那个"最大值"根本不存在。
+:::
+
+::: {.callout-warning}
+## 错误3：范围问题漏掉约束条件
+
+求 $k$ 的范围时只用了 $\Delta > 0$，忘记了"两根在同一支"或"二次项系数不为零"等额外条件。要列出**所有**约束，取交集。
+:::
+
+::: {.callout-warning}
+## 错误4：存在性问题结论不完整
+
+"存在"不仅要解出 $k$ 的值，还要验证：
+1. $\Delta > 0$（有两个交点）
+2. 交点确实在曲线上（不在渐近线上等）
+3. 答案满足题目的所有限制条件
+:::
+
+## Desmos验证
+
+```{=html}
+<div id="m4_06_desmos" class="desmos-container"></div>
+<script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+<script>
+  var m4_06_calc = Desmos.GraphingCalculator(document.getElementById('m4_06_desmos'), {
+    expressions: true, settingsMenu: false
+  });
+  m4_06_calc.setExpression({ id: 'ell', latex: '\\frac{x^2}{4}+y^2=1', color: '#2d70b3' });
+  m4_06_calc.setExpression({ id: 'F', latex: '(\\sqrt{3}, 0)', color: '#c74440', showLabel: true, label: 'F' });
+  m4_06_calc.setExpression({ id: 'O', latex: '(0, 0)', color: '#333', showLabel: true, label: 'O' });
+  m4_06_calc.setExpression({ id: 't_val', latex: 't=0', sliderBounds: { min: -3, max: 3, step: 0.01 } });
+  m4_06_calc.setExpression({ id: 'line', latex: 'x=ty+\\sqrt{3}', color: '#e67e22' });
+  m4_06_calc.setMathBounds({ left: -4, right: 4, bottom: -2.5, top: 2.5 });
+</script>
+```
+
+拖动 $t$，观察三角形 $OAB$ 的面积变化。$t = 0$ 时弦最长但三角形退化（$O$ 在 $AB$ 延长线上），面积为零。$t = \pm\sqrt{2}$ 时面积最大。
+
+## 参考视频
+
+```{=html}
+<div class="video-container"><iframe src="//player.bilibili.com/player.html?bvid=BV1GgZUYCEHu&page=3" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%;height:100%;position:absolute;top:0;left:0;"></iframe></div>
+```
+
+## 关键帧
+
+![三角形面积与韦达定理](../images/ch13/frame_01.jpg)
+
+![面积最大值的求解](../images/ch13/frame_02.jpg)
+
+![范围问题：多个不等式取交集](../images/ch13/frame_03.jpg)
+
+![存在性问题的处理](../images/ch13/frame_04.jpg)
+
+## 速查表
+
+::: {.callout-important}
+## 面积·范围·存在性速查
+
+**面积问题三种方法：**
+
+| 方法 | 公式 | 适用场景 |
+|------|------|---------|
+| 叉积法 | $S = \dfrac{1}{2}|x_1 y_2 - x_2 y_1|$ | 一顶点为原点 |
+| 底高法 | $S = \dfrac{1}{2} \cdot d \cdot |AB|$ | $d$ = 定点到直线距离 |
+| 参数消去 | 设 $x=ty+n$，$S = \dfrac{1}{2}|n| \cdot |y_1-y_2|$ | 定点在 $x$ 轴上 |
+
+**最值求解：** $(y_1-y_2)^2 = (y_1+y_2)^2 - 4y_1y_2$ → 代入韦达 → 换元 → 求导或均值不等式
+
+**范围问题：** 列出所有约束 → 取交集
+
+| 约束来源 | 不等式 |
+|---------|--------|
+| 有两个交点 | $\Delta > 0$ |
+| 同一支 | $x_1 x_2 > 0$ 且 $x_1+x_2$ 同号 |
+| 二次方程 | 二次项系数 $\neq 0$ |
+
+**存在性：** 假设存在 → 列方程 → 解出参数 → 验证合法性
+:::

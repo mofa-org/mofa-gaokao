@@ -1,0 +1,461 @@
+---
+title: "通解流程：设 → 联 → 韦 → 代"
+subtitle: "模块四 · 第1课"
+date: 2026-03-22
+---
+
+圆锥曲线解答题看起来千变万化，但我们今天要揭示一个秘密：**几乎所有大题都遵循同一个四步流程**。掌握了这个流程，即使遇到完全陌生的题型，我们也至少能拿到一半以上的分数。
+
+## 探索问题
+
+::: {.callout-tip}
+## 先试一试
+
+（2023全国甲卷）已知椭圆 $C: \dfrac{x^2}{2} + y^2 = 1$，过点 $P\!\left(\dfrac{\sqrt{6}}{3}, 0\right)$ 的直线 $l$ 与椭圆 $C$ 交于 $E$、$F$ 两点。求 $\dfrac{1}{|EP|^2} + \dfrac{1}{|FP|^2}$ 是否为定值？
+
+先尝试动笔写出前几步，看能走多远。写不下去也没关系——我们马上就来拆解这个流程。
+:::
+
+## 方法讲解：四步通解流程
+
+我们把圆锥曲线大题的解题过程总结为四个字：**设、联、韦、代**。
+
+### 动画：四步流程图
+
+```{=html}
+<div class="d3-container" id="m4_workflow_flowchart"></div>
+<div class="d3-controls">
+  <button id="m4_workflow_step_btn">下一步 ▶</button>
+  <button id="m4_workflow_reset_btn">重置</button>
+</div>
+<script>
+(function() {
+  const W = 720, H = 500;
+  const svg = d3.select("#m4_workflow_flowchart").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`);
+
+  const steps = [
+    {
+      id: "set", label: "设", title: "设直线",
+      desc: "确定直线方程形式",
+      detail: "过Y轴点→y=kx+m\n过X轴点→x=ty+n\n其他→y=kx+b(双参数)",
+      pitfall: "先讨论特殊情况(k不存在或k=0)",
+      x: 360, y: 60, color: "#2d70b3"
+    },
+    {
+      id: "lian", label: "联", title: "联立方程",
+      desc: "直线代入曲线方程",
+      detail: "代入前先去分母化整式\n得到 Ay² + By + C = 0\n（或关于x的二次方程）",
+      pitfall: "二次项系数可能为0（尤其双曲线）",
+      x: 360, y: 170, color: "#388c46"
+    },
+    {
+      id: "wei", label: "韦", title: "韦达定理",
+      desc: "写出根与系数关系",
+      detail: "x₁+x₂ = -B/A\nx₁x₂ = C/A\n同时写 Δ>0",
+      pitfall: "不要急着展开Δ——写Δ>0即可",
+      x: 360, y: 280, color: "#c74440"
+    },
+    {
+      id: "dai", label: "代", title: "代入目标",
+      desc: "将题目条件翻译为韦达",
+      detail: "向量→坐标乘积→韦达\n弦长→(1+k²)(x₂-x₁)²→韦达\n面积→½|底||高|→韦达",
+      pitfall: "y用直线方程替换(不要代入曲线!)",
+      x: 360, y: 390, color: "#9b59b6"
+    }
+  ];
+
+  // Draw connecting arrows
+  const arrowData = [[0,1],[1,2],[2,3]];
+
+  arrowData.forEach(([from, to]) => {
+    svg.append("line")
+      .attr("class", "m4_wf_arrow")
+      .attr("x1", steps[from].x).attr("y1", steps[from].y + 35)
+      .attr("x2", steps[to].x).attr("y2", steps[to].y - 35)
+      .attr("stroke", "#ccc").attr("stroke-width", 3)
+      .attr("marker-end", "url(#m4_wf_arrowhead)");
+  });
+
+  // Arrowhead marker
+  svg.append("defs").append("marker")
+    .attr("id", "m4_wf_arrowhead").attr("viewBox", "0 0 10 10")
+    .attr("refX", 9).attr("refY", 5)
+    .attr("markerWidth", 8).attr("markerHeight", 8)
+    .attr("orient", "auto")
+    .append("path").attr("d", "M 0 0 L 10 5 L 0 10 Z").attr("fill", "#ccc");
+
+  // Draw step boxes
+  const stepGroups = steps.map((s, i) => {
+    const g = svg.append("g").attr("class", "m4_wf_step").attr("opacity", 0.3);
+
+    // Main box
+    g.append("rect")
+      .attr("x", s.x - 60).attr("y", s.y - 30)
+      .attr("width", 120).attr("height", 60).attr("rx", 12)
+      .attr("fill", s.color).attr("opacity", 0.15)
+      .attr("stroke", s.color).attr("stroke-width", 2);
+
+    // Big character
+    g.append("text")
+      .attr("x", s.x - 20).attr("y", s.y + 12)
+      .attr("font-size", "36px").attr("font-weight", "bold")
+      .attr("fill", s.color).text(s.label);
+
+    // Title
+    g.append("text")
+      .attr("x", s.x + 20).attr("y", s.y + 5)
+      .attr("font-size", "16px").attr("fill", s.color).text(s.title);
+
+    // Description box (right side)
+    const descG = g.append("g").attr("opacity", 0);
+
+    descG.append("rect")
+      .attr("x", s.x + 80).attr("y", s.y - 40)
+      .attr("width", 250).attr("height", 80).attr("rx", 8)
+      .attr("fill", "#f8f9fa").attr("stroke", s.color).attr("stroke-width", 1);
+
+    const lines = s.detail.split("\n");
+    lines.forEach((line, li) => {
+      descG.append("text")
+        .attr("x", s.x + 92).attr("y", s.y - 20 + li * 18)
+        .attr("font-size", "13px").attr("fill", "#333").text(line);
+    });
+
+    // Pitfall box (left side)
+    const pitG = g.append("g").attr("opacity", 0);
+
+    pitG.append("rect")
+      .attr("x", s.x - 310).attr("y", s.y - 25)
+      .attr("width", 230).attr("height", 50).attr("rx", 8)
+      .attr("fill", "#fff3f3").attr("stroke", "#c74440").attr("stroke-width", 1);
+
+    pitG.append("text")
+      .attr("x", s.x - 298).attr("y", s.y - 5)
+      .attr("font-size", "12px").attr("fill", "#c74440").text("⚠ " + s.pitfall);
+
+    return { main: g, desc: descG, pit: pitG };
+  });
+
+  let currentStep = -1;
+
+  function activateStep(idx) {
+    if (idx >= steps.length) return;
+    currentStep = idx;
+
+    stepGroups[idx].main.transition().duration(400).attr("opacity", 1);
+    stepGroups[idx].desc.transition().duration(600).delay(200).attr("opacity", 1);
+    stepGroups[idx].pit.transition().duration(600).delay(400).attr("opacity", 1);
+
+    // Highlight arrow
+    svg.selectAll(".m4_wf_arrow").filter((d, i) => i === idx - 1)
+      .transition().duration(300).attr("stroke", steps[idx].color).attr("stroke-width", 4);
+  }
+
+  document.getElementById("m4_workflow_step_btn").addEventListener("click", function() {
+    currentStep++;
+    if (currentStep < steps.length) {
+      activateStep(currentStep);
+    }
+    if (currentStep >= steps.length - 1) {
+      this.textContent = "完成 ✓";
+    }
+  });
+
+  document.getElementById("m4_workflow_reset_btn").addEventListener("click", function() {
+    currentStep = -1;
+    stepGroups.forEach(sg => {
+      sg.main.attr("opacity", 0.3);
+      sg.desc.attr("opacity", 0);
+      sg.pit.attr("opacity", 0);
+    });
+    svg.selectAll(".m4_wf_arrow").attr("stroke", "#ccc").attr("stroke-width", 3);
+    document.getElementById("m4_workflow_step_btn").textContent = "下一步 ▶";
+  });
+})();
+</script>
+```
+
+点击"下一步"，逐步查看每个步骤的操作要点和常见陷阱。
+
+### 第一步：设直线
+
+设直线的三种方式取决于定点的位置：
+
+| 定点位置 | 设法 | 特殊情况 |
+|---------|------|---------|
+| Y轴上 $(0, m)$ | $y = kx + m$ | $k$ 不存在（竖直线 $x=0$） |
+| X轴上 $(n, 0)$ | $x = ty + n$ | $k = 0$（水平线 $y=0$） |
+| 一般点 $(x_0, y_0)$ | $y = kx + b$（双参数） | $k$ 不存在 |
+
+::: {.callout-warning}
+## ⚠ 第一个易错点
+
+写在答题卡上的**第一行**，永远是讨论特殊情况！不讨论直接扣分。
+:::
+
+### 第二步：联立方程
+
+将直线方程代入曲线方程（椭圆/双曲线/抛物线），得到关于某个变量的一元二次方程：
+
+$$Ay^2 + By + C = 0 \quad \text{（或关于 } x \text{ 的方程）}$$
+
+::: {.callout-warning}
+## ⚠ 双曲线特有陷阱
+
+椭圆联立后二次项系数**恒不为零**，但双曲线可能为零！当直线斜率等于渐近线斜率时，二次项系数变为零，方程退化为一次方程。必须单独讨论。
+:::
+
+**化简技巧：** 联立前先去分母，把 $\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2} = 1$ 化为 $b^2 x^2 + a^2 y^2 = a^2 b^2$，避免后续计算中出现分式。
+
+### 第三步：韦达定理
+
+设两交点为 $(x_1, y_1)$ 和 $(x_2, y_2)$，由韦达定理：
+
+$$x_1 + x_2 = -\frac{B}{A}, \quad x_1 x_2 = \frac{C}{A}$$
+
+同时写出 $\Delta > 0$（因为题目说有两个交点），但**不要展开**——只写 $\Delta > 0$ 即可，最后验证时再用。
+
+### 第四步：代入目标
+
+将题目要求翻译为只含 $x_1 + x_2$、$x_1 x_2$ 的表达式，然后代入韦达结果。
+
+**关键技巧：** 当需要 $y_1$、$y_2$ 时，用**直线方程**替换：$y_i = kx_i + b$。绝对不要代入曲线方程——那会引入二次项，计算量爆炸。
+
+## Worked Example：完整解题过程
+
+我们用开头的探索问题来演示完整流程。
+
+**题目：** 椭圆 $\dfrac{x^2}{2} + y^2 = 1$，过 $P\!\left(\dfrac{\sqrt{6}}{3}, 0\right)$ 的直线 $l$ 交椭圆于 $E$、$F$。求 $\dfrac{1}{|EP|^2} + \dfrac{1}{|FP|^2}$ 是否为定值。
+
+---
+
+**【子目标1：讨论特殊情况】**
+
+若 $k = 0$（即 $l$ 为 $y = 0$），则 $E(-\sqrt{2},\, 0)$，$F(\sqrt{2},\, 0)$。
+
+$$|EP| = \sqrt{2} + \frac{\sqrt{6}}{3}, \quad |FP| = \sqrt{2} - \frac{\sqrt{6}}{3}$$
+
+计算得 $\dfrac{1}{|EP|^2} + \dfrac{1}{|FP|^2} = 3$。
+
+---
+
+**【子目标2：设直线、联立】**
+
+$P$ 在 $x$ 轴上，设 $l: x = ty + \dfrac{\sqrt{6}}{3}$。
+
+去分母后椭圆化为 $x^2 + 2y^2 = 2$。代入：
+
+$$(ty + \tfrac{\sqrt{6}}{3})^2 + 2y^2 - 2 = 0$$
+
+展开整理（乘以 3 去分母）：
+
+$$3(t^2 + 2)y^2 + 2\sqrt{6}\,t\,y - 4 = 0$$
+
+---
+
+**【子目标3：韦达定理】**
+
+设 $E(x_1, y_1)$，$F(x_2, y_2)$：
+
+$$y_1 + y_2 = \frac{-2\sqrt{6}\,t}{3(t^2+2)}, \quad y_1 y_2 = \frac{-4}{3(t^2+2)}$$
+
+$\Delta > 0$（后续验证）。
+
+---
+
+**【子目标4：代入目标】**
+
+由于 $l: x = ty + \dfrac{\sqrt{6}}{3}$，$P$ 在 $x$ 轴上（$y_P = 0$），利用弦长公式的底层逻辑：
+
+$$|EP|^2 = (1+t^2)\,y_1^2, \quad |FP|^2 = (1+t^2)\,y_2^2$$
+
+因此：
+
+$$\frac{1}{|EP|^2} + \frac{1}{|FP|^2} = \frac{1}{1+t^2}\left(\frac{1}{y_1^2} + \frac{1}{y_2^2}\right) = \frac{1}{1+t^2} \cdot \frac{(y_1+y_2)^2 - 2y_1 y_2}{(y_1 y_2)^2}$$
+
+**【草稿纸技巧】** 先用 $A$、$B$、$C$ 表示系数：
+
+$$\frac{(y_1+y_2)^2 - 2y_1 y_2}{(y_1 y_2)^2} = \frac{B^2/A^2 - 2C/A}{C^2/A^2} = \frac{B^2 - 2AC}{C^2}$$
+
+代入 $A = 3(t^2+2)$，$B = 2\sqrt{6}\,t$，$C = -4$：
+
+$$\frac{24t^2 + 24(t^2+2)}{16} = \frac{48t^2 + 48}{16} = 3(t^2+1)$$
+
+所以原式 $= \dfrac{1}{1+t^2} \cdot 3(1+t^2) = 3$。
+
+**结论：** $\dfrac{1}{|EP|^2} + \dfrac{1}{|FP|^2}$ 为定值 $3$。与特殊情况一致。
+
+## 子技能训练
+
+### 训练1：只练"设直线"
+
+判断下列情况应该怎样设直线，并写出特殊情况：
+
+::: {.callout-note}
+## 练习
+
+1. 直线过点 $(0, 2)$：设 \_\_\_\_，特殊情况 \_\_\_\_
+2. 直线过右焦点 $(1, 0)$：设 \_\_\_\_，特殊情况 \_\_\_\_
+3. 直线过点 $(2, 1)$：设 \_\_\_\_，特殊情况 \_\_\_\_
+4. 直线过左顶点 $(-\sqrt{3}, 0)$：设 \_\_\_\_，特殊情况 \_\_\_\_
+:::
+
+::: {.callout-caution collapse="true"}
+## 参考答案
+
+1. $y = kx + 2$，特殊情况：$k$ 不存在，即 $x = 0$
+2. $x = ty + 1$，特殊情况：$k = 0$，即 $y = 0$
+3. $y = kx + b$（双参数），特殊情况：$k$ 不存在，即 $x = 2$
+4. $x = ty - \sqrt{3}$，特殊情况：$k = 0$，即 $y = 0$
+:::
+
+### 训练2：只练"联立"
+
+::: {.callout-note}
+## 练习
+
+将直线 $x = ty + 1$ 代入椭圆 $\dfrac{x^2}{4} + \dfrac{y^2}{3} = 1$，写出整理后的二次方程（先去分母！）。
+
+提示：先将椭圆化为 $3x^2 + 4y^2 = 12$。
+:::
+
+::: {.callout-caution collapse="true"}
+## 参考答案
+
+$3x^2 + 4y^2 = 12$ 代入 $x = ty + 1$：
+
+$$3(ty+1)^2 + 4y^2 - 12 = 0$$
+
+$$3t^2 y^2 + 6ty + 3 + 4y^2 - 12 = 0$$
+
+$$(3t^2 + 4)y^2 + 6ty - 9 = 0$$
+:::
+
+### 训练3：只练"韦达"
+
+::: {.callout-note}
+## 练习
+
+已知 $(3t^2 + 4)y^2 + 6ty - 9 = 0$，直接写出 $y_1 + y_2$ 和 $y_1 y_2$，并将 $y_1^2 + y_2^2$ 用韦达表示。
+:::
+
+::: {.callout-caution collapse="true"}
+## 参考答案
+
+$$y_1 + y_2 = \frac{-6t}{3t^2+4}, \quad y_1 y_2 = \frac{-9}{3t^2+4}$$
+
+$$y_1^2 + y_2^2 = (y_1+y_2)^2 - 2y_1 y_2 = \frac{36t^2}{(3t^2+4)^2} + \frac{18}{3t^2+4}$$
+:::
+
+## Faded Example
+
+**题目：** 椭圆 $\dfrac{x^2}{4} + y^2 = 1$，过右焦点 $F(\sqrt{3},\, 0)$ 的直线 $l$ 交椭圆于 $A$、$B$ 两点。求 $|AB|$ 的取值范围。
+
+**【第一步：特殊情况】**
+
+若 $k = 0$，则 $A$、$B$ 为左右顶点？不对—— $y = 0$ 过焦点但交椭圆于 $(\pm 2, 0)$，此时 $|AB| = $ \_\_\_\_。
+
+若 $k$ 不存在，$x = \sqrt{3}$，代入椭圆得 $y = \pm\dfrac{1}{2}$，$|AB| = $ \_\_\_\_。
+
+**【第二步：设直线联立】**
+
+设 $l: y = kx + b$，由 $l$ 过 $F(\sqrt{3}, 0)$，得 $b = $ \_\_\_\_。
+
+代入 $x^2 + 4y^2 = 4$：
+
+$$x^2 + 4(kx - \sqrt{3}k)^2 = 4$$
+
+$$(1 + 4k^2)x^2 - \text{\_\_\_\_}\,x + \text{\_\_\_\_} = 0$$
+
+**【第三步：韦达与弦长】**
+
+$$|AB| = \sqrt{1+k^2} \cdot |x_1 - x_2| = \sqrt{1+k^2} \cdot \frac{\sqrt{\Delta}}{|A|}$$
+
+（请完成后续计算。）
+
+::: {.callout-caution collapse="true"}
+## 参考答案要点
+
+$b = -\sqrt{3}k$。联立后得 $(1+4k^2)x^2 - 8\sqrt{3}k^2 x + 12k^2 - 4 = 0$。
+
+利用弦长公式和韦达定理，最终 $|AB| \in (1, 4]$。当 $k \to \infty$ 时 $|AB| \to 1$（短轴方向），$k = 0$ 时 $|AB| = 4$（长轴方向）。
+:::
+
+## ⚠ 常见错误
+
+::: {.callout-warning}
+## 错误1：忘记讨论特殊情况
+
+写答题卡的第一步就设 $y = kx + b$，没有讨论 $k$ 不存在的情况。即使特殊情况不影响答案，不讨论也会被扣 1-2 分。
+:::
+
+::: {.callout-warning}
+## 错误2：设直线方式不当
+
+过 $x$ 轴上的点却设 $y = kx + b$，导致弦长公式中出现复杂根式。设 $x = ty + n$ 会让 $y_P = 0$ 的优势完全发挥。
+:::
+
+::: {.callout-warning}
+## 错误3：用曲线方程替换 $y$
+
+需要 $y_1 y_2$ 时代入椭圆方程 $y^2 = 1 - x^2/4$ 得到四次方程——灾难！**永远用直线方程替换**：$y_i = kx_i + b$。
+:::
+
+::: {.callout-warning}
+## 错误4：急于展开 $\Delta$
+
+$\Delta$ 的表达式往往很长。除非题目问"是否有两个交点"，否则只写 $\Delta > 0$ 即可，最后再验证。
+:::
+
+## Desmos验证
+
+```{=html}
+<div id="m4_01_desmos" class="desmos-container"></div>
+<script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+<script>
+  var m4_01_calc = Desmos.GraphingCalculator(document.getElementById('m4_01_desmos'), {
+    expressions: true, settingsMenu: false
+  });
+  m4_01_calc.setExpression({ id: 'ellipse', latex: '\\frac{x^2}{2}+y^2=1', color: '#2d70b3' });
+  m4_01_calc.setExpression({ id: 'P', latex: '(\\frac{\\sqrt{6}}{3}, 0)', color: '#c74440', showLabel: true, label: 'P' });
+  m4_01_calc.setExpression({ id: 'k_val', latex: 'k=1', sliderBounds: { min: -5, max: 5, step: 0.1 } });
+  m4_01_calc.setExpression({ id: 'line', latex: 'y=k(x-\\frac{\\sqrt{6}}{3})', color: '#388c46' });
+  m4_01_calc.setMathBounds({ left: -3, right: 3, bottom: -2, top: 2 });
+</script>
+```
+
+拖动参数 $k$，观察直线 $l$ 旋转时与椭圆的交点如何变化。
+
+## 参考视频
+
+```{=html}
+<div class="video-container"><iframe src="//player.bilibili.com/player.html?bvid=BV1GgZUYCEHu&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%;height:100%;position:absolute;top:0;left:0;"></iframe></div>
+```
+
+## 关键帧
+
+![通解流程：设联韦代](../images/ch11/frame_01.jpg)
+
+![设直线的三种方式](../images/ch11/frame_02.jpg)
+
+![联立与韦达定理](../images/ch11/frame_03.jpg)
+
+![弦长公式的底层逻辑](../images/ch11/frame_04.jpg)
+
+## 速查表
+
+::: {.callout-important}
+## 通解流程速查
+
+| 步骤 | 操作 | 关键注意 |
+|------|------|---------|
+| **设** | 根据定点位置选择设法 | 先写特殊情况！ |
+| **联** | 代入曲线，整理为二次方程 | 先去分母；检查二次项系数 |
+| **韦** | 写 $x_1+x_2$、$x_1 x_2$、$\Delta > 0$ | 不要展开 $\Delta$ |
+| **代** | 目标式 → 韦达表达式 → 代入 | $y$ 用直线替换，不用曲线 |
+
+**弦长公式底层逻辑：** 直角边之比 = $1 : k : \sqrt{1+k^2}$
+
+$$|AB| = \sqrt{1+k^2}\,|x_1 - x_2| = \sqrt{1+t^2}\,|y_1 - y_2|$$
+:::

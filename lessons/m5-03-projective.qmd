@@ -1,0 +1,428 @@
+---
+title: "极点极线与射影几何 — 高考命题背景"
+subtitle: "模块五 · 第3课（选学）"
+date: 2026-03-22
+---
+
+::: {.callout-warning}
+## 选学内容
+
+本课属于**提分技巧**模块，适合已掌握模块一至四全部内容、目标冲刺满分的同学。本课内容是高考压轴题的**命题背景**——了解它能让你"看出"答案，但答题仍需用常规方法书写过程。
+:::
+
+很多高考圆锥曲线压轴题看似无从下手，但命题者心里有一个"出题秘密"：**射影几何**。近五年高考中，至少有五道压轴题的背景是今天我们要学的极点极线和调和点列。了解了命题背景，你就能在动笔之前"猜"出答案，大幅降低出错风险。
+
+## 探索问题
+
+::: {.callout-tip}
+## 先想一想
+
+椭圆 $\dfrac{x^2}{4} + \dfrac{y^2}{3} = 1$，$P(4, 3)$ 在椭圆外。过 $P$ 作两条割线交椭圆于 $A$、$B$、$C$、$D$ 四点。连接 $AD$ 和 $BC$，交于点 $Q$。
+
+无论两条割线如何旋转，$Q$ 的轨迹是什么？
+
+如果用常规方法（设四个交点坐标），变量太多，无法下手。但如果我们知道极点极线……
+:::
+
+## 为什么需要这个技巧
+
+### 常规方法 vs 极点极线
+
+对于上面的问题：
+
+**常规方法：** 设两条直线 $l_1: y = k_1(x-4)+3$，$l_2: y = k_2(x-4)+3$，分别与椭圆联立得到四个交点坐标，再求 $AD$ 与 $BC$ 的交点 $Q$，消去 $k_1$、$k_2$ 得轨迹方程。计算量**极其恐怖**，需要处理含有两个参数的复杂表达式。
+
+**极点极线：** $P(4,3)$ 是极点，其极线为：
+
+$$\frac{4x}{4} + \frac{3y}{3} = 1 \quad \Rightarrow \quad x + y = 1$$
+
+所以 $Q$ 的轨迹就是直线 $x + y = 1$。一步完成。
+
+## 方法讲解
+
+### 什么是极点极线？
+
+::: {.callout-note}
+## 核心定义
+
+对于椭圆 $\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2} = 1$，给定点 $P(x_0, y_0)$（不在曲线上），其**极线**为：
+
+$$\frac{x_0 x}{a^2} + \frac{y_0 y}{b^2} = 1$$
+
+这条直线叫做 $P$ 关于椭圆的**极线**，$P$ 叫做这条直线的**极点**。
+
+**记忆法：** 把椭圆方程中的 $x^2$ 替换为 $x_0 x$，$y^2$ 替换为 $y_0 y$——"代一半"。
+:::
+
+### 极点极线的几何意义
+
+过 $P$ 作椭圆的两条割线，每条割线与椭圆交于两点。将四个交点交叉连线（$AD$ 连 $BC$），交点 $Q$ **必然在极线上**。无论两条割线如何选取，$Q$ 始终在同一条直线上。
+
+特别地：
+- 如果 $P$ 在椭圆外，过 $P$ 作两条切线，切点连线就是极线
+- 极点和极线是**互相对应**的：知道极点就能写出极线，知道极线就能找到极点
+
+### 动画1：拖动极点，极线实时更新
+
+```{=html}
+<div class="d3-container" id="m5_pole_polar"></div>
+<div class="d3-controls">
+  <label>极点 x₀：</label>
+  <input type="range" id="m5_pole_x" min="-6" max="6" value="4" step="0.2">
+  <label style="margin-left:20px;">极点 y₀：</label>
+  <input type="range" id="m5_pole_y" min="-4" max="4" value="2" step="0.2">
+  <span class="value-display" id="m5_pole_label">P(4, 2)</span>
+</div>
+<script>
+(function() {
+  const W = 720, H = 450;
+  const svg = d3.select("#m5_pole_polar").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`);
+
+  const cx = W / 2, cy = H / 2;
+  const a2 = 4, b2 = 3; // a^2=4, b^2=3
+  const sc = 60; // pixels per unit
+
+  // Axes
+  svg.append("line").attr("x1", 30).attr("y1", cy).attr("x2", W-30).attr("y2", cy)
+    .attr("stroke", "#e0e0e0").attr("stroke-width", 1);
+  svg.append("line").attr("x1", cx).attr("y1", 20).attr("x2", cx).attr("y2", H-20)
+    .attr("stroke", "#e0e0e0").attr("stroke-width", 1);
+
+  // Grid
+  for (let i = -5; i <= 5; i++) {
+    svg.append("line").attr("x1", cx + i*sc).attr("y1", 20).attr("x2", cx + i*sc).attr("y2", H-20)
+      .attr("stroke", "#f0f0f0").attr("stroke-width", 0.5);
+    svg.append("line").attr("x1", 30).attr("y1", cy - i*sc).attr("x2", W-30).attr("y2", cy - i*sc)
+      .attr("stroke", "#f0f0f0").attr("stroke-width", 0.5);
+  }
+
+  // Ellipse
+  const ellipsePts = d3.range(0, 2*Math.PI+0.05, 0.03).map(t => [
+    cx + Math.sqrt(a2) * sc * Math.cos(t),
+    cy - Math.sqrt(b2) * sc * Math.sin(t)
+  ]);
+  svg.append("path").attr("d", d3.line()(ellipsePts) + "Z")
+    .attr("fill", "rgba(45,112,179,0.08)").attr("stroke", "#2d70b3").attr("stroke-width", 2.5);
+
+  // Pole point
+  const poleCircle = svg.append("circle").attr("r", 8).attr("fill", "#c74440")
+    .attr("stroke", "white").attr("stroke-width", 2);
+  const poleLabel = svg.append("text").attr("font-size", "16px").attr("font-weight", "bold")
+    .attr("fill", "#c74440").attr("text-anchor", "middle");
+
+  // Polar line
+  const polarLine = svg.append("line")
+    .attr("stroke", "#388c46").attr("stroke-width", 3).attr("stroke-dasharray", "8,4");
+  const polarLabel = svg.append("text").attr("font-size", "14px").attr("fill", "#388c46")
+    .attr("font-weight", "bold");
+
+  // Equation display
+  const eqLabel = svg.append("text")
+    .attr("x", 20).attr("y", 30).attr("font-size", "16px").attr("fill", "#333");
+
+  function toScreen(x, y) { return [cx + x * sc, cy - y * sc]; }
+
+  function update() {
+    const x0 = +document.getElementById("m5_pole_x").value;
+    const y0 = +document.getElementById("m5_pole_y").value;
+
+    document.getElementById("m5_pole_label").textContent = `P(${x0}, ${y0})`;
+
+    const [px, py] = toScreen(x0, y0);
+    poleCircle.attr("cx", px).attr("cy", py);
+    poleLabel.attr("x", px).attr("y", py - 15).text(`P(${x0}, ${y0})`);
+
+    // Polar line: (x0/a2)x + (y0/b2)y = 1
+    // Parametric: solve for two points on this line within view
+    const coeffX = x0 / a2, coeffY = y0 / b2;
+
+    let x1, y1Line, x2, y2Line;
+    if (Math.abs(coeffY) > 0.01) {
+      // y = (1 - coeffX * x) / coeffY
+      x1 = -6; y1Line = (1 - coeffX * x1) / coeffY;
+      x2 = 6; y2Line = (1 - coeffX * x2) / coeffY;
+    } else if (Math.abs(coeffX) > 0.01) {
+      const xVal = 1 / coeffX;
+      x1 = xVal; y1Line = -5;
+      x2 = xVal; y2Line = 5;
+    } else {
+      x1 = 0; y1Line = 0; x2 = 0; y2Line = 0;
+    }
+
+    const [lx1, ly1] = toScreen(x1, y1Line);
+    const [lx2, ly2] = toScreen(x2, y2Line);
+    polarLine.attr("x1", lx1).attr("y1", ly1).attr("x2", lx2).attr("y2", ly2);
+
+    // Display equation
+    const cx0 = (x0 / a2).toFixed(2), cy0 = (y0 / b2).toFixed(2);
+    eqLabel.text(`极线：${cx0}x + ${cy0}y = 1`);
+
+    polarLabel.attr("x", lx2 + 5).attr("y", ly2 - 5).text("极线");
+  }
+
+  document.getElementById("m5_pole_x").addEventListener("input", update);
+  document.getElementById("m5_pole_y").addEventListener("input", update);
+  update();
+})();
+</script>
+```
+
+拖动滑块改变极点 $P$ 的位置，观察极线如何实时变化。当 $P$ 远离椭圆时，极线靠近中心；当 $P$ 靠近椭圆时，极线远离中心。
+
+### 动画2：调和点列——交比等于 -1
+
+```{=html}
+<div class="d3-container" id="m5_harmonic"></div>
+<div class="d3-controls">
+  <label>内分比 λ：</label>
+  <input type="range" id="m5_harmonic_lambda" min="0.2" max="4" value="1.5" step="0.1">
+  <span class="value-display" id="m5_harmonic_label">λ = 1.5</span>
+</div>
+<script>
+(function() {
+  const W = 720, H = 300;
+  const svg = d3.select("#m5_harmonic").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`);
+
+  const lineY = 150, xStart = 100, xEnd = 620;
+  const xA = 180, xB = 480;
+
+  // Main line
+  svg.append("line").attr("x1", xStart).attr("y1", lineY).attr("x2", xEnd).attr("y2", lineY)
+    .attr("stroke", "#333").attr("stroke-width", 2);
+
+  // Fixed points A and B
+  svg.append("circle").attr("cx", xA).attr("cy", lineY).attr("r", 6).attr("fill", "#2d70b3");
+  svg.append("text").attr("x", xA).attr("y", lineY + 25).attr("text-anchor", "middle")
+    .attr("font-size", "16px").attr("font-weight", "bold").attr("fill", "#2d70b3").text("A");
+
+  svg.append("circle").attr("cx", xB).attr("cy", lineY).attr("r", 6).attr("fill", "#2d70b3");
+  svg.append("text").attr("x", xB).attr("y", lineY + 25).attr("text-anchor", "middle")
+    .attr("font-size", "16px").attr("font-weight", "bold").attr("fill", "#2d70b3").text("B");
+
+  // C (internal) and D (external)
+  const cCircle = svg.append("circle").attr("cy", lineY).attr("r", 6).attr("fill", "#c74440");
+  const cLabel = svg.append("text").attr("y", lineY - 15).attr("text-anchor", "middle")
+    .attr("font-size", "14px").attr("fill", "#c74440");
+
+  const dCircle = svg.append("circle").attr("cy", lineY).attr("r", 6).attr("fill", "#388c46");
+  const dLabel = svg.append("text").attr("y", lineY - 15).attr("text-anchor", "middle")
+    .attr("font-size", "14px").attr("fill", "#388c46");
+
+  // Ratio labels
+  const ratioText1 = svg.append("text").attr("y", lineY + 55).attr("text-anchor", "middle")
+    .attr("font-size", "13px").attr("fill", "#c74440");
+  const ratioText2 = svg.append("text").attr("y", lineY + 55).attr("text-anchor", "middle")
+    .attr("font-size", "13px").attr("fill", "#388c46");
+
+  // Title
+  svg.append("text").attr("x", W/2).attr("y", 30).attr("text-anchor", "middle")
+    .attr("font-size", "18px").attr("font-weight", "bold").attr("fill", "#333")
+    .text("调和点列：AC/CB = AD/DB（内外分比相等）");
+
+  // Cross ratio label
+  const crossRatio = svg.append("text").attr("x", W/2).attr("y", H - 20).attr("text-anchor", "middle")
+    .attr("font-size", "16px").attr("font-weight", "bold").attr("fill", "#6042a6");
+
+  function update() {
+    const lambda = +document.getElementById("m5_harmonic_lambda").value;
+    document.getElementById("m5_harmonic_label").textContent = `λ = ${lambda.toFixed(1)}`;
+
+    const AB = xB - xA;
+
+    // C divides AB internally in ratio λ:1
+    const xC = xA + (lambda / (lambda + 1)) * AB;
+    // D divides AB externally in ratio λ:1 → AD/DB = λ, D outside
+    const xD = xA + (lambda / (lambda - 1)) * AB;
+
+    // Clamp D for display
+    const xDdisp = Math.min(Math.max(xD, xStart - 50), xEnd + 100);
+
+    cCircle.attr("cx", xC);
+    cLabel.attr("x", xC).text(`C (内分点)`);
+
+    if (Math.abs(lambda - 1) < 0.05) {
+      dCircle.attr("cx", xEnd + 50).attr("opacity", 0.3);
+      dLabel.attr("x", xEnd + 50).text("D → ∞").attr("opacity", 0.3);
+      crossRatio.text("当 λ=1 时（C为中点），D在无穷远处！");
+    } else {
+      dCircle.attr("cx", xDdisp).attr("opacity", 1);
+      dLabel.attr("x", xDdisp).text(`D (外分点)`).attr("opacity", 1);
+      crossRatio.text(`交比 (ABCD) = -1  ←  调和分割的标志`);
+    }
+
+    const AC = Math.abs(xC - xA);
+    const CB = Math.abs(xB - xC);
+    ratioText1.attr("x", (xA + xC) / 2).text(`AC:CB = ${lambda.toFixed(1)}:1`);
+
+    if (Math.abs(lambda - 1) >= 0.05) {
+      const AD = Math.abs(xDdisp - xA);
+      const DB = Math.abs(xB - xDdisp);
+      ratioText2.attr("x", Math.min((xB + xDdisp) / 2, xEnd)).text(`AD:DB = ${lambda.toFixed(1)}:1`);
+    } else {
+      ratioText2.text("");
+    }
+  }
+
+  document.getElementById("m5_harmonic_lambda").addEventListener("input", update);
+  update();
+})();
+</script>
+```
+
+拖动滑块改变比值 $\lambda$。观察内分点 $C$ 和外分点 $D$ 的联动关系。特别注意：当 $\lambda = 1$（$C$ 为中点）时，$D$ 趋向无穷远——这就是为什么垂径定理中的中点对应"无穷远点"。
+
+## 三大核心模型
+
+### 模型一：极点极线模型
+
+过极点 $P$ 作两条割线交曲线于四点，交叉连线的交点**在极线上**。
+
+**秒杀方法：** 找到极点 $P(x_0, y_0)$ → 极线就是 $\dfrac{x_0 x}{a^2} + \dfrac{y_0 y}{b^2} = 1$ → 交点 $Q$ 在极线上。
+
+### 模型二：调和线束的中点模型
+
+四条调和线束中，若一条与某调和线束平行，则另外三条与截线的交点中有一个是**中点**。
+
+**高考考法：** 告诉你某个中点关系（如 $E$ 是 $MN$ 的中点），利用垂径定理推出一条方向，再由调和线束性质推出定点/定值。
+
+### 模型三：互为极点极线的三角形
+
+三个不在曲线上的点 $P$、$Q$、$G$ 互相构成极点极线关系——$P$ 的极线是 $QG$，$Q$ 的极线是 $PG$，$G$ 的极线是 $PQ$。
+
+**秒杀方法：** 一旦识别出模型中有"两条割线交叉连线"的结构，立刻用极点极线判断定点/定直线。
+
+## Worked Example
+
+**题目：** 椭圆 $\dfrac{x^2}{4} + \dfrac{y^2}{3} = 1$，$A(-2,0)$、$A_2(2,0)$ 分别为左右顶点。过 $Q(1,0)$ 的直线交椭圆于 $M$、$N$ 两点。$A_1M$ 与 $A_2N$ 交于点 $G$。求直线 $MN$ 变化时，$G$ 的轨迹过定点。
+
+**解法（极点极线秒杀）：**
+
+**Step 1：识别模型。** $A_1$、$A_2$ 在椭圆上。$A_1M$、$A_2N$ 是过椭圆上点的割线。它们交于 $G$。同时 $A_1N$、$A_2M$ 也会交于某个点。这是完全四边形模型。
+
+**Step 2：找极点。** $Q(1,0)$ 在 $MN$ 上。$A_1A_2$ 也过 $Q$ 吗？不，$A_1A_2$ 是 $x$ 轴，$Q(1,0)$ 在 $x$ 轴上，所以 $Q$ 在 $A_1A_2$ 上。
+
+$A_1M$、$A_2N$ 交于 $G$。$A_1N$、$A_2M$ 交于另一点（设为 $Z$）。则 $Q$、$G$、$Z$ 三点互为极点极线关系。
+
+**Step 3：求 $Q$ 的极线。** $Q(1,0)$ 关于椭圆的极线：
+
+$$\frac{1 \cdot x}{4} + \frac{0 \cdot y}{3} = 1 \quad \Rightarrow \quad x = 4$$
+
+**Step 4：** $G$ 在 $Q$ 的极线上？不完全是。让我们更仔细地分析。
+
+$A_1A_2$ 过 $Q$。$MN$ 过 $Q$。这是过 $Q$ 的两条割线。交叉连线 $A_1N \cap A_2M$ 和 $A_1M \cap A_2N$ 分别是 $Z$ 和 $G$。由极点极线理论，$ZG$ 就是 $Q$ 的极线，即 $x = 4$。
+
+但我们要的是 $MN$ 过定点。由对称分析：设 $G(x_G, y_G)$，则 $G$ 的极线过 $Q$。写出 $G$ 的极线：$\dfrac{x_G x}{4} + \dfrac{y_G y}{3} = 1$，令 $x=1, y=0$：$\dfrac{x_G}{4} = 1$，得 $x_G = 4$。
+
+所以直线 $MN$ 变化时，$G$ 的横坐标始终为 4，**$MN$ 过定点 $(4, 0)$**……
+
+等等，让我们重新审视。题目问的是 $G$ 过定点还是 $MN$ 过定点？题目说"求直线 $MN$ 变化时，$G$ 的轨迹过定点"。
+
+$G$ 在 $x=4$ 上移动。$G$ 的轨迹是直线 $x=4$ 的一部分。所以 $MN$ 过 $(4,0)$……不，$G$ 在 $x=4$ 上。
+
+::: {.callout-important}
+## 极点极线秒杀结论
+
+$Q(1,0)$ 的极线为 $x = 4$，因此 $G$ 的轨迹在直线 $x = 4$ 上。
+
+常规方法需要设斜率 $k$、联立、韦达、消参，至少需要一整页计算。极点极线只需写出"代一半"公式，**10秒得到答案**。
+:::
+
+## 调和点列与高考
+
+::: {.callout-note}
+## 高考真题背景
+
+- **2018年全国卷**：弦中点+垂径定理 → 调和线束平行模型
+- **2022年新高考I卷**：交叉连线过定点 → 极点极线模型
+- **2023年新高考II卷**：斜率乘积为定值 → 调和点列+仿射变换
+
+命题者用射影几何设计题目，确保答案"漂亮"。我们了解背景后，能**预判答案再验证**，大幅减少计算风险。
+:::
+
+## Desmos验证
+
+```{=html}
+<div id="m5_03_desmos" class="desmos-container"></div>
+<script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+<script>
+  var m5_03_calc = Desmos.GraphingCalculator(document.getElementById('m5_03_desmos'), {
+    expressions: true, settingsMenu: false
+  });
+  m5_03_calc.setExpression({ id: 'ellipse', latex: '\\frac{x^2}{4} + \\frac{y^2}{3} = 1', color: '#2d70b3' });
+  m5_03_calc.setExpression({ id: 'P_pt', latex: '(4, 3)', color: '#c74440', pointStyle: 'POINT', label: 'P (极点)' });
+  m5_03_calc.setExpression({ id: 'polar', latex: 'x + y = 1', color: '#388c46', lineWidth: 3 });
+  m5_03_calc.setExpression({ id: 'note_polar', latex: '\\text{绿线 = P 的极线}' });
+  m5_03_calc.setExpression({ id: 'Q_pt', latex: '(1, 0)', color: '#6042a6', pointStyle: 'POINT', label: 'Q' });
+  m5_03_calc.setExpression({ id: 'polar_Q', latex: 'x = 4', color: '#fa7e19', lineWidth: 2, lineStyle: 'DASHED' });
+  m5_03_calc.setExpression({ id: 'note_Q', latex: '\\text{橙线 = Q(1,0) 的极线}' });
+  m5_03_calc.setMathBounds({ left: -5, right: 8, bottom: -4, top: 5 });
+</script>
+```
+
+图中绿线是 $P(4,3)$ 的极线 $x+y=1$，橙色虚线是 $Q(1,0)$ 的极线 $x=4$。拖动探索它们之间的对偶关系。
+
+## 参考视频
+
+```{=html}
+<div class="video-container"><iframe src="//player.bilibili.com/player.html?bvid=BV19YUwBEEX7&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%;height:100%;position:absolute;top:0;left:0;"></iframe></div>
+```
+
+## 关键帧
+
+![极点极线的定义](../images/ch21/frame_01.jpg)
+
+![完全四边形与调和点列](../images/ch21/frame_02.jpg)
+
+![三大常考模型](../images/ch21/frame_03.jpg)
+
+![高考真题分析](../images/ch21/frame_04.jpg)
+
+## 速查表
+
+::: {.callout-important}
+## 极点极线与射影几何速查
+
+**极线公式（"代一半"）：**
+
+| 曲线 | 极线 |
+|:----:|:----:|
+| $\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2} = 1$ | $\dfrac{x_0 x}{a^2} + \dfrac{y_0 y}{b^2} = 1$ |
+| $\dfrac{x^2}{a^2} - \dfrac{y^2}{b^2} = 1$ | $\dfrac{x_0 x}{a^2} - \dfrac{y_0 y}{b^2} = 1$ |
+| $y^2 = 2px$ | $y_0 y = p(x + x_0)$ |
+
+**极点极线核心性质：**
+
+1. 过极点的任意两条割线，交叉连线的交点在极线上
+2. 极点在极线外 ↔ 极点在曲线外
+3. 极点极线关系是**对偶的**：若 $Q$ 在 $P$ 的极线上，则 $P$ 在 $Q$ 的极线上
+
+**调和点列：**
+
+- $A$、$B$、$C$、$D$ 四点共线，且 $\dfrac{AC}{CB} = \dfrac{AD}{DB}$（$C$ 内分，$D$ 外分）
+- 交比 $(ABCD) = -1$
+- 特殊情况：$C$ 为 $AB$ 中点 $\Rightarrow$ $D$ 在无穷远处
+
+**调和线束三模型：**
+
+| 模型 | 条件 | 结论 |
+|:----:|:----:|:----:|
+| 截线模型 | 四条调和线束被截 | 新四点仍是调和点列 |
+| 中点模型 | 截线平行于一条线束 | 另外三个交点有中点关系 |
+| 垂直模型 | 角平分线是一条线束 | 另一条线束与之垂直 |
+
+**高考秒杀流程：**
+
+1. 识别模型：看到"过定点做割线 + 交叉连线"→ 极点极线
+2. 找极点：确定哪个点是极点
+3. 代一半：写出极线方程
+4. 读答案：交点在极线上 / 轨迹就是极线
+5. 用常规方法写出完整过程
+
+**常见错误：**
+
+- 极点极线只能用于**定性判断**（猜答案），答题仍需常规方法
+- "代一半"公式对抛物线形式不同，注意区分
+- 调和点列中内分点和外分点不要搞混方向
+:::

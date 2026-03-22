@@ -1,0 +1,349 @@
+---
+title: "离心率：一个数决定一切"
+subtitle: "模块二 · 第3课"
+date: 2026-03-22
+---
+
+我们在模块一已经见过离心率 $e$——它控制着曲线的"胖瘦"。今天我们要深入理解这个参数：它是什么，为什么重要，以及如何从各种条件中求出它。离心率是高考中出现频率最高的考点之一，掌握它的几何意义和计算技巧至关重要。
+
+## 探索问题
+
+::: {.callout-tip}
+## 先想一想
+
+有两个椭圆：一个 $a = 100, b = 99$，另一个 $a = 5, b = 1$。哪个更扁？
+
+直觉告诉我们不能只看 $a - b$ 的差——第一个差值大但形状接近圆，第二个差值小但非常扁。我们需要一个更好的指标来衡量"扁的程度"。这个指标就是离心率。
+:::
+
+## 几何直觉：$e$ 如何决定形状
+
+离心率 $e = \dfrac{c}{a}$ 是焦距与长轴之比。它统一了所有圆锥曲线：
+
+- $e = 0$：圆（两焦点重合）
+- $0 < e < 1$：椭圆（$e$ 越大越扁）
+- $e = 1$：抛物线
+- $e > 1$：双曲线（$e$ 越大开口越大）
+
+### 动画：离心率滑块与曲线形状
+
+```{=html}
+<div class="d3-container" id="m2_eccentricity"></div>
+<div class="d3-controls">
+  <label>离心率 e：</label>
+  <input type="range" id="m2_ecc_slider" min="0" max="250" value="50" step="1">
+  <span class="value-display" id="m2_ecc_label">e = 0.50</span>
+</div>
+<script>
+(function() {
+  const W = 720, H = 480;
+  const svg = d3.select("#m2_eccentricity").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`);
+
+  const plotG = svg.append("g").attr("transform", "translate(30, 20)");
+  const plotW = 440, plotH = 380;
+  const cx = plotW / 2, cy = plotH / 2;
+
+  // Axes
+  plotG.append("line").attr("x1", 0).attr("y1", cy).attr("x2", plotW).attr("y2", cy)
+    .attr("stroke", "#ddd").attr("stroke-width", 1);
+  plotG.append("line").attr("x1", cx).attr("y1", 0).attr("x2", cx).attr("y2", plotH)
+    .attr("stroke", "#ddd").attr("stroke-width", 1);
+
+  const curvePath = plotG.append("path").attr("fill", "none").attr("stroke", "#2d70b3").attr("stroke-width", 2.5);
+  const curvePath2 = plotG.append("path").attr("fill", "none").attr("stroke", "#2d70b3").attr("stroke-width", 2.5);
+  const asymLine1 = plotG.append("line").attr("stroke", "#999").attr("stroke-dasharray", "5,4").attr("stroke-width", 1);
+  const asymLine2 = plotG.append("line").attr("stroke", "#999").attr("stroke-dasharray", "5,4").attr("stroke-width", 1);
+  const fociG = plotG.append("g");
+
+  // Info panel
+  const infoG = svg.append("g").attr("transform", "translate(490, 40)");
+  const typeText = infoG.append("text").attr("x", 0).attr("y", 0)
+    .attr("font-size", "22px").attr("font-weight", "bold").attr("fill", "#2d70b3");
+  const eText = infoG.append("text").attr("x", 0).attr("y", 35)
+    .attr("font-size", "18px").attr("fill", "#c74440").attr("font-weight", "bold");
+
+  const paramLabels = ["a = ", "b = ", "c = ", "a² = ", "b² = ", "c² = "];
+  const paramTexts = [];
+  for (let i = 0; i < 6; i++) {
+    paramTexts.push(infoG.append("text").attr("x", 0).attr("y", 80 + i * 28)
+      .attr("font-size", "15px").attr("fill", "#333"));
+  }
+
+  const relText = infoG.append("text").attr("x", 0).attr("y", 260)
+    .attr("font-size", "14px").attr("fill", "#555");
+  const eqText = infoG.append("text").attr("x", 0).attr("y", 290)
+    .attr("font-size", "16px").attr("fill", "#2d70b3").attr("font-weight", "bold");
+
+  // Color scale for e
+  const eColorScale = d3.scaleLinear()
+    .domain([0, 0.5, 1, 2])
+    .range(["#388c46", "#2d70b3", "#fa7e19", "#c74440"]);
+
+  function update(rawVal) {
+    const e = rawVal / 100;
+    const color = eColorScale(e);
+    curvePath.attr("stroke", color);
+    curvePath2.attr("stroke", color);
+    typeText.attr("fill", color);
+    eText.attr("fill", color);
+
+    document.getElementById("m2_ecc_label").textContent = `e = ${e.toFixed(2)}`;
+    eText.text(`e = c/a = ${e.toFixed(2)}`);
+
+    fociG.selectAll("*").remove();
+    asymLine1.attr("opacity", 0);
+    asymLine2.attr("opacity", 0);
+    curvePath2.attr("d", "");
+
+    const aVal = 140;
+
+    if (e < 0.01) {
+      // Circle
+      typeText.text("圆");
+      const r = aVal * 0.7;
+      const pts = d3.range(0, 2 * Math.PI + 0.05, 0.05).map(t =>
+        [cx + r * Math.cos(t), cy + r * Math.sin(t)]);
+      curvePath.attr("d", d3.line()(pts));
+      fociG.append("circle").attr("cx", cx).attr("cy", cy).attr("r", 5).attr("fill", color);
+      paramTexts[0].text(`a = ${(r / 30).toFixed(2)}`);
+      paramTexts[1].text(`b = ${(r / 30).toFixed(2)}`);
+      paramTexts[2].text("c = 0");
+      paramTexts[3].text("");
+      paramTexts[4].text("");
+      paramTexts[5].text("");
+      relText.text("a = b, c = 0");
+      eqText.text("x² + y² = r²");
+    } else if (e < 0.99) {
+      // Ellipse
+      typeText.text("椭圆");
+      const a = aVal;
+      const c = a * e;
+      const b = Math.sqrt(a * a - c * c);
+      const pts = d3.range(0, 2 * Math.PI + 0.05, 0.05).map(t =>
+        [cx + a * Math.cos(t), cy + b * Math.sin(t)]);
+      curvePath.attr("d", d3.line()(pts));
+      fociG.append("circle").attr("cx", cx - c).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
+      fociG.append("circle").attr("cx", cx + c).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
+      fociG.append("text").attr("x", cx - c).attr("y", cy + 20).attr("text-anchor", "middle")
+        .attr("font-size", "11px").attr("fill", "#c74440").text("F₁");
+      fociG.append("text").attr("x", cx + c).attr("y", cy + 20).attr("text-anchor", "middle")
+        .attr("font-size", "11px").attr("fill", "#c74440").text("F₂");
+      const aR = (a / 30).toFixed(2), bR = (b / 30).toFixed(2), cR = (c / 30).toFixed(2);
+      paramTexts[0].text(`a = ${aR}`);
+      paramTexts[1].text(`b = ${bR}`);
+      paramTexts[2].text(`c = ${cR}`);
+      paramTexts[3].text(`a² = ${(a * a / 900).toFixed(2)}`);
+      paramTexts[4].text(`b² = ${(b * b / 900).toFixed(2)}`);
+      paramTexts[5].text(`c² = ${(c * c / 900).toFixed(2)}`);
+      relText.text("a² = b² + c²，a > b > 0");
+      eqText.text("x²/a² + y²/b² = 1");
+    } else if (e <= 1.05) {
+      // Parabola
+      typeText.text("抛物线");
+      const p = 80;
+      const pts = d3.range(-2.8, 2.81, 0.05).map(t =>
+        [cx + p * t * t / 2.5, cy + p * t]);
+      curvePath.attr("d", d3.line().curve(d3.curveBasis)(pts));
+      fociG.append("circle").attr("cx", cx + p / 2.5).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
+      fociG.append("text").attr("x", cx + p / 2.5).attr("y", cy + 20).attr("text-anchor", "middle")
+        .attr("font-size", "11px").attr("fill", "#c74440").text("F");
+      paramTexts[0].text("a: 不适用");
+      paramTexts[1].text("b: 不适用");
+      paramTexts[2].text(`p = ${(p / 30).toFixed(2)}`);
+      paramTexts[3].text("");
+      paramTexts[4].text("");
+      paramTexts[5].text("");
+      relText.text("e = 1，到焦点 = 到准线");
+      eqText.text("y² = 2px");
+    } else {
+      // Hyperbola
+      typeText.text("双曲线");
+      const a = 60;
+      const c = a * e;
+      const b = Math.sqrt(c * c - a * a);
+      const pts1 = d3.range(-1.8, 1.81, 0.05).map(t =>
+        [cx + a * Math.cosh(t), cy + b * Math.sinh(t)]);
+      const pts2 = d3.range(-1.8, 1.81, 0.05).map(t =>
+        [cx - a * Math.cosh(t), cy + b * Math.sinh(t)]);
+      curvePath.attr("d", d3.line().curve(d3.curveBasis)(pts1));
+      curvePath2.attr("d", d3.line().curve(d3.curveBasis)(pts2));
+      // Asymptotes
+      const slope = b / a;
+      asymLine1.attr("x1", 0).attr("y1", cy - slope * cx).attr("x2", plotW).attr("y2", cy + slope * (plotW - cx))
+        .attr("opacity", 1);
+      asymLine2.attr("x1", 0).attr("y1", cy + slope * cx).attr("x2", plotW).attr("y2", cy - slope * (plotW - cx))
+        .attr("opacity", 1);
+      fociG.append("circle").attr("cx", cx - c).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
+      fociG.append("circle").attr("cx", cx + c).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
+      const aR = (a / 30).toFixed(2), bR = (b / 30).toFixed(2), cR = (c / 30).toFixed(2);
+      paramTexts[0].text(`a = ${aR}`);
+      paramTexts[1].text(`b = ${bR}`);
+      paramTexts[2].text(`c = ${cR}`);
+      paramTexts[3].text(`a² = ${(a * a / 900).toFixed(2)}`);
+      paramTexts[4].text(`b² = ${(b * b / 900).toFixed(2)}`);
+      paramTexts[5].text(`c² = ${(c * c / 900).toFixed(2)}`);
+      relText.text("c² = a² + b²，c > a > 0");
+      eqText.text("x²/a² − y²/b² = 1");
+    }
+  }
+
+  const slider = document.getElementById("m2_ecc_slider");
+  slider.addEventListener("input", () => update(+slider.value));
+  update(50);
+})();
+</script>
+```
+
+拖动滑块从 $e = 0$ 到 $e = 2.5$，观察曲线如何从圆 → 椭圆 → 抛物线 → 双曲线连续变化。注意右侧面板中 $a, b, c$ 参数的实时变化。
+
+## 公式推导
+
+### 离心率的定义
+
+$$e = \frac{c}{a}$$
+
+- **椭圆**：$c^2 = a^2 - b^2$，因此 $e = \dfrac{c}{a} = \sqrt{1 - \dfrac{b^2}{a^2}}$，范围 $0 < e < 1$
+- **双曲线**：$c^2 = a^2 + b^2$，因此 $e = \dfrac{c}{a} = \sqrt{1 + \dfrac{b^2}{a^2}}$，范围 $e > 1$
+- **抛物线**：$e = 1$（定义如此）
+
+### 离心率的几何解读
+
+为什么 $e$ 能决定形状？我们来看椭圆：
+
+$$e = \frac{c}{a} \quad \Rightarrow \quad \frac{b}{a} = \sqrt{1 - e^2}$$
+
+- $e \to 0$：$b/a \to 1$，椭圆趋近于圆
+- $e \to 1$：$b/a \to 0$，椭圆退化为线段
+
+$e$ 实质上衡量的是焦点离中心有多"远"（相对于半长轴）。焦点越靠近端点，曲线越扁。
+
+### 求离心率的核心策略
+
+求离心率就是找 $a, b, c$ 之间的关系。有三种常用方法：
+
+**方法一：定义 + 解三角形**
+
+利用 $|PF_1| + |PF_2| = 2a$ 和余弦定理。
+
+**方法二：齐次化**
+
+如果条件中出现了 $a, b, c$ 的比例关系，可以齐次化后直接求 $e$。例如：若 $b^2 = 2ac$，则
+
+$$a^2 - c^2 = 2ac \quad \Rightarrow \quad 1 - e^2 = 2e \quad \Rightarrow \quad e^2 + 2e - 1 = 0$$
+
+$$e = -1 + \sqrt{2} \approx 0.414$$
+
+**方法三：关键几何量替换**
+
+所有几何量用 $a, e$ 表示：
+
+- $c = ae$
+- $b^2 = a^2(1 - e^2)$（椭圆）或 $b^2 = a^2(e^2 - 1)$（双曲线）
+- 准线距离 $= \dfrac{a}{e}$
+- 焦半径 $= a \pm ex_0$
+
+## Worked Example
+
+::: {.callout-note}
+## 例题：利用焦点三角形求离心率
+
+**题目：** 椭圆的焦点为 $F_1, F_2$，椭圆上一点 $P$ 满足 $\angle F_1PF_2 = 60°$，且 $|PF_1| = 3|PF_2|$。求离心率。
+
+**解题过程：**
+
+**Step 1：设焦半径**
+
+设 $|PF_2| = m$，则 $|PF_1| = 3m$。
+
+由椭圆定义：$|PF_1| + |PF_2| = 2a$
+
+$$3m + m = 2a \quad \Rightarrow \quad m = \frac{a}{2}$$
+
+所以 $|PF_1| = \dfrac{3a}{2}$，$|PF_2| = \dfrac{a}{2}$。
+
+**Step 2：余弦定理求 $c$**
+
+在 $\triangle F_1PF_2$ 中，$|F_1F_2| = 2c$，$\angle F_1PF_2 = 60°$。
+
+$$|F_1F_2|^2 = |PF_1|^2 + |PF_2|^2 - 2|PF_1| \cdot |PF_2| \cos 60°$$
+
+$$(2c)^2 = \left(\frac{3a}{2}\right)^2 + \left(\frac{a}{2}\right)^2 - 2 \cdot \frac{3a}{2} \cdot \frac{a}{2} \cdot \frac{1}{2}$$
+
+$$4c^2 = \frac{9a^2}{4} + \frac{a^2}{4} - \frac{3a^2}{4} = \frac{7a^2}{4}$$
+
+**Step 3：求离心率**
+
+$$c^2 = \frac{7a^2}{16} \quad \Rightarrow \quad e = \frac{c}{a} = \frac{\sqrt{7}}{4}$$
+
+$$\boxed{e = \frac{\sqrt{7}}{4}}$$
+
+验证：$e \approx 0.661$，$0 < e < 1$ ✓
+:::
+
+## Desmos探索
+
+```{=html}
+<div id="m2_03_desmos" class="desmos-container"></div>
+<script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+<script>
+  var m2_03_calc = Desmos.GraphingCalculator(document.getElementById('m2_03_desmos'), {
+    expressions: true, settingsMenu: false
+  });
+  m2_03_calc.setExpression({ id: 'e_sl', latex: 'e_0 = 0.6', sliderBounds: { min: 0.01, max: 0.99, step: 0.01 } });
+  m2_03_calc.setExpression({ id: 'a_sl', latex: 'a = 5', sliderBounds: { min: 2, max: 8, step: 0.1 } });
+  m2_03_calc.setExpression({ id: 'c_val', latex: 'c = a \\cdot e_0' });
+  m2_03_calc.setExpression({ id: 'b_val', latex: 'b = \\sqrt{a^2 - c^2}' });
+  m2_03_calc.setExpression({ id: 'ell', latex: '\\frac{x^2}{a^2} + \\frac{y^2}{b^2} = 1', color: '#2d70b3' });
+  m2_03_calc.setExpression({ id: 'f1', latex: '(-c, 0)', color: '#c74440', pointStyle: 'POINT', pointSize: 8 });
+  m2_03_calc.setExpression({ id: 'f2', latex: '(c, 0)', color: '#c74440', pointStyle: 'POINT', pointSize: 8 });
+  m2_03_calc.setExpression({ id: 'ratio', latex: 'b/a', color: '#388c46' });
+  m2_03_calc.setMathBounds({ left: -10, right: 10, bottom: -7, top: 7 });
+</script>
+```
+
+调节 $e_0$（离心率）观察椭圆形状的变化。注意 $b/a$ 的比值如何随 $e$ 变化。
+
+## 参考视频
+
+```{=html}
+<div class="video-container"><iframe src="//player.bilibili.com/player.html?bvid=BV1BZhEz5Esd&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%;height:100%;position:absolute;top:0;left:0;"></iframe></div>
+```
+
+## 关键帧
+
+![离心率的定义与几何意义](../images/ch05/frame_01.jpg)
+
+![e 从 0 到 1 椭圆形状的变化](../images/ch05/frame_02.jpg)
+
+![利用解三角形求离心率](../images/ch05/frame_03.jpg)
+
+![离心率的齐次化求法](../images/ch05/frame_04.jpg)
+
+## 速查表
+
+::: {.callout-important}
+## 离心率速查
+
+| 曲线类型 | $e$ 的范围 | $e$ 的公式 | 形状特征 |
+|---------|-----------|-----------|---------|
+| 圆 | $e = 0$ | — | 完美对称 |
+| 椭圆 | $0 < e < 1$ | $e = \dfrac{c}{a} = \sqrt{1 - \dfrac{b^2}{a^2}}$ | $e$ 越大越扁 |
+| 抛物线 | $e = 1$ | 定义 | 不封闭，一个焦点 |
+| 双曲线 | $e > 1$ | $e = \dfrac{c}{a} = \sqrt{1 + \dfrac{b^2}{a^2}}$ | $e$ 越大开口越大 |
+
+**常用关系：**
+
+- 椭圆：$b^2 = a^2(1 - e^2)$，即 $\dfrac{b}{a} = \sqrt{1 - e^2}$
+- 双曲线：$b^2 = a^2(e^2 - 1)$，渐近线斜率 $= \pm\dfrac{b}{a} = \pm\sqrt{e^2 - 1}$
+:::
+
+::: {.callout-warning}
+## ⚠️ 常见错误
+
+1. **$e$ 的范围搞混**：椭圆 $0 < e < 1$，双曲线 $e > 1$。很多同学把 $e > 1$ 当成椭圆
+2. **把 $e = b/a$ 当成离心率**：离心率是 $e = c/a$，不是 $b/a$！$b/a$ 是扁率的另一个指标
+3. **齐次化方向搞错**：$a^2 - c^2 = b^2$（椭圆）vs $c^2 - a^2 = b^2$（双曲线），代入时注意正负
+4. **求范围时忘记约束条件**：$0 < e < 1$ 是椭圆的天然约束。求出的 $e$ 值必须在此范围内
+5. **焦点三角形中角度关系错误**：$\angle F_1PF_2$ 增大时，$P$ 靠近长轴，$e$ 不一定变大
+:::

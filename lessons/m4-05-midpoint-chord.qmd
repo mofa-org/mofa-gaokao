@@ -1,0 +1,390 @@
+---
+title: "中点弦与点差法"
+subtitle: "模块四 · 第5课"
+date: 2026-03-22
+---
+
+当题目涉及"中点"和"斜率"，我们有一个比联立方程更优雅的武器——**点差法**。它绕开了韦达定理，直接从两点满足曲线方程的条件出发，一步得到中点与斜率的关系。
+
+## 探索问题
+
+::: {.callout-tip}
+## 先试一试
+
+椭圆 $\dfrac{x^2}{16} + \dfrac{y^2}{4} = 1$ 内一点 $P(2, 1)$，以 $P$ 为中点的弦所在直线的斜率是多少？
+
+提示：你可以联立方程求解（很麻烦），也可以试试下面要学的点差法（三行搞定）。
+:::
+
+## 方法讲解：点差法
+
+### 为什么需要点差法？
+
+常规做法：设直线 $y - 1 = k(x - 2)$，代入椭圆，用韦达定理 $x_1 + x_2 = 4$（因为中点横坐标为 2），解出 $k$。
+
+计算量不小。**点差法**可以直接从曲线方程得到中点-斜率关系，跳过联立和韦达。
+
+### 核心思想
+
+设弦 $AB$ 两个端点 $A(x_1, y_1)$、$B(x_2, y_2)$ 都在椭圆 $\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2} = 1$ 上。
+
+**先写，再减：**
+
+$$\frac{x_1^2}{a^2} + \frac{y_1^2}{b^2} = 1 \quad \cdots (1)$$
+$$\frac{x_2^2}{a^2} + \frac{y_2^2}{b^2} = 1 \quad \cdots (2)$$
+
+$(1) - (2)$：
+
+$$\frac{x_1^2 - x_2^2}{a^2} + \frac{y_1^2 - y_2^2}{b^2} = 0$$
+
+平方差展开：
+
+$$\frac{(x_1+x_2)(x_1-x_2)}{a^2} + \frac{(y_1+y_2)(y_1-y_2)}{b^2} = 0$$
+
+设中点 $M(x_0, y_0)$，则 $x_1 + x_2 = 2x_0$，$y_1 + y_2 = 2y_0$。弦斜率 $k_{AB} = \dfrac{y_1-y_2}{x_1-x_2}$。
+
+代入得：
+
+$$\frac{2x_0}{a^2} + \frac{2y_0}{b^2} \cdot k_{AB} = 0$$
+
+$$\boxed{k_{AB} = -\frac{b^2 x_0}{a^2 y_0}}$$
+
+### 动画：点差法的过程
+
+```{=html}
+<div class="d3-container" id="m4_midpoint_chord"></div>
+<div class="d3-controls">
+  <label>中点 P 的位置 (角度)：</label>
+  <input type="range" id="m4_mc_slider" min="10" max="80" value="45" step="1">
+  <span class="value-display" id="m4_mc_label">P = (?, ?)</span>
+  <br>
+  <span class="value-display" id="m4_mc_slope">k_AB (点差法) = ?</span>
+</div>
+<script>
+(function() {
+  const W = 700, H = 450;
+  const svg = d3.select("#m4_midpoint_chord").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`);
+
+  const cx = W/2, cy = H/2, sc = 50;
+  const a = 4, b = 2, a2 = 16, b2 = 4;
+
+  // Axes
+  svg.append("line").attr("x1",0).attr("y1",cy).attr("x2",W).attr("y2",cy).attr("stroke","#ddd");
+  svg.append("line").attr("x1",cx).attr("y1",0).attr("x2",cx).attr("y2",H).attr("stroke","#ddd");
+
+  // Ellipse
+  const ePts = d3.range(0, 2*Math.PI+0.05, 0.05).map(t =>
+    [cx + a*sc*Math.cos(t), cy - b*sc*Math.sin(t)]
+  );
+  svg.append("path").attr("d", d3.line()(ePts)+"Z")
+    .attr("fill","none").attr("stroke","#2d70b3").attr("stroke-width",2.5);
+
+  const dotP = svg.append("circle").attr("r",6).attr("fill","#c74440");
+  const labelP = svg.append("text").attr("font-size","14px").attr("fill","#c74440").attr("font-weight","bold");
+
+  const dotA = svg.append("circle").attr("r",5).attr("fill","#388c46");
+  const dotB = svg.append("circle").attr("r",5).attr("fill","#388c46");
+  const labelA = svg.append("text").attr("font-size","12px").attr("fill","#388c46");
+  const labelB = svg.append("text").attr("font-size","12px").attr("fill","#388c46");
+
+  const chordLine = svg.append("line").attr("stroke","#e67e22").attr("stroke-width",2);
+
+  // Subtraction visualization
+  const eqGroup = svg.append("g");
+
+  function update() {
+    const ang = +document.getElementById("m4_mc_slider").value;
+    const angRad = ang * Math.PI / 180;
+    // P inside ellipse
+    const px = (a-0.5) * Math.cos(angRad) * 0.6;
+    const py = (b-0.3) * Math.sin(angRad) * 0.6;
+
+    document.getElementById("m4_mc_label").textContent =
+      "P = (" + px.toFixed(2) + ", " + py.toFixed(2) + ")";
+
+    // Point-difference formula: k = -b²*px / (a²*py)
+    const k = -b2 * px / (a2 * py);
+    document.getElementById("m4_mc_slope").textContent =
+      "k_AB (点差法) = " + k.toFixed(3);
+
+    // Find actual chord endpoints
+    // Line: y - py = k(x - px) => y = kx + (py - k*px)
+    const m = py - k * px;
+    // x²/16 + (kx+m)²/4 = 1 => (1/16 + k²/4)x² + km/2 x + m²/4 - 1 = 0
+    const AA = 1/a2 + k*k/b2;
+    const BB = 2*k*m/b2;
+    const CC = m*m/b2 - 1;
+    const disc = BB*BB - 4*AA*CC;
+    if (disc < 0) return;
+
+    const x1 = (-BB + Math.sqrt(disc)) / (2*AA);
+    const x2 = (-BB - Math.sqrt(disc)) / (2*AA);
+    const y1 = k*x1 + m;
+    const y2 = k*x2 + m;
+
+    dotP.attr("cx", cx+px*sc).attr("cy", cy-py*sc);
+    labelP.attr("x", cx+px*sc+10).attr("y", cy-py*sc-10).text("P");
+
+    dotA.attr("cx", cx+x1*sc).attr("cy", cy-y1*sc);
+    dotB.attr("cx", cx+x2*sc).attr("cy", cy-y2*sc);
+    labelA.attr("x", cx+x1*sc+8).attr("y", cy-y1*sc-8).text("A");
+    labelB.attr("x", cx+x2*sc+8).attr("y", cy-y2*sc-8).text("B");
+
+    chordLine.attr("x1", cx+x1*sc).attr("y1", cy-y1*sc)
+      .attr("x2", cx+x2*sc).attr("y2", cy-y2*sc);
+
+    // Show equation derivation
+    eqGroup.selectAll("*").remove();
+    const eqY = 30;
+    eqGroup.append("text").attr("x", 30).attr("y", eqY)
+      .attr("font-size","14px").attr("fill","#555")
+      .text("点差法: k = -b²x₀/(a²y₀) = -4·" + px.toFixed(2) + "/(16·" + py.toFixed(2) + ") = " + k.toFixed(3));
+  }
+
+  document.getElementById("m4_mc_slider").addEventListener("input", update);
+  update();
+})();
+</script>
+```
+
+拖动滑块改变中点 $P$ 的位置，观察弦 $AB$ 如何自动调整方向。点差法直接给出斜率，无需联立方程。
+
+### 三种曲线的公式
+
+| 曲线 | 方程 | 中点-斜率关系 |
+|------|------|-------------|
+| 椭圆 | $\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2} = 1$ | $k = -\dfrac{b^2 x_0}{a^2 y_0}$ |
+| 双曲线 | $\dfrac{x^2}{a^2} - \dfrac{y^2}{b^2} = 1$ | $k = +\dfrac{b^2 x_0}{a^2 y_0}$ |
+| 抛物线 | $y^2 = 2px$ | $k = \dfrac{p}{y_0}$ |
+
+## Worked Example
+
+**题目：** 椭圆 $\dfrac{x^2}{16} + \dfrac{y^2}{4} = 1$ 内一点 $P(2, 1)$，求以 $P$ 为中点的弦所在直线的斜率。
+
+---
+
+**【子目标1：写两点方程】**
+
+设 $A(x_1, y_1)$，$B(x_2, y_2)$ 在椭圆上：
+
+$$\frac{x_1^2}{16} + \frac{y_1^2}{4} = 1 \quad \cdots (1)$$
+$$\frac{x_2^2}{16} + \frac{y_2^2}{4} = 1 \quad \cdots (2)$$
+
+---
+
+**【子目标2：相减】**
+
+$(1)-(2)$：
+
+$$\frac{x_1^2 - x_2^2}{16} + \frac{y_1^2 - y_2^2}{4} = 0$$
+
+$$\frac{(x_1+x_2)(x_1-x_2)}{16} + \frac{(y_1+y_2)(y_1-y_2)}{4} = 0$$
+
+---
+
+**【子目标3：代入中点】**
+
+$P$ 为中点 → $x_1+x_2 = 4$，$y_1+y_2 = 2$：
+
+$$\frac{4(x_1-x_2)}{16} + \frac{2(y_1-y_2)}{4} = 0$$
+
+$$\frac{x_1-x_2}{4} + \frac{y_1-y_2}{2} = 0$$
+
+$$\frac{y_1-y_2}{x_1-x_2} = -\frac{1}{2}$$
+
+---
+
+**【结论】** $k_{AB} = -\dfrac{1}{2}$。
+
+**验证公式：** $k = -\dfrac{b^2 x_0}{a^2 y_0} = -\dfrac{4 \cdot 2}{16 \cdot 1} = -\dfrac{1}{2}$。一致。
+
+## 子技能训练
+
+### 训练1：直接用公式
+
+::: {.callout-note}
+## 练习
+
+用公式 $k = -\dfrac{b^2 x_0}{a^2 y_0}$ 直接计算以下中点弦的斜率：
+
+1. 椭圆 $\dfrac{x^2}{9} + \dfrac{y^2}{4} = 1$，中点 $(1, 1)$
+2. 椭圆 $\dfrac{x^2}{3} + y^2 = 1$，中点 $(-1, \dfrac{1}{2})$
+3. 双曲线 $\dfrac{x^2}{4} - y^2 = 1$，中点 $(3, 2)$（注意符号！）
+:::
+
+::: {.callout-caution collapse="true"}
+## 参考答案
+
+1. $k = -\dfrac{4 \cdot 1}{9 \cdot 1} = -\dfrac{4}{9}$
+2. $k = -\dfrac{1 \cdot (-1)}{3 \cdot \frac{1}{2}} = \dfrac{2}{3}$
+3. 双曲线用正号：$k = +\dfrac{1 \cdot 3}{4 \cdot 2} = \dfrac{3}{8}$
+:::
+
+### 训练2：完整点差法推导
+
+::: {.callout-note}
+## 练习
+
+对抛物线 $y^2 = 8x$，设弦 $AB$ 的中点为 $M(x_0, y_0)$。用点差法推导 $k_{AB}$ 的表达式。
+
+提示：$y_1^2 = 8x_1$，$y_2^2 = 8x_2$，相减……
+:::
+
+::: {.callout-caution collapse="true"}
+## 参考答案
+
+$y_1^2 - y_2^2 = 8(x_1 - x_2)$
+
+$(y_1+y_2)(y_1-y_2) = 8(x_1-x_2)$
+
+$2y_0 \cdot (y_1-y_2) = 8(x_1-x_2)$
+
+$k_{AB} = \dfrac{y_1-y_2}{x_1-x_2} = \dfrac{8}{2y_0} = \dfrac{4}{y_0}$
+
+对 $y^2 = 2px$ 的一般形式，$k = \dfrac{p}{y_0}$。这里 $2p = 8$，$p = 4$，$k = \dfrac{4}{y_0}$。
+:::
+
+### 训练3：判断中点是否在曲线内
+
+::: {.callout-note}
+## 练习
+
+椭圆 $\dfrac{x^2}{4} + y^2 = 1$。以下哪些点可以作为弦的中点？
+
+A. $(1, 0.5)$ &emsp; B. $(2, 0)$ &emsp; C. $(0, 1)$ &emsp; D. $(1.5, 0.8)$
+:::
+
+::: {.callout-caution collapse="true"}
+## 参考答案
+
+检验 $\dfrac{x_0^2}{4} + y_0^2 < 1$（必须在椭圆内部）：
+
+A. $\dfrac{1}{4} + 0.25 = 0.5 < 1$ → 可以
+
+B. $\dfrac{4}{4} + 0 = 1$ → 在椭圆上，不是"弦的中点"（退化为一个点）
+
+C. $0 + 1 = 1$ → 同上
+
+D. $\dfrac{2.25}{4} + 0.64 = 0.5625 + 0.64 = 1.2025 > 1$ → 在椭圆外，不可以
+:::
+
+## Faded Example
+
+**题目：** 双曲线 $\dfrac{x^2}{4} - \dfrac{y^2}{3} = 1$，过点 $P(1, 1)$ 的直线 $l$ 与双曲线的右支交于 $A$、$B$ 两点，且 $P$ 为 $AB$ 中点。求 $l$ 的方程。
+
+**【第一步：点差法求斜率】**
+
+$k = +\dfrac{b^2 x_0}{a^2 y_0} = +\dfrac{3 \cdot 1}{4 \cdot 1} = $ \_\_\_\_
+
+**【第二步：直线方程】**
+
+$l: y - 1 = \text{\_\_\_\_}(x - 1)$，即 $y = $ \_\_\_\_
+
+**【第三步：验证】**
+
+需要验证两交点确实都在右支上（$x_1 > 0$，$x_2 > 0$），且 $P$ 确实是中点。
+
+联立 $l$ 与双曲线，检查 $\Delta > 0$ 和 $x_1 + x_2 = 2$。
+
+（请完成验证。）
+
+::: {.callout-caution collapse="true"}
+## 参考答案
+
+$k = \dfrac{3}{4}$，$l: y = \dfrac{3}{4}x + \dfrac{1}{4}$。
+
+联立：$\dfrac{x^2}{4} - \dfrac{(3x/4 + 1/4)^2}{3} = 1$。
+
+整理后检查 $\Delta > 0$，$x_1 + x_2 = 2$（由韦达），$x_1 x_2 > 0$。
+
+注意：$P(1,1)$ 是否在双曲线内部？$\dfrac{1}{4} - \dfrac{1}{3} = -\dfrac{1}{12} < 0$——$P$ 在双曲线的两支之间，但不在右支的"肚子"里，需要仔细验证弦的存在性。
+:::
+
+## ⚠ 常见错误
+
+::: {.callout-warning}
+## 错误1：不检验中点是否在曲线内
+
+用点差法算出斜率后就结束了——但如果中点在曲线外面，这条弦根本不存在！必须验证中点在曲线内部。
+:::
+
+::: {.callout-warning}
+## 错误2：双曲线的符号搞错
+
+椭圆取负号，双曲线取正号。如果写成 $k = -\dfrac{b^2 x_0}{a^2 y_0}$ 用到双曲线上，符号就反了。
+:::
+
+::: {.callout-warning}
+## 错误3：弦平行于 $y$ 轴时公式失效
+
+当 $y_0 = 0$（中点在 $x$ 轴上），公式分母为零。此时弦垂直于 $x$ 轴，斜率不存在——需要单独讨论。
+:::
+
+::: {.callout-warning}
+## 错误4：混淆"中点弦"与"弦中点"
+
+"以 $P$ 为中点的弦" → 用点差法
+
+"过 $P$ 的弦" → 用联立方程（$P$ 不一定是中点）
+
+题目说的是哪种？审清题意！
+:::
+
+## Desmos验证
+
+```{=html}
+<div id="m4_05_desmos" class="desmos-container"></div>
+<script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+<script>
+  var m4_05_calc = Desmos.GraphingCalculator(document.getElementById('m4_05_desmos'), {
+    expressions: true, settingsMenu: false
+  });
+  m4_05_calc.setExpression({ id: 'ell', latex: '\\frac{x^2}{16}+\\frac{y^2}{4}=1', color: '#2d70b3' });
+  m4_05_calc.setExpression({ id: 'P', latex: '(2, 1)', color: '#c74440', showLabel: true, label: 'P(中点)' });
+  m4_05_calc.setExpression({ id: 'line', latex: 'y-1=-\\frac{1}{2}(x-2)', color: '#e67e22' });
+  m4_05_calc.setMathBounds({ left: -6, right: 6, bottom: -3.5, top: 3.5 });
+</script>
+```
+
+观察直线 $y - 1 = -\dfrac{1}{2}(x-2)$ 与椭圆的两个交点——它们的中点恰好是 $P(2, 1)$。
+
+## 参考视频
+
+```{=html}
+<div class="video-container"><iframe src="//player.bilibili.com/player.html?bvid=BV1GgZUYCEHu&page=4" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%;height:100%;position:absolute;top:0;left:0;"></iframe></div>
+```
+
+## 关键帧
+
+![点差法的核心思想](../images/ch14/frame_01.jpg)
+
+![三种曲线的中点弦公式](../images/ch14/frame_02.jpg)
+
+![垂径定理的推导](../images/ch14/frame_03.jpg)
+
+![点差法的应用实例](../images/ch14/frame_04.jpg)
+
+## 速查表
+
+::: {.callout-important}
+## 点差法速查
+
+**适用场景：** 题目涉及"中点"和"斜率"的关系
+
+**三步口诀：** 写点 → 相减 → 提斜率
+
+**公式速查：**
+
+| 曲线 | $k_{AB}$ |
+|------|----------|
+| 椭圆 $\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2} = 1$ | $-\dfrac{b^2 x_0}{a^2 y_0}$ |
+| 双曲线 $\dfrac{x^2}{a^2} - \dfrac{y^2}{b^2} = 1$ | $+\dfrac{b^2 x_0}{a^2 y_0}$ |
+| 抛物线 $y^2 = 2px$ | $\dfrac{p}{y_0}$ |
+
+**注意事项：**
+
+1. 验证中点在曲线**内部**
+2. $y_0 = 0$ 时斜率不存在，单独讨论
+3. 点差法不告诉你弦的端点坐标——如果需要端点，仍要联立
+:::

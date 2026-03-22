@@ -1,0 +1,365 @@
+---
+title: "离心率计算与范围"
+subtitle: "模块三 · 第1课"
+date: 2026-03-22
+---
+
+离心率 $e = \dfrac{c}{a}$ 是圆锥曲线的"身份证号"——一个数就决定了曲线的形状。高考选择填空里，离心率相关题出现频率极高，我们今天训练的目标：**看到题 → 识别类型 → 30秒出答案**。
+
+## 探索问题
+
+::: {.callout-tip}
+## 先试一试（限时60秒）
+
+**（2018年全国卷）** 设椭圆 $\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2} = 1$（$a>b>0$）的左、右焦点分别为 $F_1$、$F_2$，$P$ 为椭圆上一点，$PF_1 \perp F_1F_2$，$\angle PF_2F_1 = 60°$，则椭圆的离心率为 ____。
+
+先尝试做一做，然后看看我们的速解方法。
+:::
+
+## 题型识别
+
+::: {.callout-note}
+## 如何一眼识别"离心率题"
+
+**关键词信号：**
+
+| 看到这些条件 | 立刻想到 |
+|---|---|
+| 焦点三角形 + 角度 | 定义 + 解三角形 → $a,b,c$ 关系 |
+| 对称性（中点、中位线） | 构造隐藏焦点三角形 |
+| 给了斜率 $\dfrac{b}{c}$ 或 $\dfrac{b}{a}$ | 特征三角形（上顶点与焦点连线） |
+| 问"$e$ 的范围" | 找 $a,b,c$ 的不等式 |
+| 暴力条件（坐标代入） | 硬算坐标 → 代入椭圆方程 |
+
+**核心思路：** 求离心率 = 找 $a$、$b$、$c$ 之间的等式或不等式。
+:::
+
+## 解题方法
+
+### 方法一：定义 + 解三角形（最常见）
+
+椭圆上的点 $P$ 与两焦点 $F_1$、$F_2$ 构成**焦点三角形**。利用椭圆定义 $|PF_1| + |PF_2| = 2a$ 和余弦定理，建立 $a$、$c$ 的关系。
+
+### 方法二：结论速用
+
+- 上顶点到焦点的距离 $= a$（特征三角形三边为 $a$、$b$、$c$）
+- 焦半径公式：$|PF_1| = a + ex_0$，$|PF_2| = a - ex_0$
+
+### 方法三：设一法
+
+当只需要比值关系时，令 $a = 1$（或某个方便的值），直接解方程。
+
+---
+
+## Worked Example 1：直角焦点三角形
+
+**题目：** 椭圆 $\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2} = 1$，$F_1$、$F_2$ 为焦点，$P$ 为椭圆上一点，$PF_1 \perp F_1F_2$，$\angle PF_2F_1 = 60°$。求 $e$。
+
+::: {.callout-caution collapse="true"}
+## 完整解答
+
+**第一步：识别三角形**
+
+$PF_1 \perp F_1F_2$，$\angle PF_2F_1 = 60°$ → 这是 **30-60-90** 直角三角形。
+
+**第二步：写出边长比**
+
+斜边 $|F_1F_2| = 2c$，三边比 $1 : \sqrt{3} : 2$：
+
+$$|PF_1| = c, \quad |PF_2| = \sqrt{3}\,c$$
+
+**第三步：用定义建立等式**
+
+$$|PF_1| + |PF_2| = 2a \implies c + \sqrt{3}\,c = 2a$$
+
+$$\frac{c}{a} = \frac{2}{1+\sqrt{3}} = \frac{2(\sqrt{3}-1)}{2} = \sqrt{3} - 1$$
+
+$$\boxed{e = \sqrt{3} - 1}$$
+:::
+
+## Worked Example 2：隐藏焦点三角形
+
+**题目：** （2015年高考）椭圆 $\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2} = 1$，右焦点 $F(c,0)$，直线 $y = \dfrac{b}{c}x$ 经过右焦点关于该直线的对称点 $Q$ 在椭圆上。求 $e$。
+
+::: {.callout-caution collapse="true"}
+## 完整解答
+
+**第一步：识别隐藏结构**
+
+斜率 $\dfrac{b}{c}$ 恰好是上顶点 $B(0,b)$ 与左焦点 $F_1(-c,0)$ 连线的斜率！所以 $Q$ 实际上就是上顶点 $B$。
+
+**第二步：构造焦点三角形**
+
+$F$ 关于直线 $BF_1$ 对称到 $Q = B$，中点和 $BF_1$ 垂直 → $B$、$F_1$、$F$ 构成**等腰直角三角形**。
+
+**第三步：利用等腰直角三角形**
+
+$$|BF_1| = |BF| = a, \quad |F_1F| = \sqrt{2}\,a = 2c$$
+
+$$e = \frac{c}{a} = \frac{\sqrt{2}}{2}$$
+
+$$\boxed{e = \frac{\sqrt{2}}{2}}$$
+:::
+
+## Worked Example 3：离心率范围
+
+**题目：** 椭圆 $\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2} = 1$（$a>b>0$），$F_1$、$F_2$ 为左右焦点，椭圆上存在点 $P$ 使得 $|PF_1| = 2|PF_2|$。求离心率 $e$ 的范围。
+
+::: {.callout-caution collapse="true"}
+## 完整解答
+
+**第一步：利用定义**
+
+设 $|PF_2| = m$，则 $|PF_1| = 2m$。
+
+$$m + 2m = 2a \implies m = \frac{2a}{3}, \quad 2m = \frac{4a}{3}$$
+
+**第二步：利用焦点距离范围**
+
+椭圆上点到焦点的距离范围：$a - c \leqslant |PF_2| \leqslant a + c$
+
+$$a - c \leqslant \frac{2a}{3} \leqslant a + c$$
+
+**第三步：解不等式**
+
+左边：$a - c \leqslant \frac{2a}{3}$ → $\frac{a}{3} \leqslant c$ → $e \geqslant \frac{1}{3}$
+
+右边：$\frac{2a}{3} \leqslant a + c$ → 总成立（$c > 0$）
+
+$$\boxed{\frac{1}{3} \leqslant e < 1}$$
+:::
+
+## D3动画：离心率约束可视化
+
+我们用动画展示几何条件如何约束离心率的取值范围。
+
+```{=html}
+<div class="d3-container" id="m3_ecc_constraint"></div>
+<div class="d3-controls">
+  <label>离心率 e：</label>
+  <input type="range" id="m3_ecc_slider" min="5" max="95" value="50" step="1">
+  <span class="value-display" id="m3_ecc_label">e = 0.50</span>
+</div>
+<script>
+(function() {
+  const W = 700, H = 420;
+  const svg = d3.select("#m3_ecc_constraint").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`);
+
+  const cx = 320, cy = 200, scale = 120;
+
+  // Axes
+  svg.append("line").attr("x1", 50).attr("y1", cy).attr("x2", 590).attr("y2", cy)
+    .attr("stroke", "#ccc").attr("stroke-width", 1);
+  svg.append("line").attr("x1", cx).attr("y1", 30).attr("x2", cx).attr("y2", 370)
+    .attr("stroke", "#ccc").attr("stroke-width", 1);
+
+  const ellipsePath = svg.append("path")
+    .attr("fill", "none").attr("stroke", "#2d70b3").attr("stroke-width", 2.5);
+
+  const f1Dot = svg.append("circle").attr("r", 5).attr("fill", "#c74440");
+  const f2Dot = svg.append("circle").attr("r", 5).attr("fill", "#c74440");
+  const pDot = svg.append("circle").attr("r", 6).attr("fill", "#388c46");
+
+  const pf1Line = svg.append("line").attr("stroke", "#388c46").attr("stroke-width", 1.5).attr("stroke-dasharray", "4,3");
+  const pf2Line = svg.append("line").attr("stroke", "#388c46").attr("stroke-width", 1.5).attr("stroke-dasharray", "4,3");
+
+  const f1Label = svg.append("text").attr("font-size", "14px").attr("fill", "#c74440").attr("text-anchor", "middle");
+  const f2Label = svg.append("text").attr("font-size", "14px").attr("fill", "#c74440").attr("text-anchor", "middle");
+  const pLabel = svg.append("text").attr("font-size", "14px").attr("fill", "#388c46");
+
+  const infoText = svg.append("text").attr("x", 620).attr("y", 60)
+    .attr("font-size", "15px").attr("text-anchor", "end").attr("fill", "#333");
+  const infoText2 = svg.append("text").attr("x", 620).attr("y", 85)
+    .attr("font-size", "14px").attr("text-anchor", "end").attr("fill", "#666");
+
+  // Number line for e range
+  const nlY = 390;
+  svg.append("line").attr("x1", 100).attr("y1", nlY).attr("x2", 600).attr("y2", nlY)
+    .attr("stroke", "#333").attr("stroke-width", 2);
+  svg.append("text").attr("x", 100).attr("y", nlY + 20).attr("text-anchor", "middle").attr("font-size", "12px").text("0");
+  svg.append("text").attr("x", 600).attr("y", nlY + 20).attr("text-anchor", "middle").attr("font-size", "12px").text("1");
+
+  const eMarker = svg.append("circle").attr("cy", nlY).attr("r", 7).attr("fill", "#c74440");
+  const eRange = svg.append("rect").attr("y", nlY - 4).attr("height", 8)
+    .attr("fill", "#388c46").attr("opacity", 0.4);
+
+  function eToNlX(e) { return 100 + e * 500; }
+
+  let angle = Math.PI / 3;
+
+  function update(eVal) {
+    const e = eVal / 100;
+    const a = scale;
+    const c = a * e;
+    const b = a * Math.sqrt(1 - e * e);
+
+    // Draw ellipse
+    const pts = d3.range(0, 2 * Math.PI + 0.05, 0.03).map(t =>
+      [cx + a * Math.cos(t), cy - b * Math.sin(t)]
+    );
+    ellipsePath.attr("d", d3.line()(pts) + "Z");
+
+    // Foci
+    f1Dot.attr("cx", cx - c).attr("cy", cy);
+    f2Dot.attr("cx", cx + c).attr("cy", cy);
+    f1Label.attr("x", cx - c).attr("y", cy + 20).text("F₁");
+    f2Label.attr("x", cx + c).attr("y", cy + 20).text("F₂");
+
+    // Point P on ellipse
+    const px = cx + a * Math.cos(angle);
+    const py = cy - b * Math.sin(angle);
+    pDot.attr("cx", px).attr("cy", py);
+    pLabel.attr("x", px + 10).attr("y", py - 10).text("P");
+
+    pf1Line.attr("x1", px).attr("y1", py).attr("x2", cx - c).attr("y2", cy);
+    pf2Line.attr("x1", px).attr("y1", py).attr("x2", cx + c).attr("y2", cy);
+
+    const pf1 = Math.sqrt((px - cx + c) ** 2 + (py - cy) ** 2);
+    const pf2 = Math.sqrt((px - cx - c) ** 2 + (py - cy) ** 2);
+
+    infoText.text(`|PF₁| + |PF₂| = ${(pf1 + pf2).toFixed(0)} = 2a`);
+    infoText2.text(`e = c/a = ${e.toFixed(2)}`);
+
+    document.getElementById("m3_ecc_label").textContent = `e = ${e.toFixed(2)}`;
+
+    // e marker on number line
+    eMarker.attr("cx", eToNlX(e));
+
+    // Valid range highlight (example: 1/3 <= e < 1)
+    eRange.attr("x", eToNlX(1/3)).attr("width", eToNlX(1) - eToNlX(1/3));
+  }
+
+  const slider = document.getElementById("m3_ecc_slider");
+  slider.addEventListener("input", () => update(+slider.value));
+
+  // Make P draggable via angle
+  let dragging = false;
+  svg.on("mousedown", function(event) {
+    const [mx, my] = d3.pointer(event);
+    const dx = mx - cx, dy = -(my - cy);
+    if (Math.sqrt(dx*dx + dy*dy) < scale * 1.3) { dragging = true; }
+  });
+  svg.on("mousemove", function(event) {
+    if (!dragging) return;
+    const [mx, my] = d3.pointer(event);
+    angle = Math.atan2(-(my - cy), mx - cx);
+    update(+slider.value);
+  });
+  svg.on("mouseup", () => { dragging = false; });
+
+  update(50);
+})();
+</script>
+```
+
+拖动滑块改变离心率 $e$，观察椭圆形状的变化。点击并拖动可以移动点 $P$，实时查看 $|PF_1|$ 和 $|PF_2|$ 的值。数轴上绿色区域表示满足条件 $|PF_1| = 2|PF_2|$ 时 $e$ 的有效范围。
+
+## Faded Example 1
+
+**题目：** 椭圆 $\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2} = 1$，$F_1$、$F_2$ 为焦点，$P$ 为椭圆上一点，$\angle F_1PF_2 = 90°$，$|PF_1| = 3|PF_2|$。求 $e$。
+
+::: {.callout-warning}
+## 填空完成
+
+**第一步：** 设 $|PF_2| = m$，则 $|PF_1| = $ ______。
+
+由定义：$m + $ ______ $= 2a$，解得 $m = $ ______。
+
+**第二步：** 在直角三角形 $\triangle PF_1F_2$ 中，$\angle F_1PF_2 = 90°$，由勾股定理：
+
+$$|PF_1|^2 + |PF_2|^2 = |F_1F_2|^2$$
+
+$$\text{______}^2 + m^2 = (2c)^2$$
+
+**第三步：** 代入 $m$ 的值，化简得 $c$ 与 $a$ 的关系：______，所以 $e = $ ______。
+:::
+
+## Faded Example 2
+
+**题目：** 椭圆 $\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2} = 1$（$a>b>0$），$B$ 为上顶点，$F$ 为右焦点。若 $\angle ABF \leqslant 90°$（$A$ 为左顶点），求 $e$ 的范围。
+
+::: {.callout-warning}
+## 填空完成
+
+**第一步：** $A(-a, 0)$，$B(0, b)$，$F(c, 0)$。
+
+$\vec{BA} = $ ______，$\vec{BF} = $ ______。
+
+**第二步：** $\angle ABF \leqslant 90°$ → $\vec{BA} \cdot \vec{BF}$ ______ $0$
+
+$$(-a)(c) + (-b)(-b) \leqslant 0$$
+
+$$b^2 \leqslant ac$$
+
+**第三步：** 用 $b^2 = a^2 - c^2$ 替换：
+
+$$a^2 - c^2 \leqslant$$ ______
+
+两边除以 $a^2$：______ → $e \geqslant$ ______。
+
+结合 $0 < e < 1$：$e \in $ ______。
+:::
+
+## Desmos验证
+
+```{=html}
+<div id="m3_01_desmos" class="desmos-container"></div>
+<script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+<script>
+  var m3_01_calc = Desmos.GraphingCalculator(document.getElementById('m3_01_desmos'), {
+    expressions: true, settingsMenu: false
+  });
+  m3_01_calc.setExpression({ id: 'a_val', latex: 'a = 3', sliderBounds: { min: 1.5, max: 5, step: 0.1 } });
+  m3_01_calc.setExpression({ id: 'c_val', latex: 'c = 1.5', sliderBounds: { min: 0.1, max: 4.9, step: 0.1 } });
+  m3_01_calc.setExpression({ id: 'b_val', latex: 'b = \\sqrt{a^2 - c^2}' });
+  m3_01_calc.setExpression({ id: 'ellipse', latex: '\\frac{x^2}{a^2} + \\frac{y^2}{b^2} = 1', color: '#2d70b3' });
+  m3_01_calc.setExpression({ id: 'f1', latex: '(-c, 0)', color: '#c74440', pointStyle: 'POINT', label: 'F₁' });
+  m3_01_calc.setExpression({ id: 'f2', latex: '(c, 0)', color: '#c74440', pointStyle: 'POINT', label: 'F₂' });
+  m3_01_calc.setExpression({ id: 'e_val', latex: 'e_{cc} = \\frac{c}{a}', color: '#388c46' });
+  m3_01_calc.setMathBounds({ left: -6, right: 6, bottom: -5, top: 5 });
+</script>
+```
+
+调节 $a$ 和 $c$（保持 $c < a$），观察离心率 $e = c/a$ 如何变化。验证上面各题的答案。
+
+## 参考视频
+
+```{=html}
+<div class="video-container"><iframe src="//player.bilibili.com/player.html?bvid=BV1BZhEz5Esd&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%;height:100%;position:absolute;top:0;left:0;"></iframe></div>
+```
+
+## 关键帧
+
+![离心率定义与取值范围](../images/ch05/frame_01.jpg)
+
+![焦点三角形求离心率](../images/ch05/frame_02.jpg)
+
+![离心率范围：距离约束法](../images/ch05/frame_03.jpg)
+
+![设一法快速求值](../images/ch05/frame_04.jpg)
+
+## 速查表 + ⚠️易错点
+
+::: {.callout-important}
+## 离心率速查表
+
+| 公式 | 适用情景 |
+|---|---|
+| $e = \dfrac{c}{a}$，$c^2 = a^2 - b^2$（椭圆） | 所有离心率题的出发点 |
+| $e = \dfrac{c}{a}$，$c^2 = a^2 + b^2$（双曲线） | 注意加减号不同！ |
+| 焦半径：$\|PF_1\| = a + ex_0$，$\|PF_2\| = a - ex_0$ | 已知横坐标求焦点距离 |
+| 椭圆上点到焦点距离范围：$[a-c, a+c]$ | 求 $e$ 的范围 |
+| 上顶点到焦点距离 $= a$ | 特征三角形三边 $a, b, c$ |
+| 设一法：令 $a = 1$，解方程求 $c$ | 只需比值关系时 |
+:::
+
+::: {.callout-warning}
+## ⚠️ 高频易错点
+
+1. **椭圆与双曲线公式混淆**：椭圆 $c^2 = a^2 - b^2$，双曲线 $c^2 = a^2 + b^2$。写之前先确认曲线类型！
+2. **忘记连另一个焦点**：题目只给了 $P$ 与一个焦点的连线时，一定主动补上与另一个焦点的连线，才能使用定义。
+3. **范围题忘记检查端点**：求 $e$ 的范围时，别忘了检查取等条件是否可以实现（点是否在椭圆上）。
+4. **设一法后忘记验证**：设 $a = 1$ 后解出 $b$ 值，注意 $b > 0$ 且 $b < a$（椭圆焦点在 $x$ 轴上时）。
+5. **解三角形时角度与边对应错误**：焦点三角形中，$|F_1F_2| = 2c$ 是对着顶角 $\angle F_1PF_2$ 的边。
+:::

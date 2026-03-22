@@ -1,0 +1,325 @@
+---
+title: "标准方程求解"
+subtitle: "模块三 · 第2课"
+date: 2026-03-22
+---
+
+给了条件求圆锥曲线方程，是高考选择填空的"经典送分题"——但只有在我们熟练掌握条件到方程的转化路径后，才能真正做到30秒出答案。今天我们就来训练这个核心技能。
+
+## 探索问题
+
+::: {.callout-tip}
+## 先试一试（限时60秒）
+
+**（2021年新高考I卷）** 已知椭圆 $\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2} = 1$（$a > b > 0$）的离心率为 $\dfrac{\sqrt{3}}{2}$，且过点 $(1, \dfrac{3}{2})$。求椭圆方程。
+
+计时开始——先动笔试试。
+:::
+
+## 题型识别
+
+::: {.callout-note}
+## 如何一眼识别"求标准方程"
+
+**题目给你的输入** → **你需要的输出**
+
+| 给定条件 | 解题路线 |
+|---|---|
+| $a$、$b$ 的值 | 直接写方程 |
+| $a$（或 $b$）+ $e$ | $c = ae$ → $b^2 = a^2 - c^2$ |
+| $e$ + 过某点 | 用 $e$ 建立 $a,b$ 关系 → 代点解方程 |
+| 焦点坐标 + 过某点 | $c$ 已知 → 代点求 $a$（或 $b$） |
+| 顶点坐标 | 直接读出 $a$、$b$ |
+| $a + b$ 或 $a \cdot b$ + 另一关系 | 联立方程组 |
+
+**核心原则：** 椭圆标准方程有两个参数（$a^2$ 和 $b^2$），所以需要**两个独立条件**来确定。
+:::
+
+## Worked Example 1：离心率 + 过点
+
+**题目：** 椭圆 $\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2} = 1$（$a > b > 0$），$e = \dfrac{\sqrt{3}}{2}$，过点 $(1, \dfrac{3}{2})$。求方程。
+
+::: {.callout-caution collapse="true"}
+## 完整解答
+
+**第一步：由离心率建立关系**
+
+$$e = \frac{c}{a} = \frac{\sqrt{3}}{2} \implies c = \frac{\sqrt{3}}{2}a$$
+
+$$c^2 = \frac{3}{4}a^2, \quad b^2 = a^2 - c^2 = a^2 - \frac{3}{4}a^2 = \frac{1}{4}a^2$$
+
+**第二步：代入点坐标**
+
+将 $(1, \dfrac{3}{2})$ 代入椭圆方程：
+
+$$\frac{1}{a^2} + \frac{\frac{9}{4}}{\frac{1}{4}a^2} = 1$$
+
+$$\frac{1}{a^2} + \frac{9}{a^2} = 1$$
+
+$$\frac{10}{a^2} = 1 \implies a^2 = 10$$
+
+**第三步（被划掉了——口算更快！）**
+
+等等，我们重算一下：$\dfrac{9/4}{a^2/4} = \dfrac{9}{a^2}$，所以 $\dfrac{1 + 9}{a^2} = 1$……
+
+不对，让我们仔细来：$b^2 = \dfrac{a^2}{4}$，代入：
+
+$$\frac{1}{a^2} + \frac{9/4}{a^2/4} = \frac{1}{a^2} + \frac{9}{a^2} = \frac{10}{a^2} = 1$$
+
+$a^2 = 10$？但这给 $b^2 = 2.5$……让我们用原始数据验证：题目是过 $(1, 3/2)$。
+
+实际上：$a^2 = 4$，$b^2 = 1$。
+
+让我们重来。$e = \sqrt{3}/2$，代入：$\frac{1}{a^2} + \frac{9/4}{a^2/4} = 1$ → $\frac{1}{a^2} + \frac{9}{a^2} = 1$ → $a^2 = 10$, $b^2 = 5/2$。
+
+验证：$\frac{1}{10} + \frac{9/4}{5/2} = \frac{1}{10} + \frac{9}{10} = 1$ ✓
+
+$$\boxed{\frac{x^2}{10} + \frac{2y^2}{5} = 1}$$
+:::
+
+## Worked Example 2：焦点 + 过点
+
+**题目：** 椭圆过点 $A(2, 0)$ 和 $B(0, 1)$，求标准方程。
+
+::: {.callout-caution collapse="true"}
+## 完整解答
+
+**第一步：读取顶点信息**
+
+$A(2, 0)$ 在 $x$ 轴上 → 是长轴端点（或短轴端点）。
+
+$B(0, 1)$ 在 $y$ 轴上 → 是短轴端点（或长轴端点）。
+
+**第二步：确定 $a$ 和 $b$**
+
+若焦点在 $x$ 轴上：$a = 2$，$b = 1$（因为 $a > b$）。
+
+**第三步：写方程**
+
+$$\boxed{\frac{x^2}{4} + y^2 = 1}$$
+
+**注意：** 若焦点在 $y$ 轴上，则 $a = 1$，$b = 2$，但此时需要 $a > b$，即 $1 > 2$，矛盾。所以焦点只能在 $x$ 轴上。
+:::
+
+## Worked Example 3：共焦点 + 离心率
+
+**题目：** 双曲线与椭圆 $\dfrac{x^2}{8} + \dfrac{y^2}{4} = 1$ 共焦点，且离心率 $e = \sqrt{2}$。求双曲线方程。
+
+::: {.callout-caution collapse="true"}
+## 完整解答
+
+**第一步：求椭圆的焦点**
+
+椭圆：$a^2 = 8$，$b^2 = 4$，$c^2 = 8 - 4 = 4$，$c = 2$。
+
+焦点在 $x$ 轴上：$(\pm 2, 0)$。
+
+**第二步：双曲线的参数**
+
+双曲线共焦点 → $c = 2$，$e = \sqrt{2}$。
+
+设双曲线焦点在 $x$ 轴上：$\dfrac{x^2}{a_1^2} - \dfrac{y^2}{b_1^2} = 1$
+
+$$e = \frac{c}{a_1} = \sqrt{2} \implies a_1 = \frac{c}{\sqrt{2}} = \frac{2}{\sqrt{2}} = \sqrt{2}$$
+
+$$a_1^2 = 2, \quad b_1^2 = c^2 - a_1^2 = 4 - 2 = 2$$
+
+**第三步：写方程**
+
+$$\boxed{\frac{x^2}{2} - \frac{y^2}{2} = 1}$$
+:::
+
+## D3动画：条件解码器
+
+输入条件，看方程如何一步步生成。
+
+```{=html}
+<div class="d3-container" id="m3_eq_decoder"></div>
+<div class="d3-controls">
+  <label>条件类型：</label>
+  <select id="m3_eq_type">
+    <option value="ev">离心率 + 过点</option>
+    <option value="fp">焦点 + 过点</option>
+    <option value="vv">两顶点</option>
+  </select>
+  <button id="m3_eq_animate">演示 ▶</button>
+</div>
+<script>
+(function() {
+  const W = 700, H = 400;
+  const svg = d3.select("#m3_eq_decoder").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`);
+
+  const steps = {
+    ev: [
+      { text: "已知：e = √3/2，过点(1, 3/2)", y: 40 },
+      { text: "① e = c/a → c = (√3/2)a", y: 90 },
+      { text: "② b² = a² - c² = a²/4", y: 140 },
+      { text: "③ 代点：1/a² + (9/4)/(a²/4) = 1", y: 190 },
+      { text: "④ 化简：10/a² = 1 → a² = 10", y: 240 },
+      { text: "⑤ b² = 10/4 = 5/2", y: 290 },
+      { text: "⑥ 方程：x²/10 + 2y²/5 = 1 ✓", y: 340, color: "#388c46" }
+    ],
+    fp: [
+      { text: "已知：焦点(±2,0)，过点(2,3)", y: 40 },
+      { text: "① c = 2 → c² = 4", y: 100 },
+      { text: "② 代点：4/a² + 9/b² = 1", y: 160 },
+      { text: "③ b² = a² - 4，代入化简", y: 220 },
+      { text: "④ 解方程得 a² 和 b²", y: 280 },
+      { text: "⑤ 写出标准方程 ✓", y: 340, color: "#388c46" }
+    ],
+    vv: [
+      { text: "已知：过点A(2,0)和B(0,1)", y: 40 },
+      { text: "① A在x轴 → a=2 或 b=2", y: 120 },
+      { text: "② B在y轴 → b=1 或 a=1", y: 200 },
+      { text: "③ 比较大小：a>b → a=2, b=1", y: 280 },
+      { text: "④ 方程：x²/4 + y² = 1 ✓", y: 340, color: "#388c46" }
+    ]
+  };
+
+  let currentSteps = [];
+  let stepGroups = [];
+
+  function showSteps(type) {
+    svg.selectAll("*").remove();
+    currentSteps = steps[type];
+    stepGroups = [];
+
+    currentSteps.forEach((s, i) => {
+      const g = svg.append("g").attr("opacity", 0);
+
+      g.append("rect")
+        .attr("x", 30).attr("y", s.y - 20)
+        .attr("width", 640).attr("height", 40)
+        .attr("rx", 8)
+        .attr("fill", s.color || (i % 2 === 0 ? "#f0f4ff" : "#fff8f0"))
+        .attr("stroke", s.color || "#ddd").attr("stroke-width", 1);
+
+      g.append("text")
+        .attr("x", 50).attr("y", s.y + 5)
+        .attr("font-size", "16px")
+        .attr("fill", s.color || "#333")
+        .attr("font-weight", s.color ? "bold" : "normal")
+        .text(s.text);
+
+      stepGroups.push(g);
+    });
+  }
+
+  function animateSteps() {
+    stepGroups.forEach((g, i) => {
+      g.transition().delay(i * 600).duration(400).attr("opacity", 1);
+    });
+  }
+
+  document.getElementById("m3_eq_type").addEventListener("change", function() {
+    showSteps(this.value);
+  });
+
+  document.getElementById("m3_eq_animate").addEventListener("click", function() {
+    showSteps(document.getElementById("m3_eq_type").value);
+    animateSteps();
+  });
+
+  showSteps("ev");
+  animateSteps();
+})();
+</script>
+```
+
+选择不同的条件类型，点击"演示"，观察从条件到方程的逐步推导过程。
+
+## Faded Example 1
+
+**题目：** 双曲线 $\dfrac{x^2}{a^2} - \dfrac{y^2}{b^2} = 1$（$a > 0, b > 0$），渐近线方程为 $y = \pm 2x$，过点 $(2, 2)$。求方程。
+
+::: {.callout-warning}
+## 填空完成
+
+**第一步：** 渐近线 $y = \pm\dfrac{b}{a}x = \pm 2x$ → $\dfrac{b}{a} = $ ______ → $b = $ ______
+
+**第二步：** 代入点 $(2, 2)$：$\dfrac{4}{a^2} - \dfrac{4}{b^2} = 1$
+
+用 $b = 2a$ 代入：$\dfrac{4}{a^2} - \dfrac{4}{______} = 1$
+
+**第三步：** 化简：______ $= 1$ → $a^2 = $ ______ → $b^2 = $ ______
+
+**方程：** ______
+:::
+
+## Faded Example 2
+
+**题目：** 抛物线的焦点在 $x$ 轴正半轴上，且焦点到准线距离为 $4$。求抛物线方程。
+
+::: {.callout-warning}
+## 填空完成
+
+**第一步：** 焦点在 $x$ 轴正半轴 → 抛物线方程形式为 $y^2 = $ ______
+
+**第二步：** 焦点坐标 $(\dfrac{p}{2}, 0)$，准线 $x = -\dfrac{p}{2}$
+
+焦点到准线距离 = ______ $= 4$ → $p = $ ______
+
+**第三步：** 方程：$y^2 = $ ______
+:::
+
+## Desmos验证
+
+```{=html}
+<div id="m3_02_desmos" class="desmos-container"></div>
+<script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+<script>
+  var m3_02_calc = Desmos.GraphingCalculator(document.getElementById('m3_02_desmos'), {
+    expressions: true, settingsMenu: false
+  });
+  m3_02_calc.setExpression({ id: 'a2', latex: 'a_{2} = 4', sliderBounds: { min: 1, max: 10, step: 0.5 } });
+  m3_02_calc.setExpression({ id: 'b2', latex: 'b_{2} = 1', sliderBounds: { min: 0.5, max: 10, step: 0.5 } });
+  m3_02_calc.setExpression({ id: 'ell', latex: '\\frac{x^2}{a_{2}} + \\frac{y^2}{b_{2}} = 1', color: '#2d70b3' });
+  m3_02_calc.setExpression({ id: 'pt1', latex: '(2, 0)', color: '#c74440', pointStyle: 'POINT', label: 'A' });
+  m3_02_calc.setExpression({ id: 'pt2', latex: '(0, 1)', color: '#388c46', pointStyle: 'POINT', label: 'B' });
+  m3_02_calc.setExpression({ id: 'hyp', latex: '\\frac{x^2}{2} - \\frac{y^2}{2} = 1', color: '#c74440' });
+  m3_02_calc.setMathBounds({ left: -6, right: 6, bottom: -4, top: 4 });
+</script>
+```
+
+调节 $a^2$ 和 $b^2$，验证椭圆是否过指定点。同时可以看到双曲线 $\dfrac{x^2}{2} - \dfrac{y^2}{2} = 1$ 的图像。
+
+## 参考视频
+
+```{=html}
+<div class="video-container"><iframe src="//player.bilibili.com/player.html?bvid=BV1iq4y1B7Km&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%;height:100%;position:absolute;top:0;left:0;"></iframe></div>
+```
+
+## 关键帧
+
+![标准方程参数含义](../images/ch03/frame_01.jpg)
+
+![离心率与方程联系](../images/ch03/frame_02.jpg)
+
+![参数方程简化计算](../images/ch03/frame_03.jpg)
+
+![共焦点条件求方程](../images/ch03/frame_04.jpg)
+
+## 速查表 + ⚠️易错点
+
+::: {.callout-important}
+## 标准方程速查表
+
+| 曲线类型 | 标准方程 | 关键关系 |
+|---|---|---|
+| 椭圆（焦点在 $x$ 轴） | $\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2} = 1$（$a > b > 0$） | $c^2 = a^2 - b^2$ |
+| 椭圆（焦点在 $y$ 轴） | $\dfrac{x^2}{b^2} + \dfrac{y^2}{a^2} = 1$（$a > b > 0$） | $c^2 = a^2 - b^2$ |
+| 双曲线（焦点在 $x$ 轴） | $\dfrac{x^2}{a^2} - \dfrac{y^2}{b^2} = 1$ | $c^2 = a^2 + b^2$ |
+| 双曲线（焦点在 $y$ 轴） | $\dfrac{y^2}{a^2} - \dfrac{x^2}{b^2} = 1$ | $c^2 = a^2 + b^2$ |
+| 抛物线 | $y^2 = 2px$（$p > 0$） | 焦点 $(\frac{p}{2}, 0)$ |
+:::
+
+::: {.callout-warning}
+## ⚠️ 高频易错点
+
+1. **焦点在哪个轴？** $\dfrac{x^2}{4} + \dfrac{y^2}{9} = 1$ → 分母大的在 $y^2$ 下面 → 焦点在 **$y$ 轴**上！$a^2 = 9$，不是 $4$。
+2. **双曲线焦点看正项位置**：$\dfrac{x^2}{a^2} - \dfrac{y^2}{b^2} = 1$ → 正号前面的 $x^2$ → 焦点在 **$x$ 轴**。
+3. **忘记检验 $a > b > 0$**（椭圆）：求出 $a^2$ 和 $b^2$ 后要检查 $a > b$，否则要交换分母位置。
+4. **抛物线方程方向搞混**：$y^2 = 2px$（$p > 0$）开口向右；$y^2 = -2px$（$p > 0$）开口向左。四种方向对应四种形式。
+5. **代入点时算错**：代点时分子不是 $x^2$，而是 $x_0^2$（具体数值的平方），注意细心计算。
+:::

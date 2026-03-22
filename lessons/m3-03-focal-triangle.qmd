@@ -1,0 +1,352 @@
+---
+title: "焦点三角形"
+subtitle: "模块三 · 第3课"
+date: 2026-03-22
+---
+
+焦点三角形是高考圆锥曲线的"超高频考点"——在2020-2024年全国各卷中反复出现。我们今天集中训练面积公式、角度计算和内切圆性质，目标是看到"焦点三角形"四个字就条件反射地写出公式。
+
+## 探索问题
+
+::: {.callout-tip}
+## 先试一试（限时60秒）
+
+**（2022年全国甲卷改编）** 椭圆 $\dfrac{x^2}{4} + \dfrac{y^2}{2} = 1$ 的焦点为 $F_1$、$F_2$，$P$ 为椭圆上一点，$\angle F_1PF_2 = 60°$。求 $\triangle F_1PF_2$ 的面积。
+
+提示：你能不用余弦定理，直接秒杀吗？
+:::
+
+## 题型识别
+
+::: {.callout-note}
+## 焦点三角形题型特征
+
+**看到以下任一条件，立刻反应"焦点三角形"：**
+
+1. $P$ 为椭圆/双曲线上一点，$F_1$、$F_2$ 为焦点
+2. 涉及 $\angle F_1PF_2$（顶角）
+3. 问面积、周长、内切圆半径
+
+**三大核心公式：**
+
+$$S_{\triangle F_1PF_2} = b^2 \tan\frac{\theta}{2}$$
+
+$$\text{周长} = 2a + 2c$$
+
+$$r_{\text{内切圆}} = \frac{b^2}{a + c} \quad (\text{用等面积法推导})$$
+
+其中 $\theta = \angle F_1PF_2$。
+:::
+
+## Worked Example 1：面积公式直接用
+
+**题目：** 椭圆 $\dfrac{x^2}{4} + \dfrac{y^2}{2} = 1$，$F_1$、$F_2$ 为焦点，$P$ 为椭圆上一点，$\angle F_1PF_2 = 60°$。求 $\triangle F_1PF_2$ 的面积。
+
+::: {.callout-caution collapse="true"}
+## 完整解答
+
+**第一步：读参数**
+
+$a^2 = 4$，$b^2 = 2$，$c^2 = 4 - 2 = 2$。
+
+**第二步：直接套公式**
+
+$$S = b^2 \cdot \tan\frac{\theta}{2} = 2 \times \tan 30° = 2 \times \frac{\sqrt{3}}{3} = \frac{2\sqrt{3}}{3}$$
+
+$$\boxed{S = \frac{2\sqrt{3}}{3}}$$
+
+**就是这么快。** 如果不知道公式，需要设 $|PF_1| = m$、$|PF_2| = n$，列定义和余弦定理两个方程，计算量大得多。
+:::
+
+## Worked Example 2：面积公式反求角度
+
+**题目：** 椭圆 $\dfrac{x^2}{9} + \dfrac{y^2}{5} = 1$，焦点三角形面积为 $\sqrt{3}$。求 $\angle F_1PF_2$。
+
+::: {.callout-caution collapse="true"}
+## 完整解答
+
+**第一步：读参数**
+
+$a^2 = 9$，$b^2 = 5$，$c^2 = 4$。
+
+**第二步：由面积反求角度**
+
+$$S = b^2 \cdot \tan\frac{\theta}{2} \implies \sqrt{3} = 5 \cdot \tan\frac{\theta}{2}$$
+
+$$\tan\frac{\theta}{2} = \frac{\sqrt{3}}{5}$$
+
+$$\frac{\theta}{2} = \arctan\frac{\sqrt{3}}{5}, \quad \theta = 2\arctan\frac{\sqrt{3}}{5}$$
+
+如果题目是选择题，我们可以检验选项。例如若答案是 $60°$：$\tan 30° = \frac{\sqrt{3}}{3} \neq \frac{\sqrt{3}}{5}$，排除。
+
+$$\boxed{\theta = 2\arctan\frac{\sqrt{3}}{5} \approx 38.2°}$$
+:::
+
+## Worked Example 3：内切圆半径
+
+**题目：** 椭圆 $\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2} = 1$，焦点三角形的内切圆圆心为 $I$。已知 $P(x_0, y_0)$ 在椭圆上，求内切圆半径 $r$ 和圆心 $I$ 的坐标。
+
+::: {.callout-caution collapse="true"}
+## 完整解答
+
+**第一步：等面积法求 $r$**
+
+内切圆将 $\triangle F_1PF_2$ 分成三个小三角形，高都是 $r$：
+
+$$S = \frac{1}{2}r(|PF_1| + |PF_2| + |F_1F_2|) = \frac{1}{2}r(2a + 2c)$$
+
+又 $S = \frac{1}{2} \cdot 2c \cdot |y_0|$（底 $= |F_1F_2| = 2c$，高 $= |y_0|$）
+
+$$r = \frac{2c \cdot |y_0|}{2(a+c)} = \frac{c \cdot |y_0|}{a + c}$$
+
+**第二步：求圆心横坐标 $x_I$**
+
+利用切线长相等：从 $F_1$ 出发的两条切线长相等，从 $F_2$ 出发的也是。
+
+$$|PF_1| - |PF_2| = (x_I + c) - (c - x_I) = 2x_I$$
+
+又 $|PF_1| - |PF_2| = (a + ex_0) - (a - ex_0) = 2ex_0$
+
+所以 $x_I = ex_0$。
+
+**第三步：求圆心纵坐标 $y_I$**
+
+$y_I = r = \dfrac{c \cdot |y_0|}{a + c}$
+
+$$\boxed{I\left(ex_0, \;\frac{c \cdot |y_0|}{a+c}\right), \quad r = \frac{c \cdot |y_0|}{a+c}}$$
+:::
+
+## D3动画：焦点三角形交互
+
+拖动椭圆上的点 $P$，实时观察焦点三角形的面积、角度和内切圆变化。
+
+```{=html}
+<div class="d3-container" id="m3_focal_triangle"></div>
+<div class="d3-controls">
+  <label>P点位置（参数角）：</label>
+  <input type="range" id="m3_ft_angle" min="10" max="170" value="70" step="1">
+  <span class="value-display" id="m3_ft_info">θ = 70°</span>
+</div>
+<script>
+(function() {
+  const W = 700, H = 450;
+  const svg = d3.select("#m3_focal_triangle").append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`);
+
+  const cx = 320, cy = 200;
+  const a = 150, b2 = 80;
+  const b = Math.sqrt(b2 * a * a / (a * a));  // We use a=150 pixels, b=100 pixels
+  const bPx = 100;
+  const cPx = Math.sqrt(a * a - bPx * bPx);
+  const aReal = 3, bReal = 2, cReal = Math.sqrt(5);
+
+  // Draw ellipse
+  const ellipsePts = d3.range(0, 2 * Math.PI + 0.05, 0.03).map(t =>
+    [cx + a * Math.cos(t), cy - bPx * Math.sin(t)]
+  );
+  svg.append("path")
+    .attr("d", d3.line()(ellipsePts) + "Z")
+    .attr("fill", "none").attr("stroke", "#2d70b3").attr("stroke-width", 2);
+
+  // Axes
+  svg.append("line").attr("x1", 80).attr("y1", cy).attr("x2", 560).attr("y2", cy)
+    .attr("stroke", "#ddd").attr("stroke-width", 1);
+
+  // Foci
+  svg.append("circle").attr("cx", cx - cPx).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
+  svg.append("circle").attr("cx", cx + cPx).attr("cy", cy).attr("r", 5).attr("fill", "#c74440");
+  svg.append("text").attr("x", cx - cPx).attr("y", cy + 22).attr("text-anchor", "middle")
+    .attr("font-size", "14px").attr("fill", "#c74440").text("F₁");
+  svg.append("text").attr("x", cx + cPx).attr("y", cy + 22).attr("text-anchor", "middle")
+    .attr("font-size", "14px").attr("fill", "#c74440").text("F₂");
+
+  // Triangle
+  const triPath = svg.append("path")
+    .attr("fill", "rgba(56,140,70,0.1)").attr("stroke", "#388c46").attr("stroke-width", 2);
+
+  // Incircle
+  const incircle = svg.append("circle")
+    .attr("fill", "none").attr("stroke", "#9b59b6").attr("stroke-width", 1.5).attr("stroke-dasharray", "4,3");
+  const incircleCenter = svg.append("circle").attr("r", 3).attr("fill", "#9b59b6");
+
+  // P dot
+  const pDot = svg.append("circle").attr("r", 7).attr("fill", "#388c46");
+  const pText = svg.append("text").attr("font-size", "14px").attr("fill", "#388c46").attr("font-weight", "bold");
+
+  // Info panel
+  const infoG = svg.append("g").attr("transform", "translate(520, 40)");
+  const infoLines = [];
+  for (let i = 0; i < 5; i++) {
+    infoLines.push(infoG.append("text").attr("y", i * 24).attr("font-size", "14px").attr("fill", "#333"));
+  }
+
+  function update(angleDeg) {
+    const t = angleDeg * Math.PI / 180;
+    const px = cx + a * Math.cos(t);
+    const py = cy - bPx * Math.sin(t);
+
+    pDot.attr("cx", px).attr("cy", py);
+    pText.attr("x", px + 10).attr("y", py - 10).text("P");
+
+    // Triangle
+    triPath.attr("d", `M${cx - cPx},${cy} L${px},${py} L${cx + cPx},${cy} Z`);
+
+    // Compute real distances
+    const x0 = aReal * Math.cos(t);
+    const y0 = bReal * Math.sin(t);
+    const pf1 = aReal + cReal / aReal * x0;  // a + e*x0
+    const pf2 = aReal - cReal / aReal * x0;  // a - e*x0
+    const f1f2 = 2 * cReal;
+
+    // Angle at P using cosine rule
+    const cosTheta = (pf1 * pf1 + pf2 * pf2 - f1f2 * f1f2) / (2 * pf1 * pf2);
+    const theta = Math.acos(Math.max(-1, Math.min(1, cosTheta)));
+    const thetaDeg = theta * 180 / Math.PI;
+
+    // Area
+    const area = 0.5 * pf1 * pf2 * Math.sin(theta);
+    const areaFormula = bReal * bReal * Math.tan(theta / 2);
+
+    // Incircle
+    const r = (2 * cReal * Math.abs(y0)) / (2 * (aReal + cReal));
+    const xi = (cReal / aReal) * x0;
+    const yi = r * Math.sign(y0);
+
+    // Scale to pixel coords
+    const rPx = r * (a / aReal);
+    const xiPx = cx + xi * (a / aReal);
+    const yiPx = cy - yi * (bPx / bReal);
+
+    if (Math.abs(y0) > 0.05) {
+      incircle.attr("cx", xiPx).attr("cy", yiPx).attr("r", rPx).attr("opacity", 1);
+      incircleCenter.attr("cx", xiPx).attr("cy", yiPx).attr("opacity", 1);
+    } else {
+      incircle.attr("opacity", 0);
+      incircleCenter.attr("opacity", 0);
+    }
+
+    infoLines[0].text(`∠F₁PF₂ = ${thetaDeg.toFixed(1)}°`);
+    infoLines[1].text(`面积 = ${area.toFixed(3)}`);
+    infoLines[2].text(`b²tan(θ/2) = ${areaFormula.toFixed(3)}`);
+    infoLines[3].text(`内切圆r = ${r.toFixed(3)}`).attr("fill", "#9b59b6");
+    infoLines[4].text(`I = (${xi.toFixed(2)}, ${yi.toFixed(2)})`).attr("fill", "#9b59b6");
+
+    document.getElementById("m3_ft_info").textContent =
+      `∠F₁PF₂ = ${thetaDeg.toFixed(1)}°, S = ${area.toFixed(2)}`;
+  }
+
+  const slider = document.getElementById("m3_ft_angle");
+  slider.addEventListener("input", () => update(+slider.value));
+  update(70);
+})();
+</script>
+```
+
+拖动滑块改变点 $P$ 的位置，观察：
+
+- $\angle F_1PF_2$ 如何变化
+- 面积公式 $S = b^2\tan(\theta/2)$ 的实时验证
+- 内切圆（紫色）的半径和圆心位置
+
+## Faded Example 1
+
+**题目：** 椭圆 $\dfrac{x^2}{25} + \dfrac{y^2}{9} = 1$，$P$ 为椭圆上一点，$\angle F_1PF_2 = 90°$。求 $\triangle F_1PF_2$ 的面积和内切圆半径。
+
+::: {.callout-warning}
+## 填空完成
+
+**面积：** $S = b^2 \cdot \tan\dfrac{\theta}{2} = $ ______ $\times \tan$ ______ $= $ ______
+
+**内切圆半径：** 先求 $c = $ ______
+
+等面积法：$S = \dfrac{1}{2}r \cdot (2a + 2c) = \dfrac{1}{2}r \cdot $ ______
+
+所以 $r = \dfrac{2S}{2a + 2c} = $ ______
+:::
+
+## Faded Example 2
+
+**题目：** 椭圆的焦点三角形中，$|PF_1| = 3$，$|PF_2| = 5$，$\angle F_1PF_2 = 60°$。求椭圆的 $a$、$b$、$c$。
+
+::: {.callout-warning}
+## 填空完成
+
+**第一步：** 由定义：$|PF_1| + |PF_2| = $ ______ $= 2a$ → $a = $ ______
+
+**第二步：** 由余弦定理求 $|F_1F_2|$：
+
+$$|F_1F_2|^2 = 3^2 + 5^2 - 2 \cdot 3 \cdot 5 \cdot \cos 60° = $$ ______
+
+$|F_1F_2| = 2c = $ ______ → $c = $ ______
+
+**第三步：** $b^2 = a^2 - c^2 = $ ______
+
+**验证：** $S = b^2\tan(30°) = $ ______ $= \frac{1}{2} \cdot 3 \cdot 5 \cdot \sin 60° = $ ______ ✓
+:::
+
+## Desmos验证
+
+```{=html}
+<div id="m3_03_desmos" class="desmos-container"></div>
+<script src="https://www.desmos.com/api/v1.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+<script>
+  var m3_03_calc = Desmos.GraphingCalculator(document.getElementById('m3_03_desmos'), {
+    expressions: true, settingsMenu: false
+  });
+  m3_03_calc.setExpression({ id: 'a_val', latex: 'a = 3', sliderBounds: { min: 1.5, max: 6, step: 0.1 } });
+  m3_03_calc.setExpression({ id: 'b_val', latex: 'b = 2', sliderBounds: { min: 0.5, max: 5, step: 0.1 } });
+  m3_03_calc.setExpression({ id: 'ell', latex: '\\frac{x^2}{a^2} + \\frac{y^2}{b^2} = 1', color: '#2d70b3' });
+  m3_03_calc.setExpression({ id: 'c_val', latex: 'c = \\sqrt{a^2 - b^2}' });
+  m3_03_calc.setExpression({ id: 'f1', latex: '(-c, 0)', color: '#c74440', label: 'F₁' });
+  m3_03_calc.setExpression({ id: 'f2', latex: '(c, 0)', color: '#c74440', label: 'F₂' });
+  m3_03_calc.setExpression({ id: 't_val', latex: 't = 1.2', sliderBounds: { min: 0.1, max: 3.1, step: 0.01 } });
+  m3_03_calc.setExpression({ id: 'px', latex: 'p_x = a \\cos(t)' });
+  m3_03_calc.setExpression({ id: 'py', latex: 'p_y = b \\sin(t)' });
+  m3_03_calc.setExpression({ id: 'pt', latex: '(p_x, p_y)', color: '#388c46', label: 'P' });
+  m3_03_calc.setExpression({ id: 'seg1', latex: '\\operatorname{polygon}((-c, 0), (p_x, p_y), (c, 0))', color: '#388c46', fillOpacity: 0.1 });
+  m3_03_calc.setMathBounds({ left: -8, right: 8, bottom: -5, top: 5 });
+</script>
+```
+
+拖动参数 $t$ 改变 $P$ 的位置，观察焦点三角形的变化。
+
+## 参考视频
+
+```{=html}
+<div class="video-container"><iframe src="//player.bilibili.com/player.html?bvid=BV1wP4y1273G&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%;height:100%;position:absolute;top:0;left:0;"></iframe></div>
+```
+
+## 关键帧
+
+![焦点三角形基本概念](../images/ch01/frame_01.jpg)
+
+![面积公式推导](../images/ch01/frame_02.jpg)
+
+![内切圆等面积法](../images/ch01/frame_03.jpg)
+
+![内切圆圆心坐标](../images/ch01/frame_04.jpg)
+
+## 速查表 + ⚠️易错点
+
+::: {.callout-important}
+## 焦点三角形速查表
+
+| 公式 | 说明 |
+|---|---|
+| $S = b^2\tan\dfrac{\theta}{2}$ | 椭圆焦点三角形面积（$\theta = \angle F_1PF_2$） |
+| $S = b^2 / \tan\dfrac{\theta}{2}$ | 双曲线焦点三角形面积 |
+| 周长 $= 2a + 2c$ | 椭圆焦点三角形周长 |
+| $r = \dfrac{c \cdot \|y_0\|}{a + c}$ | 内切圆半径 |
+| $I(ex_0, \;\dfrac{c \cdot \|y_0\|}{a+c})$ | 内切圆圆心坐标 |
+| $x_I = ex_0$ | 内心横坐标的简洁形式 |
+:::
+
+::: {.callout-warning}
+## ⚠️ 高频易错点
+
+1. **椭圆与双曲线面积公式搞混**：椭圆是 $b^2\tan\frac{\theta}{2}$，双曲线是 $\dfrac{b^2}{\tan\frac{\theta}{2}}$（分子分母互换）！
+2. **忘记检查 $P$ 不在 $x$ 轴上**：当 $P$ 在 $x$ 轴上时，三角形退化为线段，面积为零，不构成焦点三角形。
+3. **内切圆半径推导中分母错误**：分母是 $a + c$（不是 $2a + 2c$），因为已经在等面积法中约掉了系数。
+4. **$\theta$ 的范围**：对于椭圆，$0 < \theta < \pi$；当 $P$ 在短轴端点时 $\theta$ 最大。
+5. **面积公式推导依赖余弦定理**：$S = \frac{1}{2}mn\sin\theta$，配合 $m + n = 2a$ 和余弦定理，不要跳步。
+:::
