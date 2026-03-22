@@ -410,17 +410,41 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
   dl.position.set(5, 8, 5);
   scene.add(dl);
 
-  // --- Cone ---
+  // --- Cone (parametric, apex at origin y=0) ---
   const alpha = Math.PI / 6; // half-angle 30 deg
   const coneH = 5;
-  const coneR = coneH * Math.tan(alpha);
-  const coneGeo = new THREE.ConeGeometry(coneR, coneH, 64, 1, true);
-  coneGeo.translate(0, coneH / 2, 0);
+  const tanAlpha = Math.tan(alpha);
+  const cSegs = 64, cRings = 32;
+
+  function buildDandelinCone(yMin, yMax) {
+    const geo = new THREE.BufferGeometry();
+    const verts = [], idx = [];
+    for (let j = 0; j <= cRings; j++) {
+      const y = yMin + (j / cRings) * (yMax - yMin);
+      const r = Math.abs(y) * tanAlpha;
+      for (let i = 0; i <= cSegs; i++) {
+        const phi = (i / cSegs) * Math.PI * 2;
+        verts.push(r * Math.cos(phi), y, r * Math.sin(phi));
+      }
+    }
+    for (let j = 0; j < cRings; j++) {
+      for (let i = 0; i < cSegs; i++) {
+        const a = j * (cSegs + 1) + i, b = a + 1, c = a + cSegs + 1, d = c + 1;
+        idx.push(a, c, b, b, c, d);
+      }
+    }
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+    geo.setIndex(idx);
+    geo.computeVertexNormals();
+    return geo;
+  }
+
+  const dandelinConeGeo = buildDandelinCone(0.01, coneH);
   const coneMat = new THREE.MeshPhongMaterial({
     color: 0xc8a87c, transparent: true, opacity: 0.2, side: THREE.DoubleSide, depthWrite: false
   });
-  scene.add(new THREE.Mesh(coneGeo, coneMat));
-  scene.add(new THREE.Mesh(coneGeo.clone(), new THREE.MeshBasicMaterial({
+  scene.add(new THREE.Mesh(dandelinConeGeo, coneMat));
+  scene.add(new THREE.Mesh(dandelinConeGeo.clone(), new THREE.MeshBasicMaterial({
     color: 0x8b7355, wireframe: true, transparent: true, opacity: 0.1
   })));
 
