@@ -1,0 +1,23 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "圆锥曲线专题 — Conic Sections"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: index-zh.qmd
+        text: 中文版
+      - href: lessons.qmd
+        text: Lessons
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+    include-in-header:
+      text: |
+        <script src="https://d3js.org/d3.v7.min.js"></script>

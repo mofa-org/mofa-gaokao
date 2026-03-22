@@ -1,0 +1,46 @@
+---
+title: "圆锥曲线专题"
+---
+
+面向高考的圆锥曲线交互式课程，包含 D3.js 动画演示、Desmos 交互图形，内容来源于B站顶级数学创作者。
+
+## 第一部分：基础结论
+
+| 课 | 主题 |
+|----|------|
+| 1 | [椭圆的二级结论](lessons/ch01-ellipse-conclusions.qmd) |
+| 2 | [最常考的二级结论](lessons/ch02-most-tested-conclusions.qmd) |
+| 3 | [圆锥曲线实用性质全梳理](lessons/ch03-practical-properties.qmd) |
+| 4 | [双曲线方法、题型与性质](lessons/ch04-hyperbola-framework.qmd) |
+| 5 | [离心率求解技巧](lessons/ch05-eccentricity-techniques.qmd) |
+| 6 | [椭圆离心率的出题思路](lessons/ch06-eccentricity-problem-design.qmd) |
+| 7 | [一口气学完二级结论](lessons/ch07-all-conclusions.qmd) |
+| 8 | [直线与双曲线](lessons/ch08-line-hyperbola.qmd) |
+| 9 | [抛物线二级结论](lessons/ch09-parabola-conclusions.qmd) |
+
+## 第二部分：大题技巧
+
+| 课 | 主题 |
+|----|------|
+| 10 | [技巧大全：齐次化、点乘双根、非对称韦达](lessons/ch10-technique-compendium.qmd) |
+| 11 | [圆锥曲线大题通解思路](lessons/ch11-general-approach.qmd) |
+| 12 | [定点问题](lessons/ch12-fixed-point.qmd) |
+| 13 | [非对称韦达](lessons/ch13-asymmetric-vieta.qmd) |
+| 14 | [点差法及应用](lessons/ch14-point-difference.qmd) |
+| 15 | [齐次化简化计算](lessons/ch15-homogenization.qmd) |
+| 16 | [硬解定理简化计算](lessons/ch16-hard-solve-theorem.qmd) |
+
+## 第三部分：进阶方法
+
+| 课 | 主题 |
+|----|------|
+| 17 | [仿射变换](lessons/ch17-affine-transform.qmd) |
+| 18 | [双曲线仿射变换](lessons/ch18-hyperbola-affine.qmd) |
+| 19 | [极点极线](lessons/ch19-pole-polar.qmd) |
+| 20 | [定比点差](lessons/ch20-ratio-point-difference.qmd) |
+| 21 | [射影几何：调和点列与极点极线](lessons/ch21-projective-geometry.qmd) |
+| 22 | [焦点三角形与内切圆](lessons/ch22-focal-triangle-incircle.qmd) |
+
+## 关于
+
+内容来源于B站顶级数学创作者：**一数**（9M粉丝）和**赵礼显**。使用 D3.js 动画和 Desmos 交互图形增强学习体验。

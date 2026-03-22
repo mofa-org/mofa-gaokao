@@ -1,0 +1,48 @@
+---
+title: "Conic Sections — 圆锥曲线专题"
+---
+
+Interactive course on conic sections for the Chinese Gaokao (高考), featuring D3.js animations,
+Desmos interactive graphs, and formal bilingual content derived from top Bilibili math creators.
+
+## Part I: 基础结论 (Fundamental Conclusions)
+
+| Ch | Topic |
+|----|-------|
+| 1 | [椭圆的二级结论 (Ellipse Secondary Conclusions)](lessons/ch01-ellipse-conclusions.qmd) |
+| 2 | [最常考的二级结论 (Most-Tested Conclusions)](lessons/ch02-most-tested-conclusions.qmd) |
+| 3 | [圆锥曲线实用性质 (Practical Properties)](lessons/ch03-practical-properties.qmd) |
+| 4 | [双曲线框架 (Hyperbola Framework)](lessons/ch04-hyperbola-framework.qmd) |
+| 5 | [离心率技巧 (Eccentricity Techniques)](lessons/ch05-eccentricity-techniques.qmd) |
+| 6 | [离心率出题思路 (Eccentricity Problem Design)](lessons/ch06-eccentricity-problem-design.qmd) |
+| 7 | [二级结论总结 (All Conclusions)](lessons/ch07-all-conclusions.qmd) |
+| 8 | [直线与双曲线 (Lines & Hyperbolas)](lessons/ch08-line-hyperbola.qmd) |
+| 9 | [抛物线结论 (Parabola Conclusions)](lessons/ch09-parabola-conclusions.qmd) |
+
+## Part II: 大题技巧 (Advanced Problem Techniques)
+
+| Ch | Topic |
+|----|-------|
+| 10 | [技巧大全：齐次化/点乘双根/非对称韦达 (Technique Compendium)](lessons/ch10-technique-compendium.qmd) |
+| 11 | [大题通解思路 (General Approach)](lessons/ch11-general-approach.qmd) |
+| 12 | [定点问题 (Fixed Point Problems)](lessons/ch12-fixed-point.qmd) |
+| 13 | [非对称韦达 (Asymmetric Vieta)](lessons/ch13-asymmetric-vieta.qmd) |
+| 14 | [点差法 (Point Difference Method)](lessons/ch14-point-difference.qmd) |
+| 15 | [齐次化 (Homogenization)](lessons/ch15-homogenization.qmd) |
+| 16 | [硬解定理 (Hard-Solve Theorem)](lessons/ch16-hard-solve-theorem.qmd) |
+
+## Part III: 进阶方法 (Advanced Methods)
+
+| Ch | Topic |
+|----|-------|
+| 17 | [仿射变换 (Affine Transformation)](lessons/ch17-affine-transform.qmd) |
+| 18 | [双曲线仿射变换 (Hyperbola Affine)](lessons/ch18-hyperbola-affine.qmd) |
+| 19 | [极点极线 (Pole & Polar)](lessons/ch19-pole-polar.qmd) |
+| 20 | [定比点差 (Ratio Point Difference)](lessons/ch20-ratio-point-difference.qmd) |
+| 21 | [射影几何 (Projective Geometry)](lessons/ch21-projective-geometry.qmd) |
+| 22 | [焦点三角形与内切圆 (Focal Triangle & Incircle)](lessons/ch22-focal-triangle-incircle.qmd) |
+
+## About
+
+Content derived from top Bilibili math creators: **一数** (Yi Shu, 9M followers) and **赵礼显** (Zhao Lixian).
+Enhanced with interactive D3.js animations and Desmos graphs.
